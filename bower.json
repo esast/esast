@@ -1,0 +1,7 @@
+{
+	"name": "esast",
+	"main": "dist/**/*",
+	"moduleType": "amd",
+	"license": "WTFPL",
+	"private": true
+}

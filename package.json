@@ -1,0 +1,80 @@
+{
+	"name": "esast",
+	"version": "0.0.0",
+	"devDependencies": {
+		"amdefine": "^0.1.0",
+		"es6-shim": "^0.27.1",
+		"gulp": "^3.8.11",
+		"gulp-babel": "^5.1.0",
+		"gulp-eslint": "^0.8.0",
+		"gulp-header": "^1.2.2",
+		"gulp-mocha": "^2.0.1",
+		"gulp-plumber": "^1.0.0",
+		"gulp-sourcemaps": "^1.5.1",
+		"gulp-watch": "^4.2.4"
+	},
+	"repository": {
+		"type": "git",
+		"url": "http://github.com/andy-hanson/esast"
+	},
+	"eslintConfig": {
+		"env": {
+			"browser": true,
+			"node": true
+		},
+		"ecmaFeatures": {
+			"arrowFunctions": true,
+			"blockBindings": true,
+			"classes": true,
+			"defaultParams": true,
+			"destructuring": true,
+			"forOf": true,
+			"generators": true,
+			"modules": true,
+			"objectLiteralShorthandMethods": true,
+			"objectLiteralShortandProperties": true,
+			"spread": true,
+			"templateStrings": true
+		},
+		"globals": { "_ms": true },
+		"rules": {
+			"comma-style": [ 1, "last" ],
+			"curly": [ 1, "multi" ],
+			"default-case": 1,
+			"generator-star-spacing": [ 1, "after" ],
+			"indent": [ 1, "tab" ],
+			"max-len": [ 1, 100, 4 ],
+			"new-cap": 0,
+			"no-constant-condition": 0,
+			"no-inner-declarations": 0,
+			"no-fallthrough": 0,
+			"no-floating-decimal": 1,
+			"no-inline-comments": 1,
+			"no-labels": 0,
+			"no-loop-func": 0,
+			"no-mixed-requires": 0,
+			"no-multiple-empty-lines": [ 1, { "max": 2 } ],
+			"no-plusplus": 1,
+			"no-shadow": 0,
+			"no-throw-literal": 1,
+			"no-underscore-dangle": 0,
+			"no-use-before-define": 0,
+			"no-var": 1,
+			"no-void": 1,
+			"no-warning-comments": 0,
+			"operator-assignment": [ 1, "never" ],
+			"padded-blocks": [ 1, "never" ],
+			"quote-props": [ 1, "as-needed" ],
+			"quotes": [ 1, "single" ],
+			"semi": 0,
+			"space-after-keywords": [ 1, "always" ],
+			"space-before-blocks": [ 1, "always" ],
+			"space-before-function-parentheses": [ 1, "never" ],
+			"spaced-line-comment": 1,
+			"space-in-parens": [ 1, "never" ],
+			"valid-jsdoc": 1,
+			"yoda": 0
+		}
+	},
+	"license": "WTFPL"
+}
