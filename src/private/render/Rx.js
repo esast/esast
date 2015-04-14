@@ -1,4 +1,4 @@
-import { ESNode } from '../../ast'
+import { Node } from '../../ast'
 import { isEmpty, type } from '../util'
 import { SourceNode } from './source-map/source-node'
 
@@ -10,9 +10,9 @@ export default class Rx {
 
 	render(ast) {
 		const oldCur = this.cur
-		this.cur = []
+		const content = [ ]
+		this.cur = content
 		ast.render(ast, this)
-		const content = this.cur
 		this.cur = oldCur
 		if (ast.loc)
 			return new SourceNode(
@@ -25,7 +25,7 @@ export default class Rx {
 	}
 
 	e(ast) {
-		type(ast, ESNode)
+		type(ast, Node)
 		this.cur.push(this.render(ast))
 	}
 
@@ -45,15 +45,25 @@ export default class Rx {
 		}
 	}
 
+	paren(asts) {
+		this.o('(')
+		this.interleave(asts, ', ')
+		this.o(')')
+	}
+
 	block(lines, lineSeparator) {
-		lineSeparator = lineSeparator + '\t'
-		this.o('{')
-		this.indent(() => {
+		if (isEmpty(lines))
+			this.o('{ }')
+		else {
+			lineSeparator = lineSeparator + '\t'
+			this.o('{')
+			this.indent(() => {
+				this.o(this.nl)
+				this.interleave(lines, lineSeparator)
+			})
 			this.o(this.nl)
-			this.interleave(lines, lineSeparator)
-		})
-		this.o(this.nl)
-		this.o('}')
+			this.o('}')
+		}
 	}
 
 	indent(doIndented) {

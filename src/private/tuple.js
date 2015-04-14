@@ -1,36 +1,37 @@
-import { assert } from './util'
+import { assert, pAdd } from './util'
 
 export default (name, superType, ...namesTypes) => {
-	let names = []
+	let props = [ ]
 	assert(namesTypes.length % 2 === 0)
 	for (let i = 0; i < namesTypes.length; i = i + 2)
-		names.push(namesTypes[i])
-	let args = names.join(', ')
+		props.push({ name: namesTypes[i], type: namesTypes[i + 1] })
+	let args = props.map(_ => _.name).join(', ')
 
 	let body = `return function ${name}(${args}) {
 	if (!(this instanceof ${name}))
 		return new ${name}(${args});
 `
-	names.forEach(name => {
-		body = body + `this.${name} = ${name};\n\t`
+
+	props.forEach(({ name }) => {
+		body = body +
+			`this.${name} = ${name}; if (this.${name} === undefined) this.${name} = null;\n\t`
 	})
-	body = body + '}'
+	body = body + 'this.postConstruct()\n}'
 	const ctr = Function(body)()
 	ctr.prototype = Object.assign(Object.create(superType.prototype), {
 		constructor: ctr,
-		toString() { return inspect(this) }
+		toString() { return JSON.stringify(this, null, '\t') },
+		// Default is to do nothing. May be overridden.
+		postConstruct() { },
+		toJSON() {
+			const obj = { }
+			obj.type = this.type
+			Object.keys(this).sort().forEach(key => { obj[key] = this[key] })
+			return obj
+		}
 	})
+
+	ctr.props = props
+
 	return ctr
-}
-
-const inspect = _ => {
-	const indented = str => str.replace(/\n/g, '\n\t')
-
-	let s = (_.constructor.displayName || _.constructor.name) + ' {'
-	Object.keys(_).forEach(key => {
-		const val = _[key]
-		const str = val instanceof Array ? val.join(',\n') : val.toString()
-		s = s + `\n\t${key}: ${indented(str)}`
-	})
-	return s + '\n}'
 }

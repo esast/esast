@@ -17,9 +17,9 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 			key: 'render',
 			value: function render(ast) {
 				var oldCur = this.cur;
-				this.cur = [];
+				var content = [];
+				this.cur = content;
 				ast.render(ast, this);
-				var content = this.cur;
 				this.cur = oldCur;
 				if (ast.loc) {
 					return new _sourceMapSourceNode.SourceNode(ast.loc.start.line, ast.loc.start.column, this.inFilePath, content);
@@ -30,7 +30,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 		}, {
 			key: 'e',
 			value: function e(ast) {
-				_util.type(ast, _ast.ESNode);
+				_util.type(ast, _ast.Node);
 				this.cur.push(this.render(ast));
 			}
 		}, {
@@ -52,18 +52,27 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 				}
 			}
 		}, {
+			key: 'paren',
+			value: function paren(asts) {
+				this.o('(');
+				this.interleave(asts, ', ');
+				this.o(')');
+			}
+		}, {
 			key: 'block',
 			value: function block(lines, lineSeparator) {
 				var _this = this;
 
-				lineSeparator = lineSeparator + '\t';
-				this.o('{');
-				this.indent(function () {
-					_this.o(_this.nl);
-					_this.interleave(lines, lineSeparator);
-				});
-				this.o(this.nl);
-				this.o('}');
+				if (_util.isEmpty(lines)) this.o('{ }');else {
+					lineSeparator = lineSeparator + '\t';
+					this.o('{');
+					this.indent(function () {
+						_this.o(_this.nl);
+						_this.interleave(lines, lineSeparator);
+					});
+					this.o(this.nl);
+					this.o('}');
+				}
 			}
 		}, {
 			key: 'indent',

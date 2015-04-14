@@ -1,7 +1,11 @@
 {
 	"name": "esast",
+	"dependencies": {
+		"acorn": "^1.0.3"
+	},
 	"main": "dist/**/*",
+	"ignore": [ "compiled-test", "node_modules", "test", "gulp", "gulpfile.js", "package.json", "README.md" ],
 	"moduleType": "amd",
-	"license": "WTFPL",
-	"private": true
+	"private": true,
+	"license": "WTFPL"
 }

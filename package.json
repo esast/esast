@@ -1,6 +1,9 @@
 {
 	"name": "esast",
 	"version": "0.0.0",
+	"dependencies": {
+		"acorn": "^1.0.3"
+	},
 	"devDependencies": {
 		"amdefine": "^0.1.0",
 		"es6-shim": "^0.27.1",
@@ -11,8 +14,10 @@
 		"gulp-mocha": "^2.0.1",
 		"gulp-plumber": "^1.0.0",
 		"gulp-sourcemaps": "^1.5.1",
-		"gulp-watch": "^4.2.4"
+		"gulp-watch": "^4.2.4",
+		"source-map-support": "^0.2.10"
 	},
+	"files": [ "dest", "src" ],
 	"repository": {
 		"type": "git",
 		"url": "http://github.com/andy-hanson/esast"

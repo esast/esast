@@ -6,39 +6,45 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 			namesTypes[_key - 2] = arguments[_key];
 		}
 
-		var names = [];
+		var props = [];
 		_util.assert(namesTypes.length % 2 === 0);
 		for (var i = 0; i < namesTypes.length; i = i + 2) {
-			names.push(namesTypes[i]);
-		}var args = names.join(', ');
+			props.push({ name: namesTypes[i], type: namesTypes[i + 1] });
+		}var args = props.map(function (_) {
+			return _.name;
+		}).join(', ');
 
 		var body = 'return function ' + name + '(' + args + ') {\n\tif (!(this instanceof ' + name + '))\n\t\treturn new ' + name + '(' + args + ');\n';
-		names.forEach(function (name) {
-			body = body + ('this.' + name + ' = ' + name + ';\n\t');
+
+		props.forEach(function (_ref) {
+			var name = _ref.name;
+
+			body = body + ('this.' + name + ' = ' + name + '; if (this.' + name + ' === undefined) this.' + name + ' = null;\n\t');
 		});
-		body = body + '}';
+		body = body + 'this.postConstruct()\n}';
 		var ctr = Function(body)();
 		ctr.prototype = Object.assign(Object.create(superType.prototype), {
 			constructor: ctr,
 			toString: function toString() {
-				return inspect(this);
+				return JSON.stringify(this, null, '\t');
+			},
+			// Default is to do nothing. May be overridden.
+			postConstruct: function postConstruct() {},
+			toJSON: function toJSON() {
+				var _this = this;
+
+				var obj = {};
+				obj.type = this.type;
+				Object.keys(this).sort().forEach(function (key) {
+					obj[key] = _this[key];
+				});
+				return obj;
 			}
 		});
+
+		ctr.props = props;
+
 		return ctr;
-	};
-
-	var inspect = function inspect(_) {
-		var indented = function indented(str) {
-			return str.replace(/\n/g, '\n\t');
-		};
-
-		var s = (_.constructor.displayName || _.constructor.name) + ' {';
-		Object.keys(_).forEach(function (key) {
-			var val = _[key];
-			var str = val instanceof Array ? val.join(',\n') : val.toString();
-			s = s + ('\n\t' + key + ': ' + indented(str));
-		});
-		return s + '\n}';
 	};
 });
 //# sourceMappingURL=../private/tuple.js.map

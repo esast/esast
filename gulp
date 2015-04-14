@@ -1,1 +1,1 @@
-node --harmony node_modules/gulp/bin/gulp $@
+node --harmony --stack-trace-limit=100 node_modules/gulp/bin/gulp $@
