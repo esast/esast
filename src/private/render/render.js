@@ -3,12 +3,14 @@ import { assert, implementMany, isEmpty } from '../util'
 import { SourceNode } from './source-map/source-node'
 import Rx from './Rx'
 
-// TODO: 'modulePath' parameter is kludge
-export default (ast, inFilePath, outFilePath) => {
+export default ast => {
+	const node = new Rx().render(ast)
+	return new SourceNode(null, null, null, node).toString()
+}
+
+export const renderWithSourceMap = (ast, inFilePath, outFilePath) => {
 	const node = new Rx(inFilePath).render(ast)
-	return outFilePath === undefined ?
-		new SourceNode(null, null, null, node).toString() :
-		node.toStringWithSourceMap({ file: outFilePath })
+	return node.toStringWithSourceMap({ file: outFilePath })
 }
 
 const

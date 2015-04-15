@@ -9,24 +9,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 
 	var _tuple = _interopRequire(_privateTuple);
 
-	var Pos = _tuple('Pos', Object, 'line', Number, 'column', Number);
-	exports.Pos = Pos;
-	var Loc = _tuple('Loc', Object, 'start', Pos, 'end', Pos);
-	exports['default'] = Loc;
-	var singleCharLoc = function singleCharLoc(pos) {
-		return Loc(pos, pos.next('x'));
-	},
-	    StartPos = Pos(1, 1);
-
-	exports.singleCharLoc = singleCharLoc;
-	exports.StartPos = StartPos;
-	Object.assign(Loc.prototype, {
-		toString: function toString() {
-			return this.start + '-' + this.end;
-		}
-	});
-
-	Object.assign(Pos.prototype, {
+	var Pos = _tuple('Pos', Object, 'Single location in source string.', ['line', Number, 'column', Number], {
 		next: function next(ch) {
 			return ch === '\n' ? this.onNextLine() : this.onNextColumn();
 		},
@@ -47,5 +30,19 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 			return '' + this.line + ':' + this.column;
 		}
 	});
+
+	exports.Pos = Pos;
+	var Loc = _tuple('Loc', Object, 'Range of text in source string.', ['start', Pos, 'end', Pos], {
+		toString: function toString() {
+			return this.start + '-' + this.end;
+		}
+	});
+	exports['default'] = Loc;
+	var singleCharLoc = function singleCharLoc(pos) {
+		return Loc(pos, pos.next('x'));
+	},
+	    StartPos = Pos(1, 1);
+	exports.singleCharLoc = singleCharLoc;
+	exports.StartPos = StartPos;
 });
 //# sourceMappingURL=Loc.js.map

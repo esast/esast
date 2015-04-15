@@ -1,36 +1,246 @@
 import Loc from './Loc'
-import tuple from './private/tuple'
-import { assert, pAdd } from './private/util'
+import tuple, { abstract } from './private/tuple'
+import { assert, dedent, pAdd } from './private/util'
+import { Nullable, Union } from './private/type'
 
-export class Node { }
-export class Statement extends Node { }
-export class Expression extends Node { }
+export const
+	Node = abstract('Node', Object,
+		'Base type of all Asts.'),
+	Declaration = abstract('Declaration', Node,
+		'Identifier declaration.'),
+	Statement = abstract('Statement', Node,
+		'Blocks of code have lines that are Statements or Declarations.'),
+	Expression = abstract('Expression', Node,
+		'Code that has a value. To use one in a statement position, see ExpressionStatement.'),
+	Pattern = abstract('Pattern', Node,
+		'Can go in a parameter list or on the left side of an assignment.')
 
-export class Function extends Node { }
-export class Declaration extends Node { }
-export class Pattern extends Node { }
-
-const makeType = superType => (name, ...namesTypes) => {
-	const type = tuple(name, superType, ...namesTypes)
+const makeType = superType => (name, doc, namesTypes, proto) => {
+	doc = dedent(doc)
+	const type = tuple(name, superType, doc, namesTypes, proto)
 	Object.assign(type.prototype, { type: name })
 	return type
 }
 const
 	n = makeType(Node),
 	s = makeType(Statement),
-	e = makeType(Expression)
-
-// TODO
-const nullable = _ => _
-const union = (a, b) => b
-
-const proto = (_, protoProps) => {
-	Object.assign(_.prototype, protoProps)
-	return _
-}
+	e = makeType(Expression),
+	d = makeType(Declaration),
+	p = makeType(Pattern)
 
 export const
+	Program = n('Program',
+		'A complete program source tree.',
+		[ 'body', [Statement] ]),
+	Identifier = n('Identifier',
+		`
+			A JavaScript identifier.
+			It is assumed that you have called \`mangleIdentifier\` as appropriate.
+			Also look at \`esast.util idCached\`,
+			which mangles and avoids constructing the same identifier twice.`,
+		[ 'name', String ]),
+
+	// Statements
+	EmptyStatement = s('EmptyStatement',
+		`
+			An empty statement, i.e., a solitary semicolon.
+			Not useful for code generation, but some parsers will return these.`,
+		[ ]),
+	BlockStatement = s('BlockStatement',
+		'A block statement, i.e., a sequence of statements surrounded by braces.',
+		[ 'body', [Statement] ]),
+	ExpressionStatement = s('ExpressionStatement',
+		`
+			An expression statement, i.e., a statement consisting of a single expression.
+			See \`esast.util toStatement toStatements\`.`,
+		[ 'expression', Expression ]),
+	IfStatement = s('IfStatement',
+		'An if (or if ... else) statement.',
+		[
+			'test', Expression,
+			'consequent', Statement,
+			'alternate', Nullable(Statement)
+		]),
+	LabeledStatement = s('LabeledStatement',
+		'A statement prefixed by a label.',
+		[
+			'label', Identifier,
+			'body', Statement
+		]),
+	BreakStatement = s('BreakStatement',
+		'The `break` keyword.',
+		[ 'label', Nullable(Identifier) ]),
+	ContinueStatement = s('ContinueStatement',
+		'The `continue` keyword.',
+		[ 'label', Nullable(Identifier) ]),
+	SwitchCase = n('SwitchCase',
+		`
+			A single \`case\` within a SwitchStatement.
+			If \`test\` is \`null\`, this is the \`default\` case.`,
+		[
+			'test', Nullable(Expression),
+			'consequent', [Statement]
+		]),
+	SwitchStatement = s('SwitchStatement',
+		'Only the last entry of `cases` is allowed to be `default`.',
+		[
+			'discriminant', Expression,
+			'cases', [SwitchCase]
+		]),
+	ReturnStatement = s('ReturnStatement',
+		'The `return` keyword, optionally followed by an Expression to return.',
+		[ 'argument', Nullable(Expression) ]),
+	ThrowStatement = s('ThrowStatement',
+		`
+			The \`throw\` keyword, and something to throw.
+			See \`esast.util throwError\`.`,
+		[ 'argument', Expression ]),
+
+	CatchClause = n('CatchClause',
+		'Must be *part* of a TryStatement -- does *not* follow it.',
+		[
+			'param', Pattern,
+			'body', BlockStatement
+		]),
+	TryStatement = s('TryStatement',
+		// TODO: Assert in postConstruct
+		'At least one of `handler` or `finalizer` must be non-null.',
+		[
+			'block', BlockStatement,
+			'handler', Nullable(CatchClause),
+			'finalizer', Nullable(BlockStatement)
+		]),
+	WhileStatement = s('WhileStatement',
+		'`while (test) body`.',
+		[
+			'test', Expression,
+			'body', Statement
+		]),
+	DoWhileStatement = s('DoWhileStatement',
+		// TODO: Note that body needs braces!
+		'`do { body } while (test)`.',
+		[
+			'body', Statement,
+			'test', Expression
+		]),
+	ForStatement = s('ForStatement',
+		`
+			\`for (init; test; update) body\`.
+			Not to be confused with ForInStatement or ForOfStatement.`,
+		[
+			'init', Nullable(Union(VariableDeclaration, Expression)),
+			'test', Nullable(Expression),
+			'update', Nullable(Expression),
+			'body', Statement
+		]),
+	ForInStatement = s('ForInStatement',
+		'`for (left in right) body`.',
+		[
+			'left', Union(VariableDeclaration, Expression),
+			'right', Expression,
+			'body', Statement
+		]),
+	ForOfStatement = s('ForOfStatement',
+		'`for (left of right) body`.',
+		[
+			'left', Union(VariableDeclaration, Expression),
+			'right', Expression,
+			'body', Statement
+		]),
+	DebuggerStatement = s('DebuggerStatement',
+		'The `debugger` keyword.',
+		[ ]),
+
+	// Declarations
+	Function = abstract('Function', Node, 'FunctionDeclaration or FunctionExpression.'),
+	// TODO: Function too
+	FunctionDeclaration = d('FunctionDeclaration',
+		'Unlike for FunctionExpression, id must not be null.',
+		[
+			'id', Identifier,
+			'params', [Identifier],
+			'body', BlockStatement,
+			'generator', Boolean
+		]),
+
+	VariableDeclarator = n('VariableDeclarator',
+		'A single variable within a VariableDeclaration.',
+		[
+			'id', Pattern,
+			'init', Nullable(Expression)
+		]),
+	VariableDeclarationKind = new Set([ 'const', 'let', 'var' ]),
+	VariableDeclaration = d('VariableDeclaration',
+		// TODO: Assert
+		`
+			Declares and optionally initializes many variables.
+			Must be at least one declaration.`,
+		[
+			'kind', VariableDeclarationKind,
+			'declarations', [VariableDeclarator]
+		]),
+
+	// Expressions
+	ThisExpression = e('ThisExpression',
+		'The `this` keyword.',
+		[ ]),
+	ArrayExpression = e('ArrayExpression',
+		'An array literal.',
+		[ 'elements', [Nullable(Expression)] ]),
+	PropertyKind = new Set([ 'init', 'get', 'set' ]),
+	Property = n('Property',
+		// TODO:ASSERT
+		`
+			Part of an ObjectExpression.
+			If kind is 'get' or 'set', then value should be a FunctionExpression.`,
+		[
+			'kind', PropertyKind,
+			// TODO: LiteralString | LiteralNumber
+			'key', Union(Literal, Identifier),
+			'value', Expression
+		]),
+	ObjectExpression = e('ObjectExpression',
+		'An object literal.',
+		[ 'properties', [Property] ]),
+	// TODO: Inherits from Function
+	FunctionExpression = e('FunctionExpression',
+		`
+			\`function id(params) body\` or \`function* id(params) body\`.
+			Function in an expression position.
+			To declare a function, use FunctionDeclaration, not ExpressionStatement.
+			See also \`esast.util thunk\` and ArrowFunctionExpression.`,
+		[
+			'id', Nullable(Identifier),
+			'params', [Pattern],
+			'body', BlockStatement,
+			'generator', Boolean
+		],
+		{
+			postConstruct() {
+				this.generator = Boolean(this.generator)
+			}
+		}),
+	// TODO: Inherits from Function
+	ArrowFunctionExpression = e('ArrowFunctionExpression',
+		'Like FunctionExpression but uses the `params => body` form.',
+		[
+			'params', [Pattern],
+			'body', Union(BlockStatement, Expression)
+		]),
+	SequenceExpression = e('SequenceExpression',
+		`
+			\`expressions[0], expressions[1], ...\`.
+			Expression composed of other expressions, separated by the comma operator.
+			*Not* for parameter lists.`,
+		[ 'expressions', [ Expression ] ]),
+	// TODO: test `- new X`. Probably need parens around argument.
 	UnaryOperator = new Set([ '-', '+', '!', '~', 'typeof', 'void', 'delete' ]),
+	UnaryExpression = e('UnaryExpression',
+		'`operator argument`. Calls a unary operator.',
+		[
+			'operator', UnaryOperator,
+			'argument', Expression
+		]),
 	BinaryOperator = new Set([
 		'==', '!=', '===', '!==',
 		'<', '<=', '>', '>=',
@@ -38,169 +248,94 @@ export const
 		'+', '-', '*', '/', '%',
 		'|', '^', '&', 'in',
 		'instanceof']),
-	LogicalOperator = new Set([ '||', '&&' ]),
+	// TODO: Render with parens
+	BinaryExpression = e('BinaryExpression',
+		'`left operator right`. Calls a binary operator.',
+		[
+			'operator', BinaryOperator,
+			'left', Expression,
+			'right', Expression
+		]),
 	AssignmentOperator = new Set([
 		'=', '+=', '-=', '*=', '/=', '%=',
 		'<<=', '>>=', '>>>=',
 		'|=', '^=', '&='
 	]),
-	UpdateOperator = new Set([ '++', '--' ]),
-	MethodDefinitionKind = new Set([ 'constructor', 'method', 'get', 'set' ]),
-	PropertyKind = new Set([ 'init', 'get', 'set' ])
-
-export const
-	Program = n('Program',
-		'body', [Statement]),
-	Identifier = n('Identifier',
-		'name', String),
-
-	// Statements
-	EmptyStatement = s('EmptyStatement'),
-	BlockStatement = s('BlockStatement',
-		'body', [Statement]),
-	ExpressionStatement = s('ExpressionStatement',
-		'expression', Expression),
-	IfStatement = s('IfStatement',
-		'test', Expression,
-		'consequent', Statement,
-		'alternate', nullable(Statement)),
-	LabeledStatement = s('LabeledStatement',
-		'label', Identifier,
-		'body', Statement),
-	BreakStatement = s('BreakStatement',
-		'label', nullable(Identifier)),
-	ContinueStatement = s('ContinueStatement',
-		'label', nullable(Identifier)),
-	SwitchCase = n('SwitchCase',
-		'test', Expression,
-		'consequent', [Statement]),
-	SwitchStatement = s('SwitchStatement',
-		'discriminant', Expression,
-		'cases', [SwitchCase],
-		'lexical', Boolean),
-	ReturnStatement = s('ReturnStatement',
-		'argument', Expression),
-	ThrowStatement = s('ThrowStatement',
-		'argument', Expression),
-
-	CatchClause = n('CatchClause',
-		'param', Pattern,
-		'body', BlockStatement),
-	TryStatement = s('TryStatement',
-		'block', BlockStatement,
-		'handler', nullable(CatchClause),
-		'finalizer', nullable(BlockStatement)),
-	WhileStatement = s('WhileStatement',
-		'test', Expression,
-		'body', Statement),
-	DoWhileStatement = s('DoWhileStatement',
-		'body', Statement,
-		'test', Expression),
-	ForStatement = s('ForStatement',
-		'init', nullable(union(VariableDeclaration, Expression)),
-		'test', nullable(Expression),
-		'update', nullable(Expression),
-		'body', Statement),
-	ForInStatement = s('ForInStatement',
-		'left', union(VariableDeclaration, Expression),
-		'right', Expression,
-		'body', Statement),
-	ForOfStatement = s('ForOfStatement',
-		'left', union(VariableDeclaration, Expression),
-		'right', Expression,
-		'body', Statement),
-	DebuggerStatement = s('DebuggerStatement'),
-
-	// Declarations
-	// TODO: Function too
-	FunctionDeclaration = makeType(Declaration)('FunctionDeclaration',
-		'id', Identifier,
-		'params', [Identifier],
-		'body', BlockStatement,
-		'generator', Boolean),
-
-	VariableDeclarator = n('VariableDeclarator',
-		'id', Pattern,
-		'init', Expression),
-	VariableDeclaration = makeType(Declaration)('VariableDeclaration',
-		'kind', String,
-		'declarations', [VariableDeclarator]),
-
-	// Expressions
-	ThisExpression = e('ThisExpression'),
-	ArrayExpression = e('ArrayExpression',
-		'elements', [Expression]),
-	Property = n('Property',
-		'kind', PropertyKind,
-		// TODO: LiteralString | LiteralNumber
-		'key', union(Literal, Identifier),
-		'value', Expression),
-	ObjectExpression = e('ObjectExpression',
-		'properties', [Property]),
-	// TODO: Inherits from Function
-	FunctionExpression = proto(
-		e('FunctionExpression',
-			'id', Identifier,
-			'params', [Identifier],
-			'body', BlockStatement,
-			'generator', Boolean),
-		{
-			postConstruct() {
-				this.generator = Boolean(this.generator)
-			}
-		}),
-	// TODO: Inherits from Function
-	ArrowFunctionExpression = e('ArrowExpression',
-		'params', [Pattern],
-		'body', union(BlockStatement, Expression)),
-	SequenceExpression = e('SequenceExpression',
-		'expressions', [ Expression ]),
-	UnaryExpression = e('UnaryExpression',
-		'operator', UnaryOperator,
-		'argument', Expression),
-	BinaryExpression = e('BinaryExpression',
-		'operator', BinaryOperator,
-		'left', Expression,
-		'right', Expression),
 	AssignmentExpression = e('AssignmentExpression',
-		'operator', AssignmentOperator,
-		'left', Pattern,
-		'right', Expression),
+		`
+			\`left operator right\`.
+			Mutates an existing variable.
+			Do not confuse with VariableDeclaration.`,
+		[
+			'operator', AssignmentOperator,
+			'left', Pattern,
+			'right', Expression
+		]),
+	UpdateOperator = new Set([ '++', '--' ]),
 	UpdateExpression = e('UpdateExpression',
-		'operator', UpdateOperator,
-		'argument', Expression,
-		'prefix', Boolean),
+		'`++argument` or `argument++`. Increments or decrements a number.',
+		[
+			'operator', UpdateOperator,
+			'argument', Expression,
+			'prefix', Boolean
+		]),
+	LogicalOperator = new Set([ '||', '&&' ]),
 	LogicalExpression = e('LogicalExpression',
-		'operator', LogicalOperator,
-		'left', Expression,
-		'right', Expression),
+		'`left operator right`. Calls a lazy logical operator.',
+		[
+			'operator', LogicalOperator,
+			'left', Expression,
+			'right', Expression
+		]),
 	ConditionalExpression = e('ConditionalExpression',
-		'test', Expression,
-		'consequent', Expression,
-		'alternate', Expression),
+		'`test ? consequent : alternate`.',
+		[
+			'test', Expression,
+			'consequent', Expression,
+			'alternate', Expression
+		]),
 	NewExpression = e('NewExpression',
-		'callee', Expression,
-		'arguments', [Expression]),
+		'Just like CallExpression but with `new` in front.',
+		[
+			'callee', Expression,
+			'arguments', [Expression]
+		]),
 	CallExpression = e('CallExpression',
-		'callee', Expression,
-		'arguments', [Expression]),
+		'`callee(arguments)`.',
+		[
+			'callee', Expression,
+			'arguments', [Expression]
+		]),
 	MemberExpression = e('MemberExpression',
-		'object', Expression,
-		'property', Identifier,
-		'computed', Boolean),
+		// TODO:ASSERT
+		`
+			If computed === true, \`object[property]\`.
+			Else, \`object.property\` -- meaning property should be an Identifier.`,
+		[
+			'object', Expression,
+			'property', Expression,
+			'computed', Boolean
+		]),
 	YieldExpression = e('YieldExpression',
-		'argument', Expression,
-		'delegate', Boolean),
+		'`yield argument` or `yield* argument`.',
+		[
+			'argument', Expression,
+			'delegate', Boolean
+		]),
 	// TODO: Literal as abstract type
 	// Value: Number | String | null | Boolean
-	Literal = e('Literal', 'value', Object),
+	Literal = e('Literal',
+		'A literal token.',
+		[ 'value', Object ]),
 
 	// Patterns
-	AssignmentProperty = proto(
-		makeType(Property)('AssignmentProperty', 'key', Identifier, 'value', Pattern),
+	AssignmentProperty = makeType(Property)('AssignmentProperty',
+		`
+			Just like a Property, but kind is always \`init\`.
+			Although technically its own type, \`_.type\` will be 'Property'.`,
+		[ 'key', Identifier, 'value', Pattern ],
 		{
 			type: 'Property',
-			kind: 'init',
 			method: false,
 			postConstruct() {
 				if (this.value === null)
@@ -208,47 +343,84 @@ export const
 				this.kind = 'init'
 			}
 		}),
-	ObjectPattern = makeType(Pattern)('ObjectPattern',
-		'properties', [AssignmentProperty]),
-	ArrayPattern = makeType(Pattern)('ArrayPattern',
-		'elements', [nullable(Pattern)]),
-	RestElement = makeType(Pattern)('RestElement',
-		'argument', Pattern),
+	ObjectPattern = p('ObjectPattern',
+		'`{ a, b: c } = ...`. Object deconstructing pattern.',
+		[ 'properties', [AssignmentProperty] ]),
+	ArrayPattern = p('ArrayPattern',
+		'`[ a, b ] = ...`. Array deconstructing pattern.',
+		[ 'elements', [Nullable(Pattern)] ]),
+	RestElement = p('RestElement',
+		// TODO:TEST
+		`
+			Can be the last argument to a FunctionExpression/FunctionDeclaration
+			or  go at the end of an ArrayPattern.`,
+		[ 'argument', Pattern ]),
 	// TODO: What is this?
 	// AssignmentPattern = p('AssignmentPattern',
 	//	'left', Pattern,
 	//	'right', Pattern),
 
+	MethodDefinitionKind = new Set([ 'constructor', 'method', 'get', 'set' ]),
 	MethodDefinition = n('MethodDefinition',
-		'key', Identifier,
-		'value', FunctionExpression,
-		'kind', MethodDefinitionKind,
-		'static', Boolean,
-		'computed', Boolean),
+		// TODO:Assert
+		// TODO: util method for constructor.
+		`
+			Part of a ClassBody.
+			If kind is 'constructor', key must be Identifier('constructor').`,
+		[
+			'key', Identifier,
+			'value', FunctionExpression,
+			'kind', MethodDefinitionKind,
+			'static', Boolean,
+			'computed', Boolean
+		]),
 	ClassBody = n('ClassBody',
-		'body', [MethodDefinition]),
-	Class = class Class extends Node { },
+		'Contents of a Class.',
+		[ 'body', [MethodDefinition] ]),
+	Class = abstract('Class', Node,
+		'ClassDeclaration or ClassExpression.'),
 	// TODO: extends Declaration too
 	ClassDeclaration = makeType(Class)('ClassDeclaration',
-		'id', Identifier,
-		'superClass', Expression,
-		'body', ClassBody),
+		'Class in declaration position.',
+		[
+			'id', Identifier,
+			'superClass', Nullable(Expression),
+			'body', ClassBody
+		]),
 	ClassExpression = makeType(Class)('ClassExpression',
-		'id', Identifier,
-		'superClass', Expression,
-		'body', ClassBody),
+		// TODO: Test class with no superClass
+		'Class in expression position.',
+		[
+			'id', Nullable(Identifier),
+			'superClass', Nullable(Expression),
+			'body', ClassBody
+		]),
 
-	ModuleSpecifier = class ModuleSpecifier extends Node { },
+	ModuleSpecifier = abstract('ModuleSpecifier', Node,
+		'A specifier in an import or export declaration.'),
 
-	ImportSpecifierAbstract = class ImportSpecifierAbstract extends Node { },
+	ImportSpecifierAbstract = abstract('ImportSpecifierAbstract', Node,
+		'ImportSpecifier, ImportDefaultSpecifier, or ImportNamespaceSpecifier.'),
 	ImportDeclaration = n('ImportDeclaration',
-		'specifiers', [ImportSpecifierAbstract],
-		// TODO: LiteralString
-		'source', Literal),
-	ImportSpecifier = proto(
-		makeType(ModuleSpecifier)('ImportSpecifier',
+		// TODO:ASSERT
+		`
+			\`import specifiers from source\`.
+			Only one specifier may be a ImportDefaultSpecifier.
+			If there is an ImportNamespaceSpecifier, it must be the only specifier.`,
+		[
+			'specifiers', [ImportSpecifierAbstract],
+			// TODO: LiteralString
+			'source', Literal
+		]),
+	ImportSpecifier = makeType(ModuleSpecifier)('ImportSpecifier',
+		`
+			A non-default import. Used in an ImportDeclaration.
+			For \`import { a } from "source"\`, just pass one argument and local will = imported.
+			For \`import { a as b } from "source"\`, make imported \`a\` and local \`b\`.`,
+		[
 			'imported', Identifier,
-			'local', Identifier),
+			'local', Identifier
+		],
 		{
 			postConstruct() {
 				if (this.local === null)
@@ -256,14 +428,21 @@ export const
 			}
 		}),
 	ImportDefaultSpecifier = makeType(ImportSpecifierAbstract)('ImportDefaultSpecifier',
-		'local', Identifier),
+		'The default export, as in `import a from "source"`.',
+		[ 'local', Identifier ]),
 	ImportNamespaceSpecifier = makeType(ImportSpecifierAbstract)('ImportNamespaceSpecifier',
-		'local', Identifier),
+		'Object of every export, as in `import * as a from "source"`.',
+		[ 'local', Identifier ]),
 
-	ExportSpecifier = proto(
-		makeType(ModuleSpecifier)('ExportSpecifier',
+	ExportSpecifier = 	makeType(ModuleSpecifier)('ExportSpecifier',
+		`
+			A non-default export. Used in an ExportNamedDeclaration.
+			For \`export { a } from "source"\`, just pass one argument local will = exported.
+			For \`export { a as b }\`, make exported \`b\` and local \`a\`.`,
+		[
 			'exported', Identifier,
-			'local', Identifier),
+			'local', Identifier
+		],
 		{
 			postConstruct() {
 				if (this.local === null)
@@ -271,12 +450,22 @@ export const
 			}
 		}),
 	ExportNamedDeclaration = n('ExportNamedDeclaration',
-		'declaration', nullable(Declaration),
-		'specifiers', [ExportSpecifier],
-		// TODO: LiteralString
-		'source', nullable(Literal)),
+		`
+			Exports multiple values as in \`export { a, b as c }\`.
+			If source !== null,
+			re-exports from that module as in \`export { ... } from "source"\`.`,
+		[
+			'declaration', Nullable(Declaration),
+			'specifiers', [ExportSpecifier],
+			// TODO: LiteralString
+			'source', Nullable(Literal)
+		]),
 	ExportDefaultDeclaration = n('ExportDefaultDeclaration',
-		'declaration', union(Declaration, Expression)),
+		'`export default declaration`.',
+		[
+			'declaration', Union(Declaration, Expression)
+		]),
 	ExportAllDeclaration = n('ExportAllDeclaration',
+		'`export * from source`.',
 		// TODO:LiteralString
-		'source', Literal)
+		[ 'source', Literal ])

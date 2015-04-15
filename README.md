@@ -35,13 +35,44 @@ To use it:
 	render(four)
 
 
-## Documentation
+## Use
 
-Forthcoming...
+### Node Types
+
+See [the docs](https://github.com/andy-hanson/esast/blob/master/doc.md).
+
+Constructors are called by passing in their values in order, e.g.
+
+	// if (1) 1
+
+	IfStatement(Literal(1), Literal(1))
 
 ### Source Maps
 
-...
+When building an AST from source code, you may want to attach `loc` property.
+
+	import { Literal } from 'esast/dist/ast'
+	import Loc, { Pos } from 'esast/dist/Loc'
+	import { renderWithSourceMap } from 'esast/dist/render'
+
+	// Lines are 1-indexed, columns are 0-indexed.
+	const ast = Literal(5)
+	ast.loc = Loc(Pos(1, 0), Pos(1, 5))
+	const { code, map } = renderWithSourceMap(ast, 'inFileName', 'outFileName.js')
+
+
+### fromJSON
+
+This converts a JSON ast to an esast version.
+You can go the other way with `ast.toJSON()`.
+
+
+### Parse
+
+This takes the same options as [acorn](https://github.com/marijnh/acorn/).
+
+	import 'esast/dist/parse'
+	const ast = parse('1', { /* options */ })
 
 
 ## Build

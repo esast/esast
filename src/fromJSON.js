@@ -1,4 +1,5 @@
 import * as Ast from './ast'
+import Loc, { Pos } from './Loc'
 
 export default json => {
 	if (typeof json === 'string')
@@ -23,6 +24,14 @@ const fromJsonObject = json => {
 			_ = fromJsonObject(_)
 		obj[name] = _
 	})
+
+	obj.postConstruct()
+
+	if (json.loc !== undefined)
+		obj.loc = Loc(posFromJson(json.loc.start), posFromJson(json.loc.end))
+
 	return obj
 }
+
+const posFromJson = _ => Pos(_.line, _.column)
 

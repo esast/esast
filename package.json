@@ -59,6 +59,7 @@
 			"no-loop-func": 0,
 			"no-mixed-requires": 0,
 			"no-multiple-empty-lines": [ 1, { "max": 2 } ],
+			"no-native-reassign": 0,
 			"no-plusplus": 1,
 			"no-shadow": 0,
 			"no-throw-literal": 1,

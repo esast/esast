@@ -1,2 +1,1 @@
-import render from './private/render/render'
-export default render
+export * from './private/render/render'

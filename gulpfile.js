@@ -3,6 +3,7 @@
 require('source-map-support').install()
 require('es6-shim')
 const
+	fs = require('fs'),
 	gulp = require('gulp'),
 	babel = require('gulp-babel'),
 	eslint = require('gulp-eslint'),
@@ -12,17 +13,12 @@ const
 	sourcemaps = require('gulp-sourcemaps'),
 	watch = require('gulp-watch')
 
-gulp.task('all', [ 'lint', 'lib', 'babel', 'test' ])
+gulp.task('all', [ 'lint', 'lib', 'compile', 'test', 'doc' ])
 
 const
 	lib = 'src/private/render/source-map/**/*.js',
 	src = [ 'src/**/*.js', '!' + lib ],
-	testSrc = 'test/**/*'
-
-gulp.task('a-test', function() {
-	require('./dist/test')
-})
-
+	testSrc = 'test/**/*.js'
 
 function pipeBabel(stream) {
 	return stream
@@ -40,9 +36,16 @@ function pipeBabel(stream) {
 	.pipe(gulp.dest('dist'))
 }
 
+gulp.task('doc', [ 'compile' ], function() {
+	const doc = require('./dist/private/doc')()
+	fs.writeFileSync('./doc.md', doc)
+})
+
 gulp.task('watch', function() {
 	return pipeBabel(gulp.src(src).pipe(watch(src, { verbose: true })))
 })
+
+gulp.task('compile', [ 'babel', 'lib' ])
 
 gulp.task('babel', function() { return pipeBabel(gulp.src(src)) })
 
@@ -63,7 +66,7 @@ gulp.task('compile-test', function() {
 	.pipe(sourcemaps.write('.', { debug: true, sourceRoot: '/test' }))
 	.pipe(gulp.dest('./compiled-test'))
 })
-gulp.task('test', [ 'compile-test' ], function() {
+gulp.task('test', [ 'compile', 'compile-test' ], function() {
 	return gulp.src('compiled-test/**/*.js', { read: false })
 	.pipe(mocha({ bail: true }))
 })

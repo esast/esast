@@ -1,10 +1,12 @@
-if (typeof define !== 'function') var define = require('amdefine')(module);define(['exports', 'module', './util'], function (exports, module, _util) {
+if (typeof define !== 'function') var define = require('amdefine')(module);define(['exports', './util'], function (exports, _util) {
 	'use strict';
 
-	module.exports = function (name, superType) {
-		for (var _len = arguments.length, namesTypes = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-			namesTypes[_key - 2] = arguments[_key];
-		}
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
+
+	exports['default'] = function (name, superType, doc, namesTypes) {
+		var protoProps = arguments[4] === undefined ? {} : arguments[4];
 
 		var props = [];
 		_util.assert(namesTypes.length % 2 === 0);
@@ -22,12 +24,9 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 			body = body + ('this.' + name + ' = ' + name + '; if (this.' + name + ' === undefined) this.' + name + ' = null;\n\t');
 		});
 		body = body + 'this.postConstruct()\n}';
-		var ctr = Function(body)();
-		ctr.prototype = Object.assign(Object.create(superType.prototype), {
-			constructor: ctr,
-			toString: function toString() {
-				return JSON.stringify(this, null, '\t');
-			},
+		var type = Function(body)();
+		var prototypeDefaults = {
+			constructor: type,
 			// Default is to do nothing. May be overridden.
 			postConstruct: function postConstruct() {},
 			toJSON: function toJSON() {
@@ -35,16 +34,81 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 
 				var obj = {};
 				obj.type = this.type;
+				// Sort to make JSON rendering deterministic.
 				Object.keys(this).sort().forEach(function (key) {
 					obj[key] = _this[key];
 				});
 				return obj;
+			},
+			// Don't use JSON.stringify because we want other things below this to use their toString().
+			toString: function toString() {
+				return inspect(this);
+			}
+		};
+		var prototype = Object.assign(Object.create(superType.prototype), prototypeDefaults, protoProps);
+		return Object.assign(type, {
+			doc: doc,
+			props: props,
+			prototype: prototype,
+			toString: function toString() {
+				return this.name;
 			}
 		});
+	};
 
-		ctr.props = props;
+	var abstract = function abstract(name, superType, doc) {
+		var type = Function('return function ' + name + '() { throw new Error("' + name + ' is an abstract type.") }')();
+		return Object.assign(type, {
+			doc: doc,
+			prototype: Object.create(superType.prototype),
+			toString: function toString() {
+				return name;
+			}
+		});
+	};
 
-		return ctr;
+	exports.abstract = abstract;
+	var show = (function (_show) {
+		function show(_x) {
+			return _show.apply(this, arguments);
+		}
+
+		show.toString = function () {
+			return _show.toString();
+		};
+
+		return show;
+	})(function (_) {
+		if (_ instanceof Array) {
+			var parts = _.map(function (em) {
+				return indent(show(em));
+			}).join(',\n\t');
+			return '[\n\t' + parts + '\n]';
+		} else if (_ === null) return 'null';else if (typeof _ === 'string') return '"' + _ + '"';else return _.toString();
+	});
+
+	var inspect = function inspect(obj) {
+		var type = obj.constructor;
+		var props = type.props.map(function (_ref2) {
+			var name = _ref2.name;
+			return '\n\t' + indent(show(obj[name]));
+		}).join(',');
+		var loc = obj.loc === undefined ? '' : '@' + obj.loc;
+		return '' + type + '' + loc + '(' + props + ')';
+	};
+
+	/*
+ const inspect = obj => {
+ 	const keys = Object.keys(obj).sort()
+ 	keys.unshift('type')
+ 	const props = keys
+ 		.map(key => `${key}: ${indent(show(obj[key]))}`)
+ 		.join(',\n\t')
+ 	return `{\n\t${props}\n}`
+ }
+ */
+	var indent = function indent(str) {
+		return str.replace(/\n/g, '\n\t');
 	};
 });
 //# sourceMappingURL=../private/tuple.js.map

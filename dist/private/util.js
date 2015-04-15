@@ -28,8 +28,33 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 		_[newName] = newVal;
 		return _;
 	},
-	    type = function type(instance, itsType) {
+	   
+
+	// TODO: Support Sets and Unions
+	type = function type(instance, itsType) {
 		if (!itsType.prototype.isPrototypeOf(Object(instance))) throw new Error('' + instance + ' is not a ' + itsType + '.');
+	},
+	   
+
+	// multi-line string literals like:
+	// `
+	//	a
+	//		b
+	//	c`
+	// have too much indentation.
+	// This will change it to "a\n\tb\nc" by detecting the first line's indentation.
+	dedent = function dedent(str) {
+		if (str[0] !== '\n') {
+			return str;
+		}str = str.slice(1);
+
+		var indent = undefined;
+		for (indent = 0; indent < str.length; indent = indent + 1) if (str[indent] !== '\t') break;
+
+		var dedentedLines = str.split('\n').map(function (line) {
+			return line.slice(indent);
+		});
+		return dedentedLines.join('\n');
 	};
 
 	exports.assert = assert;
@@ -37,6 +62,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	exports.isEmpty = isEmpty;
 	exports.pAdd = pAdd;
 	exports.type = type;
+	exports.dedent = dedent;
 	var clone = function clone(obj) {
 		var nu = Object.create(Object.getPrototypeOf(obj));
 		Object.getOwnPropertyNames(obj).forEach(function (name) {

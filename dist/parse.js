@@ -5,12 +5,16 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 
 	var _fromJSON2 = _interopRequire(_fromJSON);
 
-	module.exports = function (src) {
-		var json = _acorn.parse(src, {
-			ecmaVersion: 6,
-			sourceType: 'module'
-		});
+	module.exports = function (src, opts) {
+		opts = Object.assign({}, baseOpts, opts);
+		var json = _acorn.parse(src, opts);
 		return _fromJSON2(json);
+	};
+
+	var baseOpts = {
+		ecmaVersion: 6,
+		locations: true,
+		sourceType: 'module'
 	};
 });
 //# sourceMappingURL=parse.js.map

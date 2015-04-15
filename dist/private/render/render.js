@@ -1,17 +1,25 @@
-if (typeof define !== 'function') var define = require('amdefine')(module);define(['exports', 'module', '../../ast', '../util', './source-map/source-node', './Rx'], function (exports, module, _ast, _util, _sourceMapSourceNode, _Rx) {
+if (typeof define !== 'function') var define = require('amdefine')(module);define(['exports', '../../ast', '../util', './source-map/source-node', './Rx'], function (exports, _ast, _util, _sourceMapSourceNode, _Rx) {
 	'use strict';
 
 	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj['default'] : obj; };
 
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
+
 	var _Rx2 = _interopRequire(_Rx);
 
-	// TODO: 'modulePath' parameter is kludge
-
-	module.exports = function (ast, inFilePath, outFilePath) {
-		var node = new _Rx2(inFilePath).render(ast);
-		return outFilePath === undefined ? new _sourceMapSourceNode.SourceNode(null, null, null, node).toString() : node.toStringWithSourceMap({ file: outFilePath });
+	exports['default'] = function (ast) {
+		var node = new _Rx2().render(ast);
+		return new _sourceMapSourceNode.SourceNode(null, null, null, node).toString();
 	};
 
+	var renderWithSourceMap = function renderWithSourceMap(ast, inFilePath, outFilePath) {
+		var node = new _Rx2(inFilePath).render(ast);
+		return node.toStringWithSourceMap({ file: outFilePath });
+	};
+
+	exports.renderWithSourceMap = renderWithSourceMap;
 	var rCall = function rCall(_, rx) {
 		rx.e(_.callee);
 		rx.paren(_.arguments);

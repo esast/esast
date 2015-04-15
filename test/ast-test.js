@@ -12,8 +12,11 @@ import {
 	ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThisExpression,
 	ThrowStatement, TryStatement, UpdateExpression, UnaryExpression, VariableDeclarator,
 	VariableDeclaration, WhileStatement, WithStatement, YieldExpression } from '../dist/ast'
+import fromJSON from '../dist/fromJSON'
 import parse from '../dist/parse'
 import render from '../dist/render'
+import { dedent } from '../dist/private/util'
+import { equal } from './util'
 
 const
 	a = Identifier('a'), b = Identifier('b'), c = Identifier('c'),
@@ -448,46 +451,12 @@ const tests = {
 
 
 const parseProgramBody = src => {
-	const program = parse(src)
+	const program = parse(src, { locations: false })
 	assert(program.type === 'Program')
 	assert(program.body.length === 1)
-	const z = program.body[0]
-	return z instanceof ExpressionStatement ? z.expression : z
+	const first = program.body[0]
+	return first instanceof ExpressionStatement ? first.expression : first
 }
-
-const equal = (a, b) => {
-	if (typeof a === 'object') {
-		if (typeof b !== 'object')
-			return false
-
-		if (a === null)
-			return b === null
-
-		const keys = Object.keys(a)
-		if (Object.keys(b).length !== keys.length) {
-			console.log('different keys', keys, Object.keys(b))
-			return false
-		}
-		return keys.every(key => equal(a[key], b[key]))
-	} else
-		return a === b
-}
-
-const dedent = str => {
-	if (str[0] !== '\n')
-		return str
-
-	str = str.slice(1)
-
-	let indent
-	for (indent = 0; indent < str.length; indent = indent + 1)
-		if (str[indent] !== '\t')
-			break
-
-	const dedentedLines = str.split('\n').map(line => line.slice(indent))
-	return dedentedLines.join('\n')
-}
-
 
 const doTest = ({ src: indentedSrc, ast }) => {
 	const src = dedent(indentedSrc)
@@ -503,6 +472,7 @@ const doTest = ({ src: indentedSrc, ast }) => {
 		console.log(`\`${rendered}\``)
 		throw new Error('Render is different')
 	}
+	assert(equal(ast, fromJSON(ast.toJSON())))
 }
 
 global.describe('roundtrip', () => {
