@@ -12,7 +12,7 @@ import {
 	ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThisExpression,
 	ThrowStatement, TryStatement, UpdateExpression, UnaryExpression, VariableDeclarator,
 	VariableDeclaration, WhileStatement, WithStatement, YieldExpression } from '../dist/ast'
-import fromJSON from '../dist/fromJSON'
+import fromJson from '../dist/fromJson'
 import parse from '../dist/parse'
 import render, { renderWithSourceMap } from '../dist/render'
 import { dedent } from '../dist/private/util'
@@ -476,7 +476,7 @@ const doTest = ({ src: indentedSrc, ast }) => {
 		console.log(`\`${rendered}\``)
 		throw new Error('Render is different')
 	}
-	assert(equal(ast, fromJSON(ast.toJSON())))
+	assert(equal(ast, fromJson(ast.toJSON())))
 }
 
 global.describe('roundtrip', () => {

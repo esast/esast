@@ -66,7 +66,8 @@ See `esast.util toStatement toStatements`.
 
 	test: Expression
 	consequent: Statement
-	alternate: Statement
+	alternate: Nullable(
+	Statement)
 
 An if (or if ... else) statement.
 
@@ -79,19 +80,22 @@ A statement prefixed by a label.
 
 ## BreakStatement
 
-	label: Identifier
+	label: Nullable(
+	Identifier)
 
 The `break` keyword.
 
 ## ContinueStatement
 
-	label: Identifier
+	label: Nullable(
+	Identifier)
 
 The `continue` keyword.
 
 ## SwitchCase
 
-	test: Expression
+	test: Nullable(
+	Expression)
 	consequent: [Statement]
 
 A single `case` within a SwitchStatement.
@@ -106,7 +110,8 @@ Only the last entry of `cases` is allowed to be `default`.
 
 ## ReturnStatement
 
-	argument: Expression
+	argument: Nullable(
+	Expression)
 
 The `return` keyword, optionally followed by an Expression to return.
 
@@ -127,8 +132,10 @@ Must be *part* of a TryStatement -- does *not* follow it.
 ## TryStatement
 
 	block: BlockStatement
-	handler: CatchClause
-	finalizer: BlockStatement
+	handler: Nullable(
+	CatchClause)
+	finalizer: Nullable(
+	BlockStatement)
 
 At least one of `handler` or `finalizer` must be non-null.
 
@@ -148,9 +155,14 @@ At least one of `handler` or `finalizer` must be non-null.
 
 ## ForStatement
 
-	init: Expression
-	test: Expression
-	update: Expression
+	init: Nullable(
+	Union(
+		null,
+		Expression))
+	test: Nullable(
+	Expression)
+	update: Nullable(
+	Expression)
 	body: Statement
 
 `for (init; test; update) body`.
@@ -158,7 +170,9 @@ Not to be confused with ForInStatement or ForOfStatement.
 
 ## ForInStatement
 
-	left: Expression
+	left: Union(
+	null,
+	Expression)
 	right: Expression
 	body: Statement
 
@@ -166,7 +180,9 @@ Not to be confused with ForInStatement or ForOfStatement.
 
 ## ForOfStatement
 
-	left: Expression
+	left: Union(
+	null,
+	Expression)
 	right: Expression
 	body: Statement
 
@@ -195,7 +211,8 @@ Unlike for FunctionExpression, id must not be null.
 ## VariableDeclarator
 
 	id: Pattern
-	init: Expression
+	init: Nullable(
+	Expression)
 
 A single variable within a VariableDeclaration.
 
@@ -214,14 +231,17 @@ The `this` keyword.
 
 ## ArrayExpression
 
-	elements: [Expression]
+	elements: [Nullable(
+	Expression)]
 
 An array literal.
 
 ## Property
 
 	kind: 'init' | 'get' | 'set'
-	key: Identifier
+	key: Union(
+	null,
+	Identifier)
 	value: Expression
 
 Part of an ObjectExpression.
@@ -235,7 +255,8 @@ An object literal.
 
 ## FunctionExpression
 
-	id: Identifier
+	id: Nullable(
+	Identifier)
 	params: [Pattern]
 	body: BlockStatement
 	generator: Boolean
@@ -248,7 +269,9 @@ See also `esast.util thunk` and ArrowFunctionExpression.
 ## ArrowFunctionExpression
 
 	params: [Pattern]
-	body: Expression
+	body: Union(
+	BlockStatement,
+	Expression)
 
 Like FunctionExpression but uses the `params => body` form.
 
@@ -382,7 +405,8 @@ Although technically its own type, `_.type` will be 'Property'.
 
 ## ArrayPattern
 
-	elements: [Pattern]
+	elements: [Nullable(
+	Pattern)]
 
 `[ a, b ] = ...`. Array deconstructing pattern.
 
@@ -395,7 +419,9 @@ or  go at the end of an ArrayPattern.
 
 ## MethodDefinition
 
-	key: Identifier
+	key: Union(
+	Identifier,
+	Literal)
 	value: FunctionExpression
 	kind: 'constructor' | 'method' | 'get' | 'set'
 	static: Boolean
@@ -419,15 +445,18 @@ ClassDeclaration or ClassExpression.
 ## ClassDeclaration
 
 	id: Identifier
-	superClass: Expression
+	superClass: Nullable(
+	Expression)
 	body: ClassBody
 
 Class in declaration position.
 
 ## ClassExpression
 
-	id: Identifier
-	superClass: Expression
+	id: Nullable(
+	Identifier)
+	superClass: Nullable(
+	Expression)
 	body: ClassBody
 
 Class in expression position.
@@ -485,9 +514,11 @@ For `export { a as b }`, make exported `b` and local `a`.
 
 ## ExportNamedDeclaration
 
-	declaration: Declaration
+	declaration: Nullable(
+	Declaration)
 	specifiers: [ExportSpecifier]
-	source: Literal
+	source: Nullable(
+	Literal)
 
 Exports multiple values as in `export { a, b as c }`.
 If source !== null,
@@ -495,7 +526,9 @@ re-exports from that module as in `export { ... } from "source"`.
 
 ## ExportDefaultDeclaration
 
-	declaration: Expression
+	declaration: Union(
+	Declaration,
+	Expression)
 
 `export default declaration`.
 

@@ -13,11 +13,10 @@ const
 	sourcemaps = require('gulp-sourcemaps'),
 	watch = require('gulp-watch')
 
-gulp.task('all', [ 'lint', 'lib', 'compile', 'test', 'doc' ])
+gulp.task('all', [ 'lint', 'compile', 'test', 'doc' ])
 
 const
-	lib = 'src/private/render/source-map/**/*.js',
-	src = [ 'src/**/*.js', '!' + lib ],
+	src = 'src/**/*.js',
 	testSrc = 'test/**/*.js'
 
 function pipeBabel(stream) {
@@ -45,16 +44,10 @@ gulp.task('watch', function() {
 	return pipeBabel(gulp.src(src).pipe(watch(src, { verbose: true })))
 })
 
-gulp.task('compile', [ 'babel', 'lib' ])
-
-gulp.task('babel', function() { return pipeBabel(gulp.src(src)) })
-
-gulp.task('lib', function() {
-	return gulp.src(lib).pipe(gulp.dest('dist/private/render/source-map'))
-})
+gulp.task('compile', function() { return pipeBabel(gulp.src(src)) })
 
 gulp.task('lint', function() {
-	return gulp.src([ './gulpfile.js', testSrc ].concat(src))
+	return gulp.src([ src, testSrc, './gulpfile.js' ])
 	.pipe(eslint())
 	.pipe(eslint.format())
 })
@@ -69,4 +62,8 @@ gulp.task('compile-test', function() {
 gulp.task('test', [ 'compile', 'compile-test' ], function() {
 	return gulp.src('compiled-test/**/*.js', { read: false })
 	.pipe(mocha({ bail: true }))
+})
+
+gulp.task('perf-test', [ 'compile', 'compile-test' ], function() {
+	require('./compiled-test/perf-test')()
 })

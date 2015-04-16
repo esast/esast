@@ -50,6 +50,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 			doc: doc,
 			props: props,
 			prototype: prototype,
+			isTuple: true,
 			toString: function toString() {
 				return this.name;
 			}
@@ -97,16 +98,6 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 		return '' + type + '' + loc + '(' + props + ')';
 	};
 
-	/*
- const inspect = obj => {
- 	const keys = Object.keys(obj).sort()
- 	keys.unshift('type')
- 	const props = keys
- 		.map(key => `${key}: ${indent(show(obj[key]))}`)
- 		.join(',\n\t')
- 	return `{\n\t${props}\n}`
- }
- */
 	var indent = function indent(str) {
 		return str.replace(/\n/g, '\n\t');
 	};

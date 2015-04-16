@@ -40,6 +40,7 @@ export default (name, superType, doc, namesTypes, protoProps = { }) => {
 		doc,
 		props,
 		prototype,
+		isTuple: true,
 		toString() { return this.name }
 	})
 }
@@ -74,14 +75,4 @@ const inspect = obj => {
 	return `${type}${loc}(${props})`
 }
 
-/*
-const inspect = obj => {
-	const keys = Object.keys(obj).sort()
-	keys.unshift('type')
-	const props = keys
-		.map(key => `${key}: ${indent(show(obj[key]))}`)
-		.join(',\n\t')
-	return `{\n\t${props}\n}`
-}
-*/
 const indent = str => str.replace(/\n/g, '\n\t')

@@ -1,8 +1,18 @@
 import { assert } from './util'
+import tuple from './tuple'
 
 // TODO
-export const Nullable = _ => _
-export const Union = (a, b) => b
+export const Nullable = tuple('Nullable', Object,
+	'doc',
+	[
+		'type', Object
+	])
+export const Union = tuple('Union', Object,
+	'doc',
+	[
+		'typeA', Object,
+		'typeB', Object
+	])
 
 export const typeToString = type => {
 	if (type instanceof Function)

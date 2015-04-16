@@ -160,7 +160,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	    MethodDefinition = n('MethodDefinition',
 	// TODO:Assert
 	// TODO: util method for constructor.
-	'\n\t\t\tPart of a ClassBody.\n\t\t\tIf kind is \'constructor\', key must be Identifier(\'constructor\').', ['key', Identifier, 'value', FunctionExpression, 'kind', MethodDefinitionKind, 'static', Boolean, 'computed', Boolean]),
+	'\n\t\t\tPart of a ClassBody.\n\t\t\tIf kind is \'constructor\', key must be Identifier(\'constructor\').', ['key', _privateType.Union(Identifier, Literal), 'value', FunctionExpression, 'kind', MethodDefinitionKind, 'static', Boolean, 'computed', Boolean]),
 	    ClassBody = n('ClassBody', 'Contents of a Class.', ['body', [MethodDefinition]]),
 	    Class = _privateTuple.abstract('Class', Node, 'ClassDeclaration or ClassExpression.'),
 	   

@@ -11,6 +11,10 @@ export const
 	},
 
 	isEmpty = arr => arr.length === 0,
+	last = arr => {
+		assert(!isEmpty(arr))
+		return arr[arr.length - 1]
+	},
 
 	pAdd = (obj, newName, newVal) => {
 		if (Object.prototype.hasOwnProperty.call(obj, newName))

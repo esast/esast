@@ -1,18 +1,18 @@
-if (typeof define !== 'function') var define = require('amdefine')(module);define(['exports', './util'], function (exports, _util) {
+if (typeof define !== 'function') var define = require('amdefine')(module);define(['exports', './util', './tuple'], function (exports, _util, _tuple) {
 	'use strict';
+
+	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj['default'] : obj; };
 
 	Object.defineProperty(exports, '__esModule', {
 		value: true
 	});
 
+	var _tuple2 = _interopRequire(_tuple);
+
 	// TODO
-	var Nullable = function Nullable(_) {
-		return _;
-	};
+	var Nullable = _tuple2('Nullable', Object, 'doc', ['type', Object]);
 	exports.Nullable = Nullable;
-	var Union = function Union(a, b) {
-		return b;
-	};
+	var Union = _tuple2('Union', Object, 'doc', ['typeA', Object, 'typeB', Object]);
 
 	exports.Union = Union;
 	var typeToString = (function (_typeToString) {

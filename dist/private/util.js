@@ -15,6 +15,10 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	    isEmpty = function isEmpty(arr) {
 		return arr.length === 0;
 	},
+	    last = function last(arr) {
+		assert(!isEmpty(arr));
+		return arr[arr.length - 1];
+	},
 	    pAdd = function pAdd(obj, newName, newVal) {
 		if (Object.prototype.hasOwnProperty.call(obj, newName)) throw new Error('Already has property ' + newName + ', have ' + Object.keys(obj));
 		var _ = clone(obj);
@@ -53,6 +57,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	exports.assert = assert;
 	exports.implementMany = implementMany;
 	exports.isEmpty = isEmpty;
+	exports.last = last;
 	exports.pAdd = pAdd;
 	exports.type = type;
 	exports.dedent = dedent;

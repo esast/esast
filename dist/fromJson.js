@@ -54,4 +54,4 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	});
 	Object.freeze(make);
 });
-//# sourceMappingURL=fromJSON.js.map
+//# sourceMappingURL=fromJson.js.map

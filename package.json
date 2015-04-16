@@ -2,7 +2,8 @@
 	"name": "esast",
 	"version": "0.0.0",
 	"dependencies": {
-		"acorn": "^1.0.3"
+		"acorn": "^1.0.3",
+		"source-map": "mozilla/source-map"
 	},
 	"devDependencies": {
 		"amdefine": "^0.1.0",
@@ -15,7 +16,12 @@
 		"gulp-plumber": "^1.0.0",
 		"gulp-sourcemaps": "^1.5.1",
 		"gulp-watch": "^4.2.4",
-		"source-map-support": "^0.2.10"
+		"source-map-support": "^0.2.10",
+
+		"benchmark": "latest",
+		"microtime": "latest",
+		"escodegen": "latest",
+		"esotope": "latest"
 	},
 	"files": [ "dest", "src" ],
 	"repository": {

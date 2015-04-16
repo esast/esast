@@ -391,7 +391,7 @@ export const
 			Part of a ClassBody.
 			If kind is 'constructor', key must be Identifier('constructor').`,
 		[
-			'key', Identifier,
+			'key', Union(Identifier, Literal),
 			'value', FunctionExpression,
 			'kind', MethodDefinitionKind,
 			'static', Boolean,
