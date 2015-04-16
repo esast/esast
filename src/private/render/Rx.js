@@ -1,37 +1,41 @@
 import { Node } from '../../ast'
 import { isEmpty, type } from '../util'
 import { SourceNode } from './source-map/source-node'
+import { SourceMapGenerator } from './source-map/source-map-generator'
+import { Pos, StartColumn, StartLine } from '../../Loc'
 
 export default class Rx {
-	constructor(inFilePath) {
-		this.inFilePath = inFilePath
+	constructor(inFilePath, outFilePath) {
 		this.indentStr = ''
+		this.strParts = [ ]
+
+		this.usingSourceMaps = inFilePath !== undefined
+		if (this.usingSourceMaps) {
+			this.inFilePath = inFilePath
+			this.map = new SourceMapGenerator({
+				file: outFilePath
+				// skipValidation: true
+			})
+			this.line = StartLine
+			this.column = StartColumn
+
+			this.lastMappedAst = null
+		}
 	}
 
-	render(ast) {
-		const oldCur = this.cur
-		const content = [ ]
-		this.cur = content
-		ast.render(ast, this)
-		this.cur = oldCur
-		if (ast.loc)
-			return new SourceNode(
-				ast.loc.start.line,
-				ast.loc.start.column,
-				this.inFilePath,
-				content)
-		else
-			return content
+	finish() {
+		return this.strParts.join('')
 	}
 
 	e(ast) {
-		type(ast, Node)
-		this.cur.push(this.render(ast))
+		this.curAst = ast
+		ast.render(this)
 	}
 
+	// str may not contain newlines.
 	o(str) {
-		type(str, String)
-		this.cur.push(str)
+		this._o(str)
+		this._mapStr(str)
 	}
 
 	interleave(asts, str) {
@@ -55,15 +59,31 @@ export default class Rx {
 		if (isEmpty(lines))
 			this.o('{ }')
 		else {
-			lineSeparator = lineSeparator + '\t'
+			lineSeparator = lineSeparator
 			this.o('{')
 			this.indent(() => {
-				this.o(this.nl)
-				this.interleave(lines, lineSeparator)
+				this.nl()
+				const maxI = lines.length - 1
+				for (let i = 0; i < maxI; i = i + 1) {
+					this.e(lines[i])
+					this.o(lineSeparator)
+					this.nl()
+				}
+				this.e(lines[maxI])
 			})
-			this.o(this.nl)
+			this.nl()
 			this.o('}')
 		}
+	}
+
+	lines(lines) {
+		const maxI = lines.length - 1
+		for (let i = 0; i < maxI; i = i + 1) {
+			this.e(lines[i])
+			this.o(';')
+			this.nl()
+		}
+		this.e(lines[maxI])
 	}
 
 	indent(doIndented) {
@@ -73,13 +93,38 @@ export default class Rx {
 		this.indentStr = oldIndent
 	}
 
-	get nl() {
-		return `\n${this.indentStr}`
+	nl() {
+		this._o('\n')
+		this._mapNewLine()
+		this.o(this.indentStr)
 	}
-	get cnl() {
-		return `,\n${this.indentStr}`
+
+	// Private
+
+	_o(str) {
+		this.strParts.push(str)
 	}
-	get snl() {
-		return `;\n${this.indentStr}`
+
+	_mapStr(str) {
+		if (this.usingSourceMaps) {
+			if (this.curAst.loc && this.curAst !== this.lastMappedAst) {
+				this.map.addMapping({
+					source: this.inFilePath,
+					original: this.curAst.loc.start,
+					generated: Pos(this.line, this.column)
+				})
+				this.lastMappedAst = this.curAst
+			}
+			this.column = this.column + str.length
+		}
+	}
+
+	_mapNewLine() {
+		if (this.usingSourceMaps) {
+			this.line = this.line + 1
+			this.column = StartColumn
+			// Mappings end at end of line.
+			this.lastMappedAst = null
+		}
 	}
 }

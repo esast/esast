@@ -11,13 +11,6 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 		Object.keys(nameToImpl).forEach(function (name) {
 			holder[name].prototype[methodName] = nameToImpl[name];
 		});
-		return function (target) {
-			for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-				args[_key - 1] = arguments[_key];
-			}
-
-			return target[methodName].apply(target, [target].concat(args));
-		};
 	},
 	    isEmpty = function isEmpty(arr) {
 		return arr.length === 0;

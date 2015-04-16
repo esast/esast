@@ -21,8 +21,10 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 
 		return fromJsonObject;
 	})(function (json) {
+		if (json.type === undefined) return json;
+
 		var type = _ast[json.type];
-		if (type === undefined) throw new Error('Unsupported type: ' + json.type + ' for ' + json);
+		if (type === undefined) throw new Error('Unsupported type: ' + json.type + ' for ' + JSON.stringify(json, null, 2));
 
 		var obj = Object.create(type.prototype);
 		type.props.forEach(function (_ref) {

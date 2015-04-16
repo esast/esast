@@ -5,12 +5,12 @@ import { AssignmentExpression, BinaryExpression, BlockStatement, CallExpression,
 import tuple from './private/tuple'
 import { assert } from './private/util'
 
-const specialize = (superType, namesTypes, proto) => {
-	const type = tuple(`${superType.name}Specialization`, superType, ...namesTypes)
-	Object.assign(type.prototype, proto)
-	return type
-}
-const s = specialize
+const s = (superType, namesTypes, protoProps) => tuple(
+	`${superType.name}Specialization`,
+	superType,
+	`specialization of ${superType}`,
+	namesTypes,
+	protoProps)
 
 const
 	FunctionExpressionPlain = s(FunctionExpression,

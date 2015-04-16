@@ -9,7 +9,7 @@ export const Pos = tuple('Pos', Object,
 		},
 
 		onNextLine() {
-			return Pos(this.line + 1, 1)
+			return Pos(this.line + 1, StartColumn)
 		},
 
 		onNextColumn() {
@@ -34,5 +34,7 @@ export default Loc
 
 export const
 	singleCharLoc = pos => Loc(pos, pos.next('x')),
-	StartPos = Pos(1, 1)
+	StartLine = 1,
+	StartColumn = 0,
+	StartPos = Pos(StartLine, StartColumn)
 

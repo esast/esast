@@ -3,20 +3,15 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 
 	var _interopRequire = function (obj) { return obj && obj.__esModule ? obj['default'] : obj; };
 
-	var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
-
 	Object.defineProperty(exports, '__esModule', {
 		value: true
 	});
 
 	var _tuple = _interopRequire(_privateTuple);
 
-	var specialize = function specialize(superType, namesTypes, proto) {
-		var type = _tuple.apply(undefined, ['' + superType.name + 'Specialization', superType].concat(_toConsumableArray(namesTypes)));
-		Object.assign(type.prototype, proto);
-		return type;
+	var s = function s(superType, namesTypes, protoProps) {
+		return _tuple('' + superType.name + 'Specialization', superType, 'specialization of ' + superType, namesTypes, protoProps);
 	};
-	var s = specialize;
 
 	var FunctionExpressionPlain = s(_ast.FunctionExpression, ['params', [_ast.Identifier], 'body', _ast.BlockStatement], { id: null, generator: false }),
 	    FunctionExpressionPlainGenerator = s(_ast.FunctionExpression, ['params', [_ast.Identifier], 'body', _ast.BlockStatement], { id: null, generator: true }),

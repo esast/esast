@@ -245,7 +245,7 @@ Function in an expression position.
 To declare a function, use FunctionDeclaration, not ExpressionStatement.
 See also `esast.util thunk` and ArrowFunctionExpression.
 
-## ArrowExpression
+## ArrowFunctionExpression
 
 	params: [Pattern]
 	body: Expression
@@ -344,6 +344,27 @@ Else, `object.property` -- meaning property should be an Identifier.
 	value: Object
 
 A literal token.
+
+## TemplateElement
+
+	tail: Boolean
+	value: Object
+
+doc
+
+## TemplateLiteral
+
+	quasis: [TemplateElement]
+	expressions: [Expression]
+
+doc
+
+## TaggedTemplateExpression
+
+	tag: Expression
+	quasi: TemplateLiteral
+
+doc
 
 ## AssignmentProperty
 

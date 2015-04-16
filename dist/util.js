@@ -32,7 +32,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 		return _specialize.memberExpression(object, propertyIdOrLiteralCached(propertyName));
 	},
 	    toStatement = function toStatement(_) {
-		return _ instanceof _ast.Statement ? _ : _ast.ExpressionStatement(_);
+		return _ instanceof _ast.Statement || _ instanceof _ast.Declaration ? _ : _ast.ExpressionStatement(_);
 	},
 	    toStatements = function toStatements(_) {
 		return _ instanceof Array ? _.map(toStatement) : [toStatement(_)];

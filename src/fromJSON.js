@@ -8,9 +8,12 @@ export default json => {
 }
 
 const fromJsonObject = json => {
+	if (json.type === undefined)
+		return json
+
 	const type = Ast[json.type]
 	if (type === undefined)
-		throw new Error(`Unsupported type: ${json.type} for ${json}`)
+		throw new Error(`Unsupported type: ${json.type} for ${JSON.stringify(json, null, 2)}`)
 
 	const obj = Object.create(type.prototype)
 	type.props.forEach(({ name }) => {

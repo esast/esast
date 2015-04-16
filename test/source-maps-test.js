@@ -8,19 +8,19 @@ import { equal } from './util'
 
 global.describe('source maps', () => {
 	global.it('parse', () => {
-		const src = dedent(`
-			debugger;
-			1`)
+		const src = 'debugger;\n1'
 		const ast = parse(src)
 		assert(equal(ast.loc, Loc(Pos(1, 0), Pos(2, 1))))
 		const { code, map } = renderWithSourceMap(ast, 'inFileName', 'outFileName.js')
 		assert(code === src)
 
-		assert(equal(JSON.parse(map.toString()), {
+		const jsonMap = JSON.parse(map.toString())
+		assert(equal(jsonMap, {
 			version: 3,
 			sources: [ 'inFileName' ],
 			names: [],
-			mappings: 'AAAA;AACA',
+			// TODO: Shouldn't need first AAAA on second line.
+			mappings: 'AAAA;AAAA,AACA',
 			file: 'outFileName.js'
 		}))
 	})

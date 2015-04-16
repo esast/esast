@@ -14,7 +14,7 @@ import {
 	VariableDeclaration, WhileStatement, WithStatement, YieldExpression } from '../dist/ast'
 import fromJSON from '../dist/fromJSON'
 import parse from '../dist/parse'
-import render from '../dist/render'
+import render, { renderWithSourceMap } from '../dist/render'
 import { dedent } from '../dist/private/util'
 import { equal } from './util'
 
@@ -147,7 +147,7 @@ const tests = {
 			ast: ForStatement(null, null, null, BlockStatement([ ]))
 		},
 		{
-			src: 'for (let a = 0; a < 10; a++) 1',
+			src: 'for (let a = 0; (a < 10); a++) 1',
 			ast: ForStatement(
 				VariableDeclaration('let', [ VariableDeclarator(a, Literal(0)) ]),
 				BinaryExpression('<', a, Literal(10)),
@@ -264,8 +264,8 @@ const tests = {
 		}
 	],
 	BinaryExpression: {
-		src: 'a + b',
-		ast: BinaryExpression('+', a, b)
+		src: '((a + b) * c)',
+		ast: BinaryExpression('*', BinaryExpression('+', a, b), c)
 	},
 	AssignmentExpression: {
 		src: 'a += 1',
@@ -282,7 +282,7 @@ const tests = {
 		}
 	],
 	LogicalExprsession: {
-		src: 'a || b',
+		src: '(a || b)',
 		ast: LogicalExpression('||', a, b)
 	},
 	ConditionalExpression: {
@@ -466,6 +466,10 @@ const doTest = ({ src: indentedSrc, ast }) => {
 		console.log(parsedAst.toString())
 		throw new Error('ASTs are different')
 	}
+
+	// Test parse+render with source maps.
+	renderWithSourceMap(parse(src), 'in', 'out')
+
 	const rendered = render(ast)
 	if (src !== rendered) {
 		console.log(`\`${src}\``)

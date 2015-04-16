@@ -8,7 +8,6 @@ export const
 		Object.keys(nameToImpl).forEach(name => {
 			holder[name].prototype[methodName] = nameToImpl[name]
 		})
-		return (target, ...args) => target[methodName](target, ...args)
 	},
 
 	isEmpty = arr => arr.length === 0,

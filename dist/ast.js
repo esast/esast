@@ -126,6 +126,16 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	Literal = e('Literal', 'A literal token.', ['value', Object]),
 	   
 
+	// Templates
+	// TODO: test, document
+	TemplateElement = n('TemplateElement', 'doc', ['tail', Boolean,
+	// TODO:estree spec says { cooked, value }, but acorn uses { cooked, raw }
+	// TODO: { cooked:String, raw:String } data structure
+	'value', Object]),
+	    TemplateLiteral = e('TemplateLiteral', 'doc', ['quasis', [TemplateElement], 'expressions', [Expression]]),
+	    TaggedTemplateExpression = e('TaggedTemplateExpression', 'doc', ['tag', Expression, 'quasi', TemplateLiteral]),
+	   
+
 	// Patterns
 	AssignmentProperty = makeType(Property)('AssignmentProperty', '\n\t\t\tJust like a Property, but kind is always `init`.\n\t\t\tAlthough technically its own type, `_.type` will be \'Property\'.', ['key', Identifier, 'value', Pattern], {
 		type: 'Property',
@@ -235,6 +245,9 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	exports.MemberExpression = MemberExpression;
 	exports.YieldExpression = YieldExpression;
 	exports.Literal = Literal;
+	exports.TemplateElement = TemplateElement;
+	exports.TemplateLiteral = TemplateLiteral;
+	exports.TaggedTemplateExpression = TaggedTemplateExpression;
 	exports.AssignmentProperty = AssignmentProperty;
 	exports.ObjectPattern = ObjectPattern;
 	exports.ArrayPattern = ArrayPattern;

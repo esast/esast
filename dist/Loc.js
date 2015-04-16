@@ -15,7 +15,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 		},
 
 		onNextLine: function onNextLine() {
-			return Pos(this.line + 1, 1);
+			return Pos(this.line + 1, StartColumn);
 		},
 
 		onNextColumn: function onNextColumn() {
@@ -41,8 +41,12 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	var singleCharLoc = function singleCharLoc(pos) {
 		return Loc(pos, pos.next('x'));
 	},
-	    StartPos = Pos(1, 1);
+	    StartLine = 1,
+	    StartColumn = 0,
+	    StartPos = Pos(StartLine, StartColumn);
 	exports.singleCharLoc = singleCharLoc;
+	exports.StartLine = StartLine;
+	exports.StartColumn = StartColumn;
 	exports.StartPos = StartPos;
 });
 //# sourceMappingURL=Loc.js.map

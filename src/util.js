@@ -1,4 +1,4 @@
-import { BlockStatement, ExpressionStatement, Identifier, Literal,
+import { BlockStatement, Declaration, ExpressionStatement, Identifier, Literal,
 	NewExpression, ReturnStatement, Statement, ThrowStatement } from './ast'
 import mangleIdentifier, { needsMangle, propertyNameOk } from './mangle-identifier'
 import { functionExpressionThunk, memberExpression } from './specialize'
@@ -28,7 +28,8 @@ export const
 	member = (object, propertyName) =>
 		memberExpression(object, propertyIdOrLiteralCached(propertyName)),
 
-	toStatement = _ => _ instanceof Statement ? _ : ExpressionStatement(_),
+	toStatement = _ =>
+		(_ instanceof Statement || _ instanceof Declaration) ? _ : ExpressionStatement(_),
 
 	toStatements = _ => _ instanceof Array ? _.map(toStatement) : [ toStatement(_) ],
 

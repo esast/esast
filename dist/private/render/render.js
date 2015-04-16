@@ -10,71 +10,77 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	var _Rx2 = _interopRequire(_Rx);
 
 	exports['default'] = function (ast) {
-		var node = new _Rx2().render(ast);
-		return new _sourceMapSourceNode.SourceNode(null, null, null, node).toString();
+		var rx = new _Rx2();
+		rx.e(ast);
+		return rx.finish();
 	};
 
 	var renderWithSourceMap = function renderWithSourceMap(ast, inFilePath, outFilePath) {
-		var node = new _Rx2(inFilePath).render(ast);
-		return node.toStringWithSourceMap({ file: outFilePath });
+		var rx = new _Rx2(inFilePath, outFilePath);
+		rx.e(ast);
+		return { code: rx.finish(), map: rx.map };
 	};
 
 	exports.renderWithSourceMap = renderWithSourceMap;
-	var rCall = function rCall(_, rx) {
-		rx.e(_.callee);
-		rx.paren(_.arguments);
-	},
-	    forInOf = function forInOf(_, rx) {
+	function rCall(rx) {
+		rx.e(this.callee);
+		rx.paren(this.arguments);
+	}
+
+	function forInOf(rx) {
 		rx.o('for (');
-		rx.e(_.left);
-		rx.o(_ instanceof _ast.ForInStatement ? ' in ' : ' of ');
-		rx.e(_.right);
+		rx.e(this.left);
+		rx.o(this instanceof _ast.ForInStatement ? ' in ' : ' of ');
+		rx.e(this.right);
 		rx.o(') ');
-		rx.e(_.body);
-	},
-	    fun = function fun(_, rx) {
-		rx.o(_.generator ? 'function*' : 'function');
-		if (_.id !== null) {
+		rx.e(this.body);
+	}
+
+	function fun(rx) {
+		rx.o(this.generator ? 'function*' : 'function');
+		if (this.id !== null) {
 			rx.o(' ');
-			rx.e(_.id);
+			rx.e(this.id);
 		}
-		rx.paren(_.params);
+		rx.paren(this.params);
 		rx.o(' ');
-		rx.e(_.body);
-	},
-	    arr = function arr(_, rx) {
-		if (_util.isEmpty(_.elements)) rx.o('[ ]');else {
+		rx.e(this.body);
+	}
+
+	function arr(rx) {
+		if (_util.isEmpty(this.elements)) rx.o('[ ]');else {
 			rx.o('[ ');
-			rx.interleave(_.elements, ', ');
+			rx.interleave(this.elements, ', ');
 			rx.o(' ]');
 		}
-	},
-	    unary = function unary(rx, kind, argument) {
+	}
+
+	function unary(rx, kind, argument) {
 		rx.o(kind);
 		rx.o(' ');
 		rx.e(argument);
-	},
-	    binaryLeftRight = function binaryLeftRight(_, rx) {
-		return binary(rx, _.operator, _.left, _.right);
-	},
-	    binary = function binary(rx, operator, left, right, noSpaces) {
+	}
+
+	var binary = function binary(rx, operator, left, right, noSpaces) {
 		rx.e(left);
 		if (!noSpaces) rx.o(' ');
 		rx.o(operator);
 		if (!noSpaces) rx.o(' ');
 		rx.e(right);
-	},
-	    rClass = function rClass(_, rx) {
+	};
+
+	function rClass(rx) {
 		rx.o('class ');
-		if (_.id !== null) rx.e(_.id);
-		if (_.superClass !== null) {
+		if (this.id !== null) rx.e(this.id);
+		if (this.superClass !== null) {
 			rx.o(' extends ');
-			rx.e(_.superClass);
+			rx.e(this.superClass);
 		}
 		rx.o(' ');
-		rx.e(_.body);
-	},
-	    strEscape = function strEscape(str) {
+		rx.e(this.body);
+	}
+
+	var strEscape = function strEscape(str) {
 		return '"' + str.replace(/[\\\"\n\t]/g, function (ch) {
 			return strEscapes[ch];
 		}) + '"';
@@ -87,242 +93,280 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	};
 
 	_util.implementMany(_ast, 'render', {
-		Program: function Program(_, rx) {
-			return rx.interleave(_.body, rx.snl);
+		Program: function Program(rx) {
+			rx.lines(this.body);
 		},
-		Identifier: function Identifier(_, rx) {
-			return rx.o(_.name);
+
+		Identifier: function Identifier(rx) {
+			rx.o(this.name);
 		},
 
 		// Statements
 		EmptyStatement: function EmptyStatement() {},
-		BlockStatement: function BlockStatement(_, rx) {
-			return rx.block(_.body, rx.snl);
+		BlockStatement: function BlockStatement(rx) {
+			rx.block(this.body, ';');
 		},
-		ExpressionStatement: function ExpressionStatement(_, rx) {
-			return rx.e(_.expression);
+		ExpressionStatement: function ExpressionStatement(rx) {
+			rx.e(this.expression);
 		},
-		IfStatement: function IfStatement(_, rx) {
+		IfStatement: function IfStatement(rx) {
 			rx.o('if (');
-			rx.e(_.test);
+			rx.e(this.test);
 			rx.o(') ');
-			rx.e(_.consequent);
-			if (_.alternate !== null) {
-				if (!(_.consequent instanceof _ast.BlockStatement)) rx.o(';');
+			rx.e(this.consequent);
+			if (this.alternate !== null) {
+				if (!(this.consequent instanceof _ast.BlockStatement)) rx.o(';');
 				rx.o(' else ');
-				rx.e(_.alternate);
+				rx.e(this.alternate);
 			}
 		},
-		LabeledStatement: function LabeledStatement(_, rx) {
-			return binary(rx, ': ', _.label, _.body, true);
+		LabeledStatement: function LabeledStatement(rx) {
+			binary(rx, ': ', this.label, this.body, true);
 		},
-		BreakStatement: function BreakStatement(_, rx) {
+		BreakStatement: function BreakStatement(rx) {
 			rx.o('break');
-			if (_.label !== null) {
+			if (this.label !== null) {
 				rx.o(' ');
-				rx.e(_.label);
+				rx.e(this.label);
 			}
 		},
-		ContinueStatement: function ContinueStatement(_, rx) {
+		ContinueStatement: function ContinueStatement(rx) {
 			rx.o('continue');
-			if (_.label !== null) {
+			if (this.label !== null) {
 				rx.o(' ');
-				rx.e(_.label);
+				rx.e(this.label);
 			}
 		},
-		SwitchCase: function SwitchCase(_, rx) {
-			if (_.test !== null) {
+		SwitchCase: function SwitchCase(rx) {
+			var _this = this;
+
+			if (this.test !== null) {
 				rx.o('case ');
-				rx.e(_.test);
+				rx.e(this.test);
 			} else rx.o('default');
 			rx.o(':');
-			if (_.consequent.length === 1) {
+			if (this.consequent.length === 1) {
 				rx.o(' ');
-				rx.e(_.consequent[0]);
+				rx.e(this.consequent[0]);
 			} else rx.indent(function () {
-				rx.o(rx.nl);
-				rx.interleave(_.consequent, rx.snl);
+				rx.nl();
+				rx.lines(_this.consequent);
 			});
 		},
-		SwitchStatement: function SwitchStatement(_, rx) {
+		SwitchStatement: function SwitchStatement(rx) {
 			rx.o('switch (');
-			rx.e(_.discriminant);
+			rx.e(this.discriminant);
 			rx.o(') ');
-			rx.block(_.cases, rx.nl);
+			rx.block(this.cases, '');
 		},
-		ReturnStatement: function ReturnStatement(_, rx) {
-			if (_.argument !== null) unary(rx, 'return', _.argument);else rx.o('return');
+		ReturnStatement: function ReturnStatement(rx) {
+			if (this.argument !== null) unary(rx, 'return', this.argument);else rx.o('return');
 		},
-		ThrowStatement: function ThrowStatement(_, rx) {
-			return unary(rx, 'throw', _.argument);
+		ThrowStatement: function ThrowStatement(rx) {
+			unary(rx, 'throw', this.argument);
 		},
-		CatchClause: function CatchClause(_, rx) {
+		CatchClause: function CatchClause(rx) {
 			rx.o(' catch (');
-			rx.e(_.param);
+			rx.e(this.param);
 			rx.o(') ');
-			rx.e(_.body);
+			rx.e(this.body);
 		},
-		TryStatement: function TryStatement(_, rx) {
+		TryStatement: function TryStatement(rx) {
 			rx.o('try ');
-			rx.e(_.block);
-			if (_.handler !== null) rx.e(_.handler);
-			if (_.finalizer !== null) {
+			rx.e(this.block);
+			if (this.handler !== null) rx.e(this.handler);
+			if (this.finalizer !== null) {
 				rx.o(' finally ');
-				rx.e(_.finalizer);
+				rx.e(this.finalizer);
 			}
 		},
-		WhileStatement: function WhileStatement(_, rx) {
+		WhileStatement: function WhileStatement(rx) {
 			rx.o('while (');
-			rx.e(_.test);
+			rx.e(this.test);
 			rx.o(') ');
-			rx.e(_.body);
+			rx.e(this.body);
 		},
-		DoWhileStatement: function DoWhileStatement(_, rx) {
+		DoWhileStatement: function DoWhileStatement(rx) {
 			rx.o('do ');
-			rx.e(_.body);
+			rx.e(this.body);
 			rx.o(' while (');
-			rx.e(_.test);
+			rx.e(this.test);
 			rx.o(')');
 		},
-		ForStatement: function ForStatement(_, rx) {
+		ForStatement: function ForStatement(rx) {
 			rx.o('for (');
-			if (_.init !== null) rx.e(_.init);
+			if (this.init !== null) rx.e(this.init);
 			rx.o('; ');
-			if (_.test !== null) rx.e(_.test);
+			if (this.test !== null) rx.e(this.test);
 			rx.o('; ');
-			if (_.update !== null) rx.e(_.update);
+			if (this.update !== null) rx.e(this.update);
 			rx.o(') ');
-			rx.e(_.body);
+			rx.e(this.body);
 		},
 		ForInStatement: forInOf,
 		ForOfStatement: forInOf,
-		DebuggerStatement: function DebuggerStatement(_, rx) {
-			return rx.o('debugger');
+		DebuggerStatement: function DebuggerStatement(rx) {
+			rx.o('debugger');
 		},
 
 		// Declarations
 		FunctionDeclaration: fun,
-		VariableDeclarator: function VariableDeclarator(_, rx) {
-			rx.e(_.id);
-			if (_.init !== null) {
+		VariableDeclarator: function VariableDeclarator(rx) {
+			rx.e(this.id);
+			if (this.init !== null) {
 				rx.o(' = ');
-				rx.e(_.init);
+				rx.e(this.init);
 			}
 		},
-		VariableDeclaration: function VariableDeclaration(_, rx) {
-			rx.o(_.kind);
+		VariableDeclaration: function VariableDeclaration(rx) {
+			rx.o(this.kind);
 			rx.o(' ');
-			rx.interleave(_.declarations, ', ');
+			rx.interleave(this.declarations, ', ');
 		},
 
 		// Expressions
-		ThisExpression: function ThisExpression(_, rx) {
-			return rx.o('this');
+		ThisExpression: function ThisExpression(rx) {
+			rx.o('this');
 		},
 		ArrayExpression: arr,
-		ObjectExpression: function ObjectExpression(_, rx) {
-			if (_util.isEmpty(_.properties)) rx.o('{ }');else rx.block(_.properties, rx.cnl);
+		ObjectExpression: function ObjectExpression(rx) {
+			if (_util.isEmpty(this.properties)) rx.o('{ }');else rx.block(this.properties, ',');
 		},
-		Property: function Property(_, rx) {
-			if (_.kind === 'init') {
-				rx.e(_.key);
+		Property: function Property(rx) {
+			if (this.kind === 'init') {
+				rx.e(this.key);
 				rx.o(': ');
-				rx.e(_.value);
+				rx.e(this.value);
 			} else {
-				_util.assert(_.kind === 'get' || _.kind === 'set');
-				rx.o(_.kind);
+				_util.assert(this.kind === 'get' || this.kind === 'set');
+				rx.o(this.kind);
 				rx.o(' ');
-				rx.e(_.key);
-				rx.paren(_.value.params);
+				rx.e(this.key);
+				rx.paren(this.value.params);
 				rx.o(' ');
-				_util.assert(_.value instanceof _ast.FunctionExpression);
-				_util.assert(_.value.id === null && !_.value.generator);
-				rx.e(_.value.body);
+				_util.assert(this.value instanceof _ast.FunctionExpression);
+				_util.assert(this.value.id === null && !this.value.generator);
+				rx.e(this.value.body);
 			}
 		},
 		FunctionExpression: fun,
-		ArrowFunctionExpression: function ArrowFunctionExpression(_, rx) {
-			if (_.params.length === 1 && _.params[0] instanceof _ast.Identifier) rx.e(_.params[0]);else rx.paren(_.params);
+		ArrowFunctionExpression: function ArrowFunctionExpression(rx) {
+			if (this.params.length === 1 && this.params[0] instanceof _ast.Identifier) rx.e(this.params[0]);else rx.paren(this.params);
 			rx.o(' => ');
-			rx.e(_.body);
+			rx.e(this.body);
 		},
-		SequenceExpression: function SequenceExpression(_, rx) {
-			return rx.interleave(_.expressions, ', ');
+		SequenceExpression: function SequenceExpression(rx) {
+			rx.interleave(this.expressions, ', ');
 		},
-		UnaryExpression: function UnaryExpression(_, rx) {
-			return unary(rx, _.operator, _.argument);
+		UnaryExpression: function UnaryExpression(rx) {
+			unary(rx, this.operator, this.argument);
 		},
-		BinaryExpression: binaryLeftRight,
-		AssignmentExpression: binaryLeftRight,
-		UpdateExpression: function UpdateExpression(_, rx) {
-			if (_.prefix) {
-				rx.o(_.operator);
-				rx.e(_.argument);
+		BinaryExpression: function BinaryExpression(rx) {
+			rx.o('(');
+			binary(rx, this.operator, this.left, this.right);
+			rx.o(')');
+		},
+		AssignmentExpression: function AssignmentExpression(rx) {
+			binary(rx, this.operator, this.left, this.right);
+		},
+		UpdateExpression: function UpdateExpression(rx) {
+			if (this.prefix) {
+				rx.o(this.operator);
+				rx.e(this.argument);
 			} else {
-				rx.e(_.argument);
-				rx.o(_.operator);
+				rx.e(this.argument);
+				rx.o(this.operator);
 			}
 		},
-		LogicalExpression: binaryLeftRight,
-		ConditionalExpression: function ConditionalExpression(_, rx) {
-			rx.e(_.test);
+		LogicalExpression: function LogicalExpression(rx) {
+			rx.o('(');
+			binary(rx, this.operator, this.left, this.right);
+			rx.o(')');
+		},
+		ConditionalExpression: function ConditionalExpression(rx) {
+			var _this2 = this;
+
+			rx.e(this.test);
 			rx.o(' ?');
 			rx.indent(function () {
-				rx.o(rx.nl);
-				rx.e(_.consequent);
+				rx.nl();
+				rx.e(_this2.consequent);
 				rx.o(' :');
-				rx.o(rx.nl);
-				rx.e(_.alternate);
+				rx.nl();
+				rx.e(_this2.alternate);
 			});
 		},
-		NewExpression: function NewExpression(_, rx) {
+		NewExpression: function NewExpression(rx) {
 			rx.o('new ');
-			rCall(_, rx);
+			rCall.call(this, rx);
 		},
 		CallExpression: rCall,
-		MemberExpression: function MemberExpression(_, rx) {
-			rx.e(_.object);
-			if (_.computed) {
+		MemberExpression: function MemberExpression(rx) {
+			rx.e(this.object);
+			if (this.computed) {
 				rx.o('[');
-				rx.e(_.property);
+				rx.e(this.property);
 				rx.o(']');
 			} else {
 				rx.o('.');
-				rx.e(_.property);
+				rx.e(this.property);
 			}
 		},
-		YieldExpression: function YieldExpression(_, rx) {
+		YieldExpression: function YieldExpression(rx) {
 			rx.o('(');
-			unary(rx, _.delegate ? 'yield*' : 'yield', _.argument);
+			unary(rx, this.delegate ? 'yield*' : 'yield', this.argument);
 			rx.o(')');
 		},
-		Literal: function Literal(_, rx) {
-			if (_.value === null) rx.o('null');else if (typeof _.value === 'string') rx.o(strEscape(_.value));else rx.o(_.value.toString());
+		Literal: function Literal(rx) {
+			if (this.value === null) rx.o('null');else if (typeof this.value === 'string') rx.o(strEscape(this.value));else rx.o(this.value.toString());
+		},
+
+		// Templates
+		TemplateElement: function TemplateElement(rx) {
+			rx.o(this.value.raw);
+		},
+		TemplateLiteral: function TemplateLiteral(rx) {
+			rx.o('`');
+			_util.assert(this.quasis.length === this.expressions.length + 1);
+			rx.e(this.quasis[0]);
+			for (var i = 0; i < this.expressions.length; i = i + 1) {
+				rx.o('${');
+				rx.e(this.expressions[i]);
+				rx.o('}');
+				rx.e(this.quasis[i + 1]);
+			}
+			rx.o('`');
+		},
+		TaggedTemplateExpression: function TaggedTemplateExpression(rx) {
+			rx.e(this.tag);
+			rx.e(this.quasi);
 		},
 
 		// Patterns
-		AssignmentProperty: function AssignmentProperty(_, rx) {
-			rx.e(_.key);
-			if (_.key !== _.value) {
+		AssignmentProperty: function AssignmentProperty(rx) {
+			rx.e(this.key);
+			if (this.key !== this.value) {
 				rx.o(': ');
-				rx.e(_.value);
+				rx.e(this.value);
 			}
 		},
-		ObjectPattern: function ObjectPattern(_, rx) {
+		ObjectPattern: function ObjectPattern(rx) {
 			rx.o('{ ');
-			rx.interleave(_.properties, ', ');
+			rx.interleave(this.properties, ', ');
 			rx.o(' }');
 		},
 		ArrayPattern: arr,
-		RestElement: function RestElement(_, rx) {
+		RestElement: function RestElement(rx) {
 			rx.o('...');
-			rx.e(_.argument);
+			rx.e(this.argument);
 		},
 
-		MethodDefinition: function MethodDefinition(_, rx) {
-			if (_['static']) rx.o('static ');
+		MethodDefinition: function MethodDefinition(rx) {
+			var _this3 = this;
 
-			var fun = _.value;
+			if (this['static']) rx.o('static ');
+
+			var fun = this.value;
 			// TODO
 			_util.assert(!fun.generator);
 			_util.assert(fun.id === null);
@@ -330,28 +374,28 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 			var body = fun.body;
 
 			var rKey = function rKey() {
-				if (_.computed) {
+				if (_this3.computed) {
 					rx.o('[');
-					rx.e(_.key);
+					rx.e(_this3.key);
 					rx.o(']');
-				} else rx.e(_.key);
+				} else rx.e(_this3.key);
 			};
 
-			switch (_.kind) {
+			switch (this.kind) {
 				case 'constructor':
-					_util.assert(_.key instanceof _ast.Identifier && _.key.name === 'constructor');
+					_util.assert(this.key instanceof _ast.Identifier && this.key.name === 'constructor');
 					rx.o('constructor');
 					break;
 				case 'method':
 					rKey();
 					break;
 				case 'get':case 'set':
-					rx.o(_.kind);
+					rx.o(this.kind);
 					rx.o(' ');
 					rKey();
 					break;
 				default:
-					throw new Error(_.kind);
+					throw new Error(this.kind);
 			}
 
 			rx.paren(params);
@@ -359,20 +403,20 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 			rx.e(body);
 		},
 
-		ClassBody: function ClassBody(_, rx) {
-			rx.block(_.body, '\n');
+		ClassBody: function ClassBody(rx) {
+			rx.block(this.body, '');
 		},
 
 		ClassDeclaration: rClass,
 		ClassExpression: rClass,
 
-		ImportDeclaration: function ImportDeclaration(_, rx) {
+		ImportDeclaration: function ImportDeclaration(rx) {
 			rx.o('import ');
 
 			var def = undefined,
 			    namespace = undefined;
 			var specifiers = [];
-			_.specifiers.forEach(function (s) {
+			this.specifiers.forEach(function (s) {
 				if (s instanceof _ast.ImportDefaultSpecifier) if (def === undefined) def = s;else throw new Error('Multiple default imports');else if (s instanceof _ast.ImportNamespaceSpecifier) if (namespace === undefined) namespace = s;else throw new Error('Multiple namespace imports');else {
 					_util.assert(s instanceof _ast.ImportSpecifier);
 					specifiers.push(s);
@@ -397,53 +441,53 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 			}
 
 			rx.o(' from ');
-			rx.e(_.source);
+			rx.e(this.source);
 		},
-		ImportSpecifier: function ImportSpecifier(_, rx) {
-			if (_.imported === _.local) rx.e(_.local);else {
-				rx.e(_.imported);
+		ImportSpecifier: function ImportSpecifier(rx) {
+			if (this.imported === this.local) rx.e(this.local);else {
+				rx.e(this.imported);
 				rx.o(' as ');
-				rx.e(_.local);
+				rx.e(this.local);
 			}
 		},
-		ImportDefaultSpecifier: function ImportDefaultSpecifier(_, rx) {
-			rx.e(_.local);
+		ImportDefaultSpecifier: function ImportDefaultSpecifier(rx) {
+			rx.e(this.local);
 		},
-		ImportNamespaceSpecifier: function ImportNamespaceSpecifier(_, rx) {
+		ImportNamespaceSpecifier: function ImportNamespaceSpecifier(rx) {
 			rx.o('* as ');
-			rx.e(_.local);
+			rx.e(this.local);
 		},
 
-		ExportSpecifier: function ExportSpecifier(_, rx) {
-			rx.e(_.local);
-			if (_.exported !== _.local) {
+		ExportSpecifier: function ExportSpecifier(rx) {
+			rx.e(this.local);
+			if (this.exported !== this.local) {
 				rx.o(' as ');
-				rx.e(_.exported);
+				rx.e(this.exported);
 			}
 		},
-		ExportNamedDeclaration: function ExportNamedDeclaration(_, rx) {
+		ExportNamedDeclaration: function ExportNamedDeclaration(rx) {
 			rx.o('export ');
-			if (_.declaration !== null) {
-				_util.assert(_util.isEmpty(_.specifiers));
-				_util.assert(_.source === null);
-				rx.e(_.declaration);
+			if (this.declaration !== null) {
+				_util.assert(_util.isEmpty(this.specifiers));
+				_util.assert(this.source === null);
+				rx.e(this.declaration);
 			} else {
 				rx.o('{ ');
-				rx.interleave(_.specifiers, ', ');
+				rx.interleave(this.specifiers, ', ');
 				rx.o(' }');
-				if (_.source !== null) {
+				if (this.source !== null) {
 					rx.o(' from ');
-					rx.e(_.source);
+					rx.e(this.source);
 				}
 			}
 		},
-		ExportDefaultDeclaration: function ExportDefaultDeclaration(_, rx) {
+		ExportDefaultDeclaration: function ExportDefaultDeclaration(rx) {
 			rx.o('export default ');
-			rx.e(_.declaration);
+			rx.e(this.declaration);
 		},
-		ExportAllDeclaration: function ExportAllDeclaration(_, rx) {
+		ExportAllDeclaration: function ExportAllDeclaration(rx) {
 			rx.o('export * from ');
-			rx.e(_.source);
+			rx.e(this.source);
 		}
 	});
 });

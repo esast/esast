@@ -328,6 +328,29 @@ export const
 		'A literal token.',
 		[ 'value', Object ]),
 
+	// Templates
+	// TODO: test, document
+	TemplateElement = n('TemplateElement',
+		'doc',
+		[
+			'tail', Boolean,
+			// TODO:estree spec says { cooked, value }, but acorn uses { cooked, raw }
+			// TODO: { cooked:String, raw:String } data structure
+			'value', Object
+		]),
+	TemplateLiteral = e('TemplateLiteral',
+		'doc',
+		[
+			'quasis', [TemplateElement],
+			'expressions', [Expression]
+		]),
+	TaggedTemplateExpression = e('TaggedTemplateExpression',
+		'doc',
+		[
+			'tag', Expression,
+			'quasi', TemplateLiteral
+		]),
+
 	// Patterns
 	AssignmentProperty = makeType(Property)('AssignmentProperty',
 		`
