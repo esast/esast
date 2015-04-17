@@ -1,7 +1,7 @@
 'use strict'
 
+require('./es6-shim')
 require('source-map-support').install()
-require('es6-shim')
 const
 	fs = require('fs'),
 	gulp = require('gulp'),

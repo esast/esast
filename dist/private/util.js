@@ -52,6 +52,16 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 			return line.slice(indent);
 		});
 		return dedentedLines.join('\n');
+	},
+	   
+
+	// TODO:ES6 Just use `new Set`
+	newSet = function newSet(setMembers) {
+		var set = new Set();
+		setMembers.forEach(function (_) {
+			return set.add(_);
+		});
+		return set;
 	};
 
 	exports.assert = assert;
@@ -61,6 +71,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	exports.pAdd = pAdd;
 	exports.type = type;
 	exports.dedent = dedent;
+	exports.newSet = newSet;
 	var clone = function clone(obj) {
 		var nu = Object.create(Object.getPrototypeOf(obj));
 		Object.getOwnPropertyNames(obj).forEach(function (name) {

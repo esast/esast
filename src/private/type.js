@@ -18,7 +18,7 @@ export const typeToString = type => {
 	if (type instanceof Function)
 		return type.name
 	if (type instanceof Set)
-		return `${toArray(type).map(_ => `'${_}'`).join(' | ')}`
+		return `${setToArray(type).map(_ => `'${_}'`).join(' | ')}`
 	if (type instanceof Array) {
 		assert(type.length === 1)
 		return `[${typeToString(type[0])}]`
@@ -26,9 +26,8 @@ export const typeToString = type => {
 	return type.toString()
 }
 
-const toArray = iter => {
+const setToArray = set => {
 	const out = []
-	for (let em of iter)
-		out.push(em)
+	set.forEach(_ => out.push(_))
 	return out
 }

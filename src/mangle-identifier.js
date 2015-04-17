@@ -1,3 +1,5 @@
+import { newSet } from './private/util'
+
 export default name =>
 	forbiddenNames.has(name) ?
 		'_' + name :
@@ -10,7 +12,7 @@ export const
 	propertyNameOk = name =>
 		name.search(/[^a-zA-Z0-9$_]/) === -1
 
-const forbiddenNames = new Set([
+const forbiddenNames = newSet([
 	'abstract',
 	'arguments',
 	'boolean',

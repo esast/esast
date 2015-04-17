@@ -1,6 +1,6 @@
 import Loc from './Loc'
 import tuple, { abstract } from './private/tuple'
-import { assert, dedent, pAdd } from './private/util'
+import { assert, dedent, newSet, pAdd } from './private/util'
 import { Nullable, Union } from './private/type'
 
 export const
@@ -169,7 +169,7 @@ export const
 			'id', Pattern,
 			'init', Nullable(Expression)
 		]),
-	VariableDeclarationKind = new Set([ 'const', 'let', 'var' ]),
+	VariableDeclarationKind = newSet([ 'const', 'let', 'var' ]),
 	VariableDeclaration = d('VariableDeclaration',
 		// TODO: Assert
 		`
@@ -187,7 +187,7 @@ export const
 	ArrayExpression = e('ArrayExpression',
 		'An array literal.',
 		[ 'elements', [Nullable(Expression)] ]),
-	PropertyKind = new Set([ 'init', 'get', 'set' ]),
+	PropertyKind = newSet([ 'init', 'get', 'set' ]),
 	Property = n('Property',
 		// TODO:ASSERT
 		`
@@ -234,14 +234,14 @@ export const
 			*Not* for parameter lists.`,
 		[ 'expressions', [ Expression ] ]),
 	// TODO: test `- new X`. Probably need parens around argument.
-	UnaryOperator = new Set([ '-', '+', '!', '~', 'typeof', 'void', 'delete' ]),
+	UnaryOperator = newSet([ '-', '+', '!', '~', 'typeof', 'void', 'delete' ]),
 	UnaryExpression = e('UnaryExpression',
 		'`operator argument`. Calls a unary operator.',
 		[
 			'operator', UnaryOperator,
 			'argument', Expression
 		]),
-	BinaryOperator = new Set([
+	BinaryOperator = newSet([
 		'==', '!=', '===', '!==',
 		'<', '<=', '>', '>=',
 		'<<', '>>', '>>>',
@@ -256,7 +256,7 @@ export const
 			'left', Expression,
 			'right', Expression
 		]),
-	AssignmentOperator = new Set([
+	AssignmentOperator = newSet([
 		'=', '+=', '-=', '*=', '/=', '%=',
 		'<<=', '>>=', '>>>=',
 		'|=', '^=', '&='
@@ -271,7 +271,7 @@ export const
 			'left', Pattern,
 			'right', Expression
 		]),
-	UpdateOperator = new Set([ '++', '--' ]),
+	UpdateOperator = newSet([ '++', '--' ]),
 	UpdateExpression = e('UpdateExpression',
 		'`++argument` or `argument++`. Increments or decrements a number.',
 		[
@@ -279,7 +279,7 @@ export const
 			'argument', Expression,
 			'prefix', Boolean
 		]),
-	LogicalOperator = new Set([ '||', '&&' ]),
+	LogicalOperator = newSet([ '||', '&&' ]),
 	LogicalExpression = e('LogicalExpression',
 		'`left operator right`. Calls a lazy logical operator.',
 		[
@@ -383,7 +383,7 @@ export const
 	//	'left', Pattern,
 	//	'right', Pattern),
 
-	MethodDefinitionKind = new Set([ 'constructor', 'method', 'get', 'set' ]),
+	MethodDefinitionKind = newSet([ 'constructor', 'method', 'get', 'set' ]),
 	MethodDefinition = n('MethodDefinition',
 		// TODO:Assert
 		// TODO: util method for constructor.

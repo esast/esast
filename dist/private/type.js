@@ -27,7 +27,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 		return typeToString;
 	})(function (type) {
 		if (type instanceof Function) return type.name;
-		if (type instanceof Set) return '' + toArray(type).map(function (_) {
+		if (type instanceof Set) return '' + setToArray(type).map(function (_) {
 			return '\'' + _ + '\'';
 		}).join(' | ');
 		if (type instanceof Array) {
@@ -38,33 +38,11 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	});
 
 	exports.typeToString = typeToString;
-	var toArray = function toArray(iter) {
+	var setToArray = function setToArray(set) {
 		var out = [];
-		var _iteratorNormalCompletion = true;
-		var _didIteratorError = false;
-		var _iteratorError = undefined;
-
-		try {
-			for (var _iterator = iter[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-				var em = _step.value;
-
-				out.push(em);
-			}
-		} catch (err) {
-			_didIteratorError = true;
-			_iteratorError = err;
-		} finally {
-			try {
-				if (!_iteratorNormalCompletion && _iterator['return']) {
-					_iterator['return']();
-				}
-			} finally {
-				if (_didIteratorError) {
-					throw _iteratorError;
-				}
-			}
-		}
-
+		set.forEach(function (_) {
+			return out.push(_);
+		});
 		return out;
 	};
 });

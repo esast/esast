@@ -50,8 +50,14 @@ export const
 
 		const dedentedLines = str.split('\n').map(line => line.slice(indent))
 		return dedentedLines.join('\n')
-	}
+	},
 
+	// TODO:ES6 Just use `new Set`
+	newSet = setMembers => {
+		const set = new Set()
+		setMembers.forEach(_ => set.add(_))
+		return set
+	}
 
 const clone = obj => {
 	const nu = Object.create(Object.getPrototypeOf(obj))

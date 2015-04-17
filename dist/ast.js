@@ -72,7 +72,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	// TODO: Function too
 	FunctionDeclaration = d('FunctionDeclaration', 'Unlike for FunctionExpression, id must not be null.', ['id', Identifier, 'params', [Identifier], 'body', BlockStatement, 'generator', Boolean]),
 	    VariableDeclarator = n('VariableDeclarator', 'A single variable within a VariableDeclaration.', ['id', Pattern, 'init', _privateType.Nullable(Expression)]),
-	    VariableDeclarationKind = new Set(['const', 'let', 'var']),
+	    VariableDeclarationKind = _privateUtil.newSet(['const', 'let', 'var']),
 	    VariableDeclaration = d('VariableDeclaration',
 	// TODO: Assert
 	'\n\t\t\tDeclares and optionally initializes many variables.\n\t\t\tMust be at least one declaration.', ['kind', VariableDeclarationKind, 'declarations', [VariableDeclarator]]),
@@ -81,7 +81,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	// Expressions
 	ThisExpression = e('ThisExpression', 'The `this` keyword.', []),
 	    ArrayExpression = e('ArrayExpression', 'An array literal.', ['elements', [_privateType.Nullable(Expression)]]),
-	    PropertyKind = new Set(['init', 'get', 'set']),
+	    PropertyKind = _privateUtil.newSet(['init', 'get', 'set']),
 	    Property = n('Property',
 	// TODO:ASSERT
 	'\n\t\t\tPart of an ObjectExpression.\n\t\t\tIf kind is \'get\' or \'set\', then value should be a FunctionExpression.', ['kind', PropertyKind,
@@ -101,17 +101,17 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	    SequenceExpression = e('SequenceExpression', '\n\t\t\t`expressions[0], expressions[1], ...`.\n\t\t\tExpression composed of other expressions, separated by the comma operator.\n\t\t\t*Not* for parameter lists.', ['expressions', [Expression]]),
 	   
 	// TODO: test `- new X`. Probably need parens around argument.
-	UnaryOperator = new Set(['-', '+', '!', '~', 'typeof', 'void', 'delete']),
+	UnaryOperator = _privateUtil.newSet(['-', '+', '!', '~', 'typeof', 'void', 'delete']),
 	    UnaryExpression = e('UnaryExpression', '`operator argument`. Calls a unary operator.', ['operator', UnaryOperator, 'argument', Expression]),
-	    BinaryOperator = new Set(['==', '!=', '===', '!==', '<', '<=', '>', '>=', '<<', '>>', '>>>', '+', '-', '*', '/', '%', '|', '^', '&', 'in', 'instanceof']),
+	    BinaryOperator = _privateUtil.newSet(['==', '!=', '===', '!==', '<', '<=', '>', '>=', '<<', '>>', '>>>', '+', '-', '*', '/', '%', '|', '^', '&', 'in', 'instanceof']),
 	   
 	// TODO: Render with parens
 	BinaryExpression = e('BinaryExpression', '`left operator right`. Calls a binary operator.', ['operator', BinaryOperator, 'left', Expression, 'right', Expression]),
-	    AssignmentOperator = new Set(['=', '+=', '-=', '*=', '/=', '%=', '<<=', '>>=', '>>>=', '|=', '^=', '&=']),
+	    AssignmentOperator = _privateUtil.newSet(['=', '+=', '-=', '*=', '/=', '%=', '<<=', '>>=', '>>>=', '|=', '^=', '&=']),
 	    AssignmentExpression = e('AssignmentExpression', '\n\t\t\t`left operator right`.\n\t\t\tMutates an existing variable.\n\t\t\tDo not confuse with VariableDeclaration.', ['operator', AssignmentOperator, 'left', Pattern, 'right', Expression]),
-	    UpdateOperator = new Set(['++', '--']),
+	    UpdateOperator = _privateUtil.newSet(['++', '--']),
 	    UpdateExpression = e('UpdateExpression', '`++argument` or `argument++`. Increments or decrements a number.', ['operator', UpdateOperator, 'argument', Expression, 'prefix', Boolean]),
-	    LogicalOperator = new Set(['||', '&&']),
+	    LogicalOperator = _privateUtil.newSet(['||', '&&']),
 	    LogicalExpression = e('LogicalExpression', '`left operator right`. Calls a lazy logical operator.', ['operator', LogicalOperator, 'left', Expression, 'right', Expression]),
 	    ConditionalExpression = e('ConditionalExpression', '`test ? consequent : alternate`.', ['test', Expression, 'consequent', Expression, 'alternate', Expression]),
 	    NewExpression = e('NewExpression', 'Just like CallExpression but with `new` in front.', ['callee', Expression, 'arguments', [Expression]]),
@@ -156,7 +156,7 @@ if (typeof define !== 'function') var define = require('amdefine')(module);defin
 	//	'left', Pattern,
 	//	'right', Pattern),
 
-	MethodDefinitionKind = new Set(['constructor', 'method', 'get', 'set']),
+	MethodDefinitionKind = _privateUtil.newSet(['constructor', 'method', 'get', 'set']),
 	    MethodDefinition = n('MethodDefinition',
 	// TODO:Assert
 	// TODO: util method for constructor.
