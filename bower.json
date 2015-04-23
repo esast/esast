@@ -3,6 +3,7 @@
 	"dependencies": {
 		"acorn": "^1.0.3",
 		"source-map": "mozilla/source-map",
+		"tupl": "andy-hanson/tupl"
 	},
 	"main": "dist/**/*",
 	"ignore": [ "compiled-test", "node_modules", "test", "gulp", "gulpfile.js", "package.json", "README.md" ],

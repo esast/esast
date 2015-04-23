@@ -1,7 +1,7 @@
+import tupl, { abstract } from 'tupl/dist/tupl'
+import { Nullable, Union } from 'tupl/dist/type'
 import Loc from './Loc'
-import tuple, { abstract } from './private/tuple'
 import { assert, dedent, newSet, pAdd } from './private/util'
-import { Nullable, Union } from './private/type'
 
 export const
 	Node = abstract('Node', Object,
@@ -15,11 +15,10 @@ export const
 	Pattern = abstract('Pattern', Node,
 		'Can go in a parameter list or on the left side of an assignment.')
 
-const makeType = superType => (name, doc, namesTypes, proto) => {
+const makeType = superType => (name, doc, namesTypes, proto = { }) => {
 	doc = dedent(doc)
-	const type = tuple(name, superType, doc, namesTypes, proto)
-	Object.assign(type.prototype, { type: name })
-	return type
+	proto.type = name
+	return tupl(name, superType, doc, namesTypes, proto)
 }
 const
 	n = makeType(Node),

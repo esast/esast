@@ -28,7 +28,7 @@ function pipeBabel(stream) {
 	}))
 	.pipe(header(
 		'if (typeof define !== \'function\') var define = require(\'amdefine\')(module);'))
-	.pipe(sourcemaps.write('.', {
+	.pipe(sourcemaps.write({
 		debug: true,
 		sourceRoot: '/src'
 	}))
@@ -36,8 +36,7 @@ function pipeBabel(stream) {
 }
 
 gulp.task('doc', [ 'compile' ], function() {
-	const doc = require('./dist/private/doc')()
-	fs.writeFileSync('./doc.md', doc)
+	fs.writeFileSync('./doc.md', require('tupl/dist/doc')(require('./dist/ast')))
 })
 
 gulp.task('watch', function() {
@@ -47,7 +46,7 @@ gulp.task('watch', function() {
 gulp.task('compile', function() { return pipeBabel(gulp.src(src)) })
 
 gulp.task('lint', function() {
-	return gulp.src([ src, testSrc, './gulpfile.js' ])
+	return gulp.src([ src, testSrc, './*.js' ])
 	.pipe(eslint())
 	.pipe(eslint.format())
 })
@@ -56,7 +55,7 @@ gulp.task('compile-test', function() {
 	return gulp.src(testSrc)
 	.pipe(sourcemaps.init())
 	.pipe(babel())
-	.pipe(sourcemaps.write('.', { debug: true, sourceRoot: '/test' }))
+	.pipe(sourcemaps.write({ debug: true, sourceRoot: '/test' }))
 	.pipe(gulp.dest('./compiled-test'))
 })
 gulp.task('test', [ 'compile', 'compile-test' ], function() {

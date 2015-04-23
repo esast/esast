@@ -1,11 +1,11 @@
+import tupl from 'tupl/dist/tupl'
 import { AssignmentExpression, BinaryExpression, BlockStatement, CallExpression, Expression,
 	FunctionExpression, Identifier, Literal, MemberExpression, Pattern, Property, ReturnStatement,
 	Statement, SwitchCase, SwitchStatement, YieldExpression, UnaryExpression, VariableDeclaration,
 	VariableDeclarator, WhileStatement } from './ast'
-import tuple from './private/tuple'
 import { assert } from './private/util'
 
-const s = (superType, namesTypes, protoProps) => tuple(
+const s = (superType, namesTypes, protoProps) => tupl(
 	`${superType.name}Specialization`,
 	superType,
 	`specialization of ${superType}`,

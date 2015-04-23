@@ -1,6 +1,6 @@
+import { Nullable } from 'tupl/dist/type'
 import * as Ast from './ast'
 import Loc, { Pos } from './Loc'
-import { Nullable } from './private/type'
 
 export default json => {
 	if (typeof json === 'string')
