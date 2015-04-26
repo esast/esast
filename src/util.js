@@ -31,11 +31,6 @@ export const
 	toStatement = _ =>
 		(_ instanceof Statement || _ instanceof Declaration) ? _ : ExpressionStatement(_),
 
-	toStatements = _ => _ instanceof Array ? _.map(toStatement) : [ toStatement(_) ],
-
-	throwError = msg =>
-		ThrowStatement(NewExpression(Identifier('Error'), [ Literal(msg) ])),
-
 	// TODO:ES6 arrow functions
 	thunk = value =>
 		functionExpressionThunk(BlockStatement([ ReturnStatement(value) ]), false)
