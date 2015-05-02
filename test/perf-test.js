@@ -13,7 +13,7 @@ const test = tests => {
 		suite.add(name, tests[name]))
 	suite.on('complete', function() {
 		this.forEach(_ =>
-			console.log(`${_.name}: ${_.stats.mean * 1000}ms mean, ${_.hz}Hz`))
+			console.log(`${_.name}: ${_.stats.mean * 1000}ms`))
 	})
 	suite.on('error', err => {
 		throw err.target.error
@@ -30,12 +30,14 @@ export default () => {
 	})
 	const ast = parse(src)
 
+	render(ast)
+
 	// acorn compilation + Benchmark metaprogramming causes errors if I don't do this.
 	const escg = escodegen, estp = esotope, fj = fromJson
 	test({
-		esast: () => render(ast),
-		'esast with maps': () => renderWithSourceMap(ast, 'in', 'out.js'),
-		escodegen() { escg(json) },
+		esast: () => render(ast, { ugly: true }),
+		'esast with maps': () => renderWithSourceMap(ast, 'in', 'out.js', { ugly: true }),
+		escodegen: () => escg(json),
 		'escodegen with maps': () =>
 			escg(json, { sourceMap: 'in', sourceMapWithCode: true }),
 		esotope: () => estp(json),

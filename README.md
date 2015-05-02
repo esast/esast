@@ -83,15 +83,14 @@ In fact, it's just acorn that gets converted to the esast format.
 
 Name | Render time | Render time with source maps
 :-: | :-: | :-:
-esast | 1.6ms | 16.8ms
-[escodegen](https://github.com/estools/escodegen) | 8.2ms | 145ms
-[esotope](https://github.com/inikulin/esotope) | 2.6ms | N/A
+esast | 1ms | 14ms
+[escodegen](https://github.com/estools/escodegen) | 8ms | 140ms
+[esotope](https://github.com/inikulin/esotope) | 2ms | N/A
 
-Keep in mind that `fromJson` takes up about 7ms.
+Keep in mind that `fromJson` takes about 7ms.
 
 
 ## Build
 
 	npm install
 	./gulp all
-

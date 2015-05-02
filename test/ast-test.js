@@ -34,7 +34,7 @@ const tests = {
 			}`,
 		ast: BlockStatement([ EmptyStatement(), doOne ])
 	},
-	BlockStatement: { src: '{ }', ast: BlockStatement([ ]) },
+	BlockStatement: { src: '{}', ast: BlockStatement([ ]) },
 	ExpressionStatement: {
 		src: `
 			{
@@ -45,7 +45,7 @@ const tests = {
 	IfStatement: [
 		{
 			src: `
-				if (1) {
+				if(1){
 					1
 				} else {
 					1
@@ -53,41 +53,41 @@ const tests = {
 			ast: IfStatement(one, blockDoOne, blockDoOne)
 		},
 		{
-			src: 'if (1) 1; else 1',
+			src: 'if(1)1; else 1',
 			ast: IfStatement(one, doOne, doOne)
 		}
 	],
 	LabeledStatement: {
-		src: 'a: 1',
+		src: 'a:1',
 		ast: LabeledStatement(a, ExpressionStatement(one))
 	},
 	BreakStatement: [
 		{
-			src: 'while (1) break',
+			src: 'while(1)break',
 			ast: WhileStatement(one, BreakStatement())
 		},
 		{
-			src: 'a: while (1) break a',
+			src: 'a:while(1)break a',
 			ast: LabeledStatement(a, WhileStatement(one, BreakStatement(a)))
 		}
 	],
 	ContinueStatement: [
 		{
-			src: 'while (1) continue',
+			src: 'while(1)continue',
 			ast: WhileStatement(one, ContinueStatement())
 		},
 		{
-			src: 'a: while (1) continue a',
+			src: 'a:while(1)continue a',
 			ast: LabeledStatement(a, WhileStatement(one, ContinueStatement(a)))
 		}
 	],
 	SwitchStatement: {
 		src: `
-			switch (1) {
+			switch(1){
 				case 1:
 					1;
 					1
-				default: {
+				default:{
 					1
 				}
 			}`,
@@ -99,14 +99,14 @@ const tests = {
 	ReturnStatement: [
 		{
 			src: `
-				() => {
+				()=>{
 					return
 				}`,
 			ast: ArrowFunctionExpression([], BlockStatement([ ReturnStatement() ]))
 		},
 		{
 			src: `
-				() => {
+				()=>{
 					return 1
 				}`,
 			ast: ArrowFunctionExpression([], BlockStatement([ ReturnStatement(one) ]))
@@ -120,9 +120,9 @@ const tests = {
 		src: `
 			try {
 				1
-			} catch (err) {
+			}catch(err){
 				1
-			} finally {
+			}finally{
 				1
 			}`,
 		ast: TryStatement(
@@ -131,23 +131,23 @@ const tests = {
 			blockDoOne)
 	},
 	WhileStatement: {
-		src: 'while (1) 1',
+		src: 'while(1)1',
 		ast: WhileStatement(one, doOne)
 	},
 	DoWhileStatement: {
 		src: `
 			do {
 				1
-			} while (1)`,
+			} while(1)`,
 		ast: DoWhileStatement(blockDoOne, one)
 	},
 	ForStatement: [
 		{
-			src: 'for (; ; ) { }',
+			src: 'for(;;){}',
 			ast: ForStatement(null, null, null, BlockStatement([ ]))
 		},
 		{
-			src: 'for (let a = 0; (a < 10); a++) 1',
+			src: 'for(let a=0;(a<10);a++)1',
 			ast: ForStatement(
 				VariableDeclaration('let', [ VariableDeclarator(a, Literal(0)) ]),
 				BinaryExpression('<', a, Literal(10)),
@@ -156,21 +156,21 @@ const tests = {
 		}
 	],
 	ForInStatement: {
-		src: 'for (a in b) 1',
+		src: 'for(a in b)1',
 		ast: ForInStatement(a, b, doOne)
 	},
 	ForOfStatement: {
-		src: 'for (a of b) 1',
+		src: 'for(a of b)1',
 		ast: ForOfStatement(a, b, doOne)
 	},
 	DebuggerStatement: { src: 'debugger', ast: DebuggerStatement() },
 	FunctionDeclaration: [
 		{
-			src: 'function a(b) { }',
+			src: 'function a(b){}',
 			ast: FunctionDeclaration(a, [ b ], BlockStatement([]), false)
 		},
 		{
-			src: 'function* a(b) { }',
+			src: 'function* a(b){}',
 			ast: FunctionDeclaration(a, [ b ], BlockStatement([]), true)
 		}
 	],
@@ -180,11 +180,11 @@ const tests = {
 			ast: VariableDeclaration('var', [ VariableDeclarator(a) ])
 		},
 		{
-			src: 'let a = 1, b',
+			src: 'let a=1,b',
 			ast: VariableDeclaration('let', [ VariableDeclarator(a, one), VariableDeclarator(b) ])
 		},
 		{
-			src: 'const a = 1',
+			src: 'const a=1',
 			ast: VariableDeclaration('const', [ VariableDeclarator(a, one) ])
 		}
 	],
@@ -192,28 +192,28 @@ const tests = {
 	ThisExpression: { src: 'this', ast: ThisExpression() },
 	ArrayExpression: [
 		{
-			src: '[ ]',
+			src: '[]',
 			ast: ArrayExpression([])
 		},
 		{
-			src: '[ 1, 2 ]',
+			src: '[1,2]',
 			ast: ArrayExpression([ one, two ])
 		}
 	],
 	ObjectExpression: [
 		{
 			// Call it or it will be confused for a BlockStatement
-			src: 'a({ })',
+			src: 'a({})',
 			ast: CallExpression(a, [ ObjectExpression([ ]) ])
 		},
 		{
 			src: `
 				a({
-					a: 1,
-					get b() {
+					a:1,
+					get b(){
 						1
 					},
-					set "c"() {
+					set "c"(){
 						1
 					}
 				})`,
@@ -230,27 +230,27 @@ const tests = {
 	],
 	ArrowFunctionExpression: [
 		{
-			src: '() => 1',
+			src: '()=>1',
 			ast: ArrowFunctionExpression([], one)
 		},
 		{
-			src: 'a => 1',
+			src: 'a=>1',
 			ast: ArrowFunctionExpression([ a ], one)
 		},
 		{
-			src: '(a, b) => 1',
+			src: '(a,b)=>1',
 			ast: ArrowFunctionExpression([ a, b ], one)
 		},
 		{
 			src: `
-				() => {
+				()=>{
 					1
 				}`,
 			ast: ArrowFunctionExpression([], blockDoOne)
 		}
 	],
 	SequenceExpression: {
-		src: 'a, b',
+		src: 'a,b',
 		ast: SequenceExpression([ a, b ])
 	},
 	UnaryExpression: [
@@ -264,11 +264,11 @@ const tests = {
 		}
 	],
 	BinaryExpression: {
-		src: '((a + b) * c)',
-		ast: BinaryExpression('*', BinaryExpression('+', a, b), c)
+		src: '((a+b) instanceof c)',
+		ast: BinaryExpression('instanceof', BinaryExpression('+', a, b), c)
 	},
 	AssignmentExpression: {
-		src: 'a += 1',
+		src: 'a+=1',
 		ast: AssignmentExpression('+=', a, one)
 	},
 	UpdateExpression: [
@@ -282,14 +282,11 @@ const tests = {
 		}
 	],
 	LogicalExprsession: {
-		src: '(a || b)',
+		src: '(a||b)',
 		ast: LogicalExpression('||', a, b)
 	},
 	ConditionalExpression: {
-		src: `
-			a ?
-				b :
-				c`,
+		src: 'a?b:c',
 		ast: ConditionalExpression(a, b, c)
 	},
 	NewExpression: [
@@ -318,7 +315,7 @@ const tests = {
 	],
 	YieldExpression: {
 		src: `
-			function* a() {
+			function* a(){
 				(yield 1);
 				(yield* 2)
 			}`,
@@ -340,8 +337,8 @@ const tests = {
 			ast: Literal(1.5)
 		},
 		{
-			src: '"1"',
-			ast: Literal('1')
+			src: '"a\\nb\\u2029"',
+			ast: Literal('a\nb\u2029')
 		},
 		{
 			src: 'true',
@@ -354,7 +351,7 @@ const tests = {
 	],
 
 	ObjectPattern: {
-		src: 'const { a, b: c } = a',
+		src: 'const {a,b:c}=a',
 		ast: VariableDeclaration('const', [
 			VariableDeclarator(
 				ObjectPattern([
@@ -365,7 +362,7 @@ const tests = {
 		])
 	},
 	ArrayPattern: {
-		src: 'const [ { a }, ...b ] = a',
+		src: 'const [{a},...b]=a',
 		ast: VariableDeclaration('const', [
 			VariableDeclarator(
 				ArrayPattern([
@@ -377,14 +374,14 @@ const tests = {
 	},
 	ClassDeclaration: {
 		src: `
-			class a extends b {
-				constructor() { }
-				a() { }
-				get b() { }
-				set c() { }
-				static a() { }
-				["x"]() { }
-				static get ["x"]() { }
+			class a extends b{
+				constructor(){}
+				a(){}
+				get b(){}
+				set c(){}
+				static a(){}
+				["x"](){}
+				static get ["x"](){}
 			}`,
 		ast: ClassDeclaration(
 			a,
@@ -401,7 +398,7 @@ const tests = {
 	},
 
 	ImportSpecifier: {
-		src: 'import { a, b as c } from "a"',
+		src: 'import {a,b as c} from "a"',
 		ast: ImportDeclaration([ ImportSpecifier(a), ImportSpecifier(b, c) ], litA)
 	},
 	ImportNamespaceSpecifier: {
@@ -413,20 +410,20 @@ const tests = {
 		ast: ImportDeclaration([ ImportDefaultSpecifier(a) ], litA)
 	},
 	ImportDeclaration: {
-		src: 'import a, { b } from "a"',
+		src: 'import a,{b} from "a"',
 		ast: ImportDeclaration([ ImportDefaultSpecifier(a), ImportSpecifier(b) ], litA)
 	},
 
 	ExportNamedDeclaration: [
 		{
-			src: 'export const a = 1',
+			src: 'export const a=1',
 			ast: ExportNamedDeclaration(
 				VariableDeclaration('const', [ VariableDeclarator(a, one) ]),
 				[ ],
 				null)
 		},
 		{
-			src: 'export { a, b as c } from "a"',
+			src: 'export {a,b as c} from "a"',
 			ast: ExportNamedDeclaration(
 				null,
 				[ ExportSpecifier(a), ExportSpecifier(c, b) ],
@@ -439,7 +436,7 @@ const tests = {
 			ast: ExportDefaultDeclaration(one)
 		},
 		{
-			src: 'export default function a() { }',
+			src: 'export default function a(){}',
 			ast: ExportDefaultDeclaration(FunctionDeclaration(a, [ ], BlockStatement([ ]), false))
 		}
 	],

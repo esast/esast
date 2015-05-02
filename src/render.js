@@ -3,26 +3,52 @@ import * as Ast from './ast'
 import { Pos, StartColumn, StartLine } from './Loc'
 import { assert, implementMany, isEmpty, last, type } from './private/util'
 
-export default ast => {
+export default (ast, options = { }) => {
 	type(ast, Ast.Node)
-	init()
+	init(options)
 	e(ast)
-	return strOut
+	const res = strOut
+	uninit()
+	return res
 }
 
-export const renderWithSourceMap = (ast, inFilePath, outFilePath) => {
+export const renderWithSourceMap = (ast, inFilePath, outFilePath, options = { }) => {
 	type(ast, Ast.Node, inFilePath, String, outFilePath, String)
-	init(inFilePath, outFilePath)
+	init(options, inFilePath, outFilePath)
 	e(ast)
-	return { code: strOut, map: sourceMap }
+	const res = { code: strOut, map: sourceMap }
+	uninit()
+	return res
 }
 
 // Must init these all before rendering.
 let strOut,
 	indentAmount, indentStr,
 	usingSourceMaps, curAst, inFilePath, sourceMap, outLine, outColumn, lastMappedAst,
-	// TODO: Option
-	ugly = false
+	// options
+	ugly
+
+const
+	init = (options, inPath, outPath) => {
+		ugly = !!options.ugly
+
+		indentAmount = 0
+		_setIndent()
+		strOut = ''
+		usingSourceMaps = inPath !== undefined
+		if (usingSourceMaps) {
+			inFilePath = inPath
+			sourceMap = new SourceMapGenerator({ file: outPath })
+			outLine = StartLine
+			outColumn = StartColumn
+			lastMappedAst = null
+		}
+	},
+
+	uninit = () => {
+		strOut = ''
+		inFilePath = sourceMap = curAst = lastMappedAst = undefined
+	}
 
 const
 	// Renders a single expression.
@@ -51,35 +77,29 @@ const
 
 	paren = (asts) => {
 		o('(')
-		interleave(asts, ', ')
+		interleave(asts, ',')
 		o(')')
 	},
 
-	block = (lines, lineSeparator) => {
-		if (isEmpty(lines))
-			o('{ }')
+	block = (blockLines, lineSeparator) => {
+		if (isEmpty(blockLines))
+			o('{}')
 		else {
 			o('{')
 			indent()
 			nl()
-			const maxI = lines.length - 1
-			for (let i = 0; i < maxI; i = i + 1) {
-				e(lines[i])
-				o(lineSeparator)
-				nl()
-			}
-			e(lines[maxI])
+			lines(blockLines, lineSeparator)
 			unindent()
 			nl()
 			o('}')
 		}
 	},
 
-	lines = lines => {
+	lines = (lines, lineSeparator) => {
 		const maxI = lines.length - 1
 		for (let i = 0; i < maxI; i = i + 1) {
 			e(lines[i])
-			o(';')
+			o(lineSeparator)
 			nl()
 		}
 		e(lines[maxI])
@@ -137,20 +157,6 @@ const
 			// Mappings end at end of line. Must begin anew.
 			lastMappedAst = null
 		}
-	},
-
-	init = (inPath, outPath) => {
-		indentAmount = 0
-		_setIndent()
-		strOut = ''
-		usingSourceMaps = inPath !== undefined
-		if (usingSourceMaps) {
-			inFilePath = inPath
-			sourceMap = new SourceMapGenerator({ file: outPath })
-			outLine = StartLine
-			outColumn = StartColumn
-			lastMappedAst = null
-		}
 	}
 
 function fun() {
@@ -160,17 +166,16 @@ function fun() {
 		e(this.id)
 	}
 	paren(this.params)
-	o(' ')
 	e(this.body)
 }
 
 function arr() {
 	if (isEmpty(this.elements))
-		o('[ ]')
+		o('[]')
 	else {
-		o('[ ')
-		interleave(this.elements, ', ')
-		o(' ]')
+		o('[')
+		interleave(this.elements, ',')
+		o(']')
 	}
 }
 
@@ -182,44 +187,27 @@ function rClass() {
 		o(' extends ')
 		e(this.superClass)
 	}
-	o(' ')
 	e(this.body)
 }
 
 const
-	unary = (kind, argument) => {
-		o(kind)
-		o(' ')
-		e(argument)
-	},
-
-	binary = (operator, left, right) => {
-		e(left)
-		if (!ugly)
-			o(' ')
-		o(operator)
-		if (!ugly)
-			o(' ')
-		e(right)
-	},
-
 	call = _ => {
 		e(_.callee)
 		paren(_.arguments)
 	},
 
 	forInOf = (_, kind) => {
-		o('for (')
+		o('for(')
 		e(_.left)
 		o(kind)
 		e(_.right)
-		o(') ')
+		o(')')
 		e(_.body)
 	},
 
 	strEscape = str =>
-		`"${str.replace(/[\\\"\n\t]/g, ch => strEscapes[ch])}"`,
-	strEscapes = {
+		str.replace(/[\\"\n\t\b\f\v\r\u2028\u2029]/g, ch => _strEscapes[ch]),
+	_strEscapes = {
 		'\\': '\\\\',
 		'"': '\\"',
 		'\n': '\\n',
@@ -234,7 +222,7 @@ const
 
 implementMany(Ast, 'render', {
 	Program() {
-		lines(this.body)
+		lines(this.body, ';')
 	},
 
 	Identifier() {
@@ -250,9 +238,9 @@ implementMany(Ast, 'render', {
 		e(this.expression)
 	},
 	IfStatement() {
-		o('if (')
+		o('if(')
 		e(this.test)
-		o(') ')
+		o(')')
 		e(this.consequent)
 		if (this.alternate !== null) {
 			if (!(this.consequent instanceof Ast.BlockStatement))
@@ -263,7 +251,7 @@ implementMany(Ast, 'render', {
 	},
 	LabeledStatement() {
 		e(this.label)
-		o(': ')
+		o(':')
 		e(this.body)
 	},
 	BreakStatement() {
@@ -284,39 +272,39 @@ implementMany(Ast, 'render', {
 		if (this.test !== null) {
 			o('case ')
 			e(this.test)
-		}
-		else
+		} else
 			o('default')
 		o(':')
-		if (this.consequent.length === 1) {
-			o(' ')
+		if (this.consequent.length === 1)
 			e(this.consequent[0])
-		} else {
+		else {
 			indent()
 			nl()
-			lines(this.consequent)
+			lines(this.consequent, ';')
 			unindent()
 		}
 	},
 	SwitchStatement() {
-		o('switch (')
+		o('switch(')
 		e(this.discriminant)
-		o(') ')
+		o(')')
 		block(this.cases, '')
 	},
 	ReturnStatement() {
-		if (this.argument !== null)
-			unary('return', this.argument)
-		else
+		if (this.argument !== null) {
+			o('return ')
+			e(this.argument)
+		} else
 			o('return')
 	},
 	ThrowStatement() {
-		unary('throw', this.argument)
+		o('throw ')
+		e(this.argument)
 	},
 	CatchClause() {
-		o(' catch (')
+		o('catch(')
 		e(this.param)
-		o(') ')
+		o(')')
 		e(this.body)
 	},
 	TryStatement() {
@@ -325,34 +313,34 @@ implementMany(Ast, 'render', {
 		if (this.handler !== null)
 			e(this.handler)
 		if (this.finalizer !== null) {
-			o(' finally ')
+			o('finally')
 			e(this.finalizer)
 		}
 	},
 	WhileStatement() {
-		o('while (')
+		o('while(')
 		e(this.test)
-		o(') ')
+		o(')')
 		e(this.body)
 	},
 	DoWhileStatement() {
 		o('do ')
 		e(this.body)
-		o(' while (')
+		o(' while(')
 		e(this.test)
 		o(')')
 	},
 	ForStatement() {
-		o('for (')
+		o('for(')
 		if (this.init !== null)
 			e(this.init)
-		o('; ')
+		o(';')
 		if (this.test !== null)
 			e(this.test)
-		o('; ')
+		o(';')
 		if (this.update !== null)
 			e(this.update)
-		o(') ')
+		o(')')
 		e(this.body)
 	},
 	ForInStatement() { forInOf(this, ' in ') },
@@ -366,14 +354,14 @@ implementMany(Ast, 'render', {
 	VariableDeclarator() {
 		e(this.id)
 		if (this.init !== null) {
-			o(' = ')
+			o('=')
 			e(this.init)
 		}
 	},
 	VariableDeclaration() {
 		o(this.kind)
 		o(' ')
-		interleave(this.declarations, ', ')
+		interleave(this.declarations, ',')
 	},
 
 	// Expressions
@@ -383,14 +371,14 @@ implementMany(Ast, 'render', {
 	ArrayExpression: arr,
 	ObjectExpression() {
 		if (isEmpty(this.properties))
-			o('{ }')
+			o('{}')
 		else
 			block(this.properties, ',')
 	},
 	Property() {
 		if (this.kind === 'init') {
 			e(this.key)
-			o(': ')
+			o(':')
 			e(this.value)
 		} else {
 			assert(this.kind === 'get' || this.kind === 'set')
@@ -398,7 +386,6 @@ implementMany(Ast, 'render', {
 			o(' ')
 			e(this.key)
 			paren(this.value.params)
-			o(' ')
 			assert(this.value instanceof Ast.FunctionExpression)
 			assert(this.value.id === null && !this.value.generator)
 			e(this.value.body)
@@ -410,22 +397,28 @@ implementMany(Ast, 'render', {
 			e(this.params[0])
 		else
 			paren(this.params)
-		o(' => ')
+		o('=>')
 		e(this.body)
 	},
 	SequenceExpression() {
-		interleave(this.expressions, ', ')
+		interleave(this.expressions, ',')
 	},
 	UnaryExpression() {
-		unary(this.operator, this.argument)
+		o(this.operator)
+		o(' ')
+		e(this.argument)
 	},
 	BinaryExpression() {
 		o('(')
-		binary(this.operator, this.left, this.right)
+		e(this.left)
+		o(this.operator === 'instanceof' ? ' instanceof ' : this.operator)
+		e(this.right)
 		o(')')
 	},
 	AssignmentExpression() {
-		binary(this.operator, this.left, this.right)
+		e(this.left)
+		o(this.operator)
+		e(this.right)
 	},
 	UpdateExpression() {
 		if (this.prefix) {
@@ -438,19 +431,17 @@ implementMany(Ast, 'render', {
 	},
 	LogicalExpression() {
 		o('(')
-		binary(this.operator, this.left, this.right)
+		e(this.left)
+		o(this.operator)
+		e(this.right)
 		o(')')
 	},
 	ConditionalExpression() {
 		e(this.test)
-		o(' ?')
-		indent()
-		nl()
+		o('?')
 		e(this.consequent)
-		o(' :')
-		nl()
+		o(':')
 		e(this.alternate)
-		unindent()
 	},
 	NewExpression() {
 		o('new ')
@@ -469,17 +460,18 @@ implementMany(Ast, 'render', {
 		}
 	},
 	YieldExpression() {
-		o('(')
-		unary(this.delegate ? 'yield*' : 'yield', this.argument)
+		o(this.delegate ? '(yield* ' : '(yield ')
+		e(this.argument)
 		o(')')
 	},
 	Literal() {
-		if (this.value === null)
-			o('null')
-		else if (typeof this.value === 'string')
+		if (typeof this.value === 'string') {
+			o('"')
 			o(strEscape(this.value))
+			o('"')
+		}
 		else
-			o(this.value.toString())
+			o(this.value === null ? 'null' : this.value.toString())
 	},
 
 	// Templates
@@ -507,14 +499,14 @@ implementMany(Ast, 'render', {
 	AssignmentProperty() {
 		e(this.key)
 		if (this.key !== this.value) {
-			o(': ')
+			o(':')
 			e(this.value)
 		}
 	},
 	ObjectPattern() {
-		o('{ ')
-		interleave(this.properties, ', ')
-		o(' }')
+		o('{')
+		interleave(this.properties, ',')
+		o('}')
 	},
 	ArrayPattern: arr,
 	RestElement() {
@@ -560,7 +552,6 @@ implementMany(Ast, 'render', {
 		}
 
 		paren(params)
-		o(' ')
 		e(body)
 	},
 
@@ -600,16 +591,16 @@ implementMany(Ast, 'render', {
 		}
 		if (namespace !== undefined) {
 			if (needComma)
-				o(', ')
+				o(',')
 			e(namespace)
 			needComma = true
 		}
 		if (!isEmpty(specifiers)) {
 			if (needComma)
-				o(', ')
-			o('{ ')
-			interleave(specifiers, ', ')
-			o(' }')
+				o(',')
+			o('{')
+			interleave(specifiers, ',')
+			o('}')
 		}
 
 		o(' from ')
@@ -646,9 +637,9 @@ implementMany(Ast, 'render', {
 			assert(this.source === null)
 			e(this.declaration)
 		} else {
-			o('{ ')
-			interleave(this.specifiers, ', ')
-			o(' }')
+			o('{')
+			interleave(this.specifiers, ',')
+			o('}')
 			if (this.source !== null) {
 				o(' from ')
 				e(this.source)
