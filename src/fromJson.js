@@ -2,46 +2,43 @@ import { Nullable } from 'tupl/dist/type'
 import * as Ast from './ast'
 import Loc, { Pos } from './Loc'
 
-export default json => {
-	if (typeof json === 'string')
-		json = JSON.parse(json)
-	return fromJsonObject(json)
-}
+const
+	typeCtr = (type, val) =>
+		type instanceof Array ?
+			`${val}.map(function(_) { return ${typeCtr(type[0], '_')} })` :
+			// TODO: KLUDGE for Literal
+			type === Object ?
+			val :
+			// Set means a set of possible strings
+			(type === String || type === Boolean || type instanceof Set) ?
+			val :
+			type instanceof Nullable ?
+			`${val} == null ? null : ${typeCtr(type.type, val)}` :
+			type.isTuple ?
+			// This is created inside fromJsonObject.
+			`from${type.name}(${val})` :
+			`fromJsonObject(${val})`,
 
-const fromJsonObject = json => {
-	const obj = make[json.type](json)
-	const loc = json.loc
-	if (loc !== undefined)
-		obj.loc = Loc(posFromJson(loc.start), posFromJson(loc.end))
-	return obj
-}
+	tupleCtr = (tuple, val) => {
+		const parts = tuple.props.map(({ name, type }) => typeCtr(type, `${val}.${name}`))
+		return `l(new ${tuple.name}(${parts.join(',')}), _.loc)`
+	}
 
-const posFromJson = _ => Pos(_.line, _.column)
+// We code-generate functions for each tuple using tupleCtr.
+// Then we create a big switch statement choosing one of those functoins.
+export default (() => {
+	const tuples = Object.keys(Ast).map(key => Ast[key]).filter(_ => _.isTuple)
 
-const typeCtr = (type, prop) =>
-	type instanceof Array ?
-		`${prop}.map(function(_) { return ${typeCtr(type[0], '_')} })` :
-		// TODO:KLUDGE for Literal
-		type === Object ?
-		prop :
-		(type === String || type === Boolean || type instanceof Set) ?
-		prop :
-		type instanceof Nullable ?
-		`${prop} == null ? null : ${typeCtr(type.type, prop)}` :
-		type.isTuple ?
-		`make.${type.name}(${prop})` :
-		`fromJsonObject(${prop})`
+	// Copy loc information separately.
+	let s = 'function l(obj, loc) { if (loc !== undefined) obj.loc = loc; return obj }\n'
 
-const makeFromJson = tuple => {
-	const parts = tuple.props.map(({ name, type }) => typeCtr(type, `_.${name}`))
-	const src = `return function(_) { return new tuple(${parts.join(', ')}) }`
-	return Function('tuple', 'fromJsonObject', 'make', src)(tuple, fromJsonObject, make)
-}
+	tuples.forEach(tuple =>
+		s = s + `function from${tuple.name}(_) { return ${tupleCtr(tuple, '_')} }\n`)
 
-const make = { }
-Object.keys(Ast).forEach(function(key) {
-	const tuple = Ast[key]
-	if (tuple.isTuple)
-		make[key] = makeFromJson(tuple)
-})
-Object.freeze(make)
+	s = s + 'function fromJsonObject(_) {\nswitch (_.type)\n{'
+	tuples.forEach(tuple =>
+		s = s + `case "${tuple.name}": return from${tuple.name}(_)\n`)
+	s = s + '}\nthrow new Error("Unrecognized type `"+_.type+"`.")\n}\nreturn fromJsonObject'
+
+	return Function(...tuples.map(_ => _.name), s)(...tuples)
+})()

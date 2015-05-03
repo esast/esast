@@ -87,7 +87,7 @@ esast | 1ms | 14ms
 [escodegen](https://github.com/estools/escodegen) | 8ms | 140ms
 [esotope](https://github.com/inikulin/esotope) | 2ms | N/A
 
-Keep in mind that `fromJson` takes about 7ms.
+Keep in mind that `fromJson` takes about 3ms.
 
 
 ## Build

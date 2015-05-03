@@ -38,8 +38,7 @@ export default () => {
 		esast: () => render(ast, { ugly: true }),
 		'esast with maps': () => renderWithSourceMap(ast, 'in', 'out.js', { ugly: true }),
 		escodegen: () => escg(json),
-		'escodegen with maps': () =>
-			escg(json, { sourceMap: 'in', sourceMapWithCode: true }),
+		'escodegen with maps': () => escg(json, { sourceMap: 'in', sourceMapWithCode: true }),
 		esotope: () => estp(json),
 		fromJson: () => fj(json)
 	})
