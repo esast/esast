@@ -18,7 +18,13 @@ export const
 const makeType = superType => (name, doc, namesTypes, proto = { }) => {
 	doc = dedent(doc)
 	proto.type = name
-	return tupl(name, superType, doc, namesTypes, proto)
+	const t = tupl(name, superType, doc, namesTypes, proto)
+	const oldToString = t.prototype.toString
+	t.prototype.toString = function() {
+		const old = oldToString.call(this)
+		return this.loc ? `${this.loc.toString()}@${old}` : old
+	}
+	return t
 }
 const
 	n = makeType(Node),

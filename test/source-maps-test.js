@@ -14,13 +14,11 @@ global.describe('source maps', () => {
 		const { code, map } = renderWithSourceMap(ast, 'inFileName', 'outFileName.js')
 		assert(code === src)
 
-		const jsonMap = JSON.parse(map.toString())
-		assert(equal(jsonMap, {
+		assert(equal(map.toJSON(), {
 			version: 3,
 			sources: [ 'inFileName' ],
 			names: [],
-			// TODO: Shouldn't need first AAAA on second line.
-			mappings: 'AAAA;AAAA,AACA',
+			mappings: 'AAAA;AACA',
 			file: 'outFileName.js'
 		}))
 	})

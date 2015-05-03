@@ -30,7 +30,9 @@ export default (() => {
 	const tuples = Object.keys(Ast).map(key => Ast[key]).filter(_ => _.isTuple)
 
 	// Copy loc information separately.
-	let s = 'function l(obj, loc) { if (loc !== undefined) obj.loc = loc; return obj }\n'
+	let s = 'function l(obj, loc) { if (loc !== undefined) obj.loc = fromLoc(loc); return obj }\n'
+	s = s + 'function fromLoc(loc) { return new Loc(fromPos(loc.start), fromPos(loc.end)) }\n'
+	s = s + 'function fromPos(pos) { return new Pos(pos.line, pos.column) }\n'
 
 	tuples.forEach(tuple =>
 		s = s + `function from${tuple.name}(_) { return ${tupleCtr(tuple, '_')} }\n`)
@@ -40,5 +42,5 @@ export default (() => {
 		s = s + `case "${tuple.name}": return from${tuple.name}(_)\n`)
 	s = s + '}\nthrow new Error("Unrecognized type `"+_.type+"`.")\n}\nreturn fromJsonObject'
 
-	return Function(...tuples.map(_ => _.name), s)(...tuples)
+	return Function('Loc', 'Pos', ...tuples.map(_ => _.name), s)(Loc, Pos, ...tuples)
 })()

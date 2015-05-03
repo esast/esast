@@ -61,7 +61,8 @@ const
 	// str may not contain newlines.
 	o = str => {
 		strOut = strOut + str
-		_mapStr(str)
+		if (usingSourceMaps)
+			_mapStr(str)
 	},
 
 	interleave = (asts, str) => {
@@ -128,35 +129,31 @@ const
 
 	nl = () => {
 		if (!ugly) {
-			strOut = strOut + '\n'
-			_mapNewLine()
-			o(indentStr)
+			strOut = strOut + '\n' + indentStr
+			if (usingSourceMaps)
+				_mapNewLine()
 		}
 	},
 
 	// Private
 
 	_mapStr = str => {
-		if (usingSourceMaps) {
-			if (curAst !== lastMappedAst && curAst.loc !== undefined) {
-				sourceMap.addMapping({
-					source: inFilePath,
-					original: curAst.loc.start,
-					generated: Pos(outLine, outColumn)
-				})
-				lastMappedAst = curAst
-			}
-			outColumn = outColumn + str.length
+		if (curAst !== lastMappedAst && curAst.loc !== undefined) {
+			sourceMap.addMapping({
+				source: inFilePath,
+				original: curAst.loc.start,
+				generated: Pos(outLine, outColumn)
+			})
+			lastMappedAst = curAst
 		}
+		outColumn = outColumn + str.length
 	},
 
 	_mapNewLine = () => {
-		if (usingSourceMaps) {
-			outLine = outLine + 1
-			outColumn = StartColumn
-			// Mappings end at end of line. Must begin anew.
-			lastMappedAst = null
-		}
+		outLine = outLine + 1
+		outColumn = StartColumn + indentAmount
+		// Mappings end at end of line. Must begin anew.
+		lastMappedAst = null
 	}
 
 function fun() {
