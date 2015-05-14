@@ -2,7 +2,7 @@
 	"name": "esast",
 	"version": "0.0.0",
 	"dependencies": {
-		"acorn": "^1.0.3",
+		"acorn": "^1.1.0",
 		"amdefine": "^0.1.0",
 		"source-map": "mozilla/source-map",
 		"tupl": "andy-hanson/tupl"
@@ -10,7 +10,7 @@
 	"devDependencies": {
 		"gulp": "^3.8.11",
 		"gulp-babel": "^5.1.0",
-		"gulp-eslint": "^0.8.0",
+		"gulp-eslint": "^0.12.0",
 		"gulp-header": "^1.2.2",
 		"gulp-mocha": "^2.0.1",
 		"gulp-plumber": "^1.0.0",

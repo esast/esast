@@ -16,6 +16,14 @@ export const
 		return _
 	},
 
+	loc = (ast, loc) => {
+		ast.loc = loc
+		return ast
+	},
+
+	member = (object, propertyName) =>
+		memberExpression(object, propertyIdOrLiteralCached(propertyName)),
+
 	propertyIdOrLiteralCached = propertyName => {
 		let _ = propertyToIdOrLiteral.get(propertyName)
 		if (_ === undefined) {
@@ -25,12 +33,9 @@ export const
 		return _
 	},
 
-	member = (object, propertyName) =>
-		memberExpression(object, propertyIdOrLiteralCached(propertyName)),
-
-	toStatement = _ =>
-		(_ instanceof Statement || _ instanceof Declaration) ? _ : ExpressionStatement(_),
-
 	// TODO:ES6 arrow functions
 	thunk = value =>
-		functionExpressionThunk(BlockStatement([ ReturnStatement(value) ]), false)
+		functionExpressionThunk(BlockStatement([ ReturnStatement(value) ]), false),
+
+	toStatement = _ =>
+		(_ instanceof Statement || _ instanceof Declaration) ? _ : ExpressionStatement(_)
