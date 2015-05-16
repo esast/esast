@@ -2,7 +2,7 @@ import assert from 'assert'
 import {
 	AssignmentProperty, ArrayExpression, ArrayPattern, ArrowFunctionExpression,
 	AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CallExpression,
-	CatchClause, ClassBody, ClassDeclaration, ClassExpression, ConditionalExpression,
+	CatchClause, ClassBody, ClassDeclaration, ConditionalExpression,
 	ContinueStatement, DebuggerStatement, DoWhileStatement, EmptyStatement, ExpressionStatement,
 	ExportSpecifier, ExportNamedDeclaration, ExportDefaultDeclaration, ExportAllDeclaration,
 	ForStatement, ForInStatement, ForOfStatement, FunctionDeclaration, FunctionExpression,
@@ -11,7 +11,7 @@ import {
 	MethodDefinition, NewExpression, ObjectExpression, ObjectPattern, Property, RestElement,
 	ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThisExpression,
 	ThrowStatement, TryStatement, UpdateExpression, UnaryExpression, VariableDeclarator,
-	VariableDeclaration, WhileStatement, WithStatement, YieldExpression } from '../dist/ast'
+	VariableDeclaration, WhileStatement, YieldExpression } from '../dist/ast'
 import fromJson from '../dist/fromJson'
 import parse from '../dist/parse'
 import render, { renderWithSourceMap } from '../dist/render'

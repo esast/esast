@@ -1,9 +1,7 @@
 import assert from 'assert'
-import { Literal } from '../dist/ast'
 import Loc, { Pos } from '../dist/Loc'
 import parse from '../dist/parse'
 import { renderWithSourceMap } from '../dist/render'
-import { dedent } from '../dist/private/util'
 import { equal } from './util'
 
 global.describe('source maps', () => {

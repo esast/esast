@@ -1,8 +1,7 @@
 import tupl from 'tupl/dist/tupl'
-import { AssignmentExpression, BinaryExpression, BlockStatement, CallExpression, Expression,
-	FunctionExpression, Identifier, Literal, MemberExpression, Pattern, Property, ReturnStatement,
-	Statement, SwitchCase, SwitchStatement, YieldExpression, UnaryExpression, VariableDeclaration,
-	VariableDeclarator, WhileStatement } from './ast'
+import { AssignmentExpression, BlockStatement, CallExpression, Expression, FunctionExpression,
+	Identifier, Literal, MemberExpression, Pattern, Property, VariableDeclaration,
+	VariableDeclarator, YieldExpression } from './ast'
 import { assert } from './private/util'
 
 const s = (superType, namesTypes, protoProps) => tupl(

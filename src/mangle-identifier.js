@@ -3,7 +3,7 @@ import { newSet } from './private/util'
 export default name =>
 	forbiddenNames.has(name) ?
 		'_' + name :
-		name.replace(/[^a-zA-Z0-9$_]/g, ch => '_' + ch.charCodeAt(0))
+		name.replace(/[^a-zA-Z0-9$_]/g, _ => '_' + _.charCodeAt(0))
 
 export const
 	needsMangle = name =>
@@ -11,6 +11,21 @@ export const
 
 	propertyNameOk = name =>
 		name.search(/[^a-zA-Z0-9$_]/) === -1
+
+export const
+	unmangle = name => {
+		if (name[0] === '_') {
+			const rest = name.slice(1)
+			if (forbiddenNames.has(rest))
+				return rest
+		}
+		return name.replace(/_\d+/g, match => {
+			const charCode = match.slice(1)
+			const n = Number.parseInt(charCode)
+			const ch = String.fromCharCode(n)
+			return ch === '\0' ? match : ch
+		})
+	}
 
 const forbiddenNames = newSet([
 	'abstract',
@@ -78,6 +93,5 @@ const forbiddenNames = newSet([
 	'void',
 	'while',
 	'with',
-	'yield',
-	'yield*'
+	'yield'
 ])

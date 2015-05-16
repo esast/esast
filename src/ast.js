@@ -1,7 +1,6 @@
 import tupl, { abstract } from 'tupl/dist/tupl'
 import { Nullable, Union } from 'tupl/dist/type'
-import Loc from './Loc'
-import { assert, dedent, newSet, pAdd } from './private/util'
+import { dedent, newSet } from './private/util'
 
 export const
 	Node = abstract('Node', Object,

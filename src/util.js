@@ -1,6 +1,6 @@
 import { BlockStatement, Declaration, ExpressionStatement, Identifier, Literal,
-	NewExpression, ReturnStatement, Statement, ThrowStatement } from './ast'
-import mangleIdentifier, { needsMangle, propertyNameOk } from './mangle-identifier'
+	ReturnStatement, Statement } from './ast'
+import mangleIdentifier, { propertyNameOk } from './mangle-identifier'
 import { functionExpressionThunk, memberExpression } from './specialize'
 
 const specialNameToId = new Map()
