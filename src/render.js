@@ -16,7 +16,7 @@ export const renderWithSourceMap = (ast, inFilePath, outFilePath, options = { })
 	type(ast, Ast.Node, inFilePath, String, outFilePath, String)
 	init(options, inFilePath, outFilePath)
 	e(ast)
-	const res = { code: strOut, map: sourceMap }
+	const res = { code: strOut, sourceMap: sourceMap.toJSON() }
 	uninit()
 	return res
 }

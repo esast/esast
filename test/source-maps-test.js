@@ -9,10 +9,10 @@ global.describe('source maps', () => {
 		const src = 'debugger;\n1'
 		const ast = parse(src)
 		assert(equal(ast.loc, Loc(Pos(1, 0), Pos(2, 1))))
-		const { code, map } = renderWithSourceMap(ast, 'inFileName', 'outFileName.js')
+		const { code, sourceMap } = renderWithSourceMap(ast, 'inFileName', 'outFileName.js')
 		assert(code === src)
 
-		assert(equal(map.toJSON(), {
+		assert(equal(sourceMap, {
 			version: 3,
 			sources: [ 'inFileName' ],
 			names: [],

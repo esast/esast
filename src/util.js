@@ -3,15 +3,15 @@ import { BlockStatement, Declaration, ExpressionStatement, Identifier, Literal,
 import mangleIdentifier, { propertyNameOk } from './mangle-identifier'
 import { functionExpressionThunk, memberExpression } from './specialize'
 
-const specialNameToId = new Map()
+const nameToId = new Map()
 const propertyToIdOrLiteral = new Map()
 
 export const
 	idCached = name => {
-		let _ = specialNameToId.get(name)
+		let _ = nameToId.get(name)
 		if (_ === undefined) {
 			_ = Identifier(mangleIdentifier(name))
-			specialNameToId.set(name, _)
+			nameToId.set(name, _)
 		}
 		return _
 	},
