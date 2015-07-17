@@ -1,4 +1,3 @@
-
 export const equal = (a, b) => {
 	if (typeof a === 'object') {
 		if (typeof b !== 'object')
@@ -8,6 +7,10 @@ export const equal = (a, b) => {
 			return b === null
 
 		const keys = Object.keys(a)
+		if (b === null) {
+			console.log('Only first has ', a)
+			return false
+		}
 		if (Object.keys(b).length !== keys.length) {
 			console.log('different keys', keys, Object.keys(b))
 			return false

@@ -4,7 +4,7 @@ import mangle, { unmangle } from '../dist/mangle-identifier'
 const tests = {
 	'x-y': 'x_45y',
 	'x!?': 'x_33_63',
-	'default': '_default'
+	default: '_default'
 }
 
 global.describe('mangle', () => {

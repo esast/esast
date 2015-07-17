@@ -1,6 +1,6 @@
 import tupl, { abstract } from 'tupl/dist/tupl'
 import { Nullable, Union } from 'tupl/dist/type'
-import { dedent, newSet } from './private/util'
+import { assert, dedent, newSet } from './private/util'
 
 export const
 	Node = abstract('Node', Object,
@@ -14,7 +14,9 @@ export const
 	Pattern = abstract('Pattern', Node,
 		'Can go in a parameter list or on the left side of an assignment.')
 
-const makeType = superType => (name, doc, namesTypes, proto = { }) => {
+const makeType = superType => (name, doc, namesTypes, proto) => {
+	// TODO:ES6 Optional args
+	if (proto === undefined) proto = { }
 	doc = dedent(doc)
 	proto.type = name
 	const t = tupl(name, superType, doc, namesTypes, proto)
@@ -43,6 +45,23 @@ export const
 			Also look at \`esast.util idCached\`,
 			which mangles and avoids constructing the same identifier twice.`,
 		[ 'name', String ]),
+
+	VariableDeclarator = n('VariableDeclarator',
+		'A single variable within a VariableDeclaration.',
+		[
+			'id', Pattern,
+			'init', Nullable(Expression)
+		]),
+	VariableDeclarationKind = newSet([ 'const', 'let', 'var' ]),
+	VariableDeclaration = d('VariableDeclaration',
+		// TODO: Assert
+		`
+			Declares and optionally initializes many variables.
+			Must be at least one declaration.`,
+		[
+			'kind', VariableDeclarationKind,
+			'declarations', [VariableDeclarator]
+		]),
 
 	// Statements
 	EmptyStatement = s('EmptyStatement',
@@ -167,24 +186,12 @@ export const
 			'generator', Boolean
 		]),
 
-	VariableDeclarator = n('VariableDeclarator',
-		'A single variable within a VariableDeclaration.',
-		[
-			'id', Pattern,
-			'init', Nullable(Expression)
-		]),
-	VariableDeclarationKind = newSet([ 'const', 'let', 'var' ]),
-	VariableDeclaration = d('VariableDeclaration',
-		// TODO: Assert
-		`
-			Declares and optionally initializes many variables.
-			Must be at least one declaration.`,
-		[
-			'kind', VariableDeclarationKind,
-			'declarations', [VariableDeclarator]
-		]),
-
 	// Expressions
+	// TODO: Literal as abstract type
+	// Value: Number | String | null | Boolean
+	Literal = e('Literal',
+		'A literal token.',
+		[ 'value', Object ]),
 	ThisExpression = e('ThisExpression',
 		'The `this` keyword.',
 		[ ]),
@@ -310,6 +317,9 @@ export const
 			'callee', Expression,
 			'arguments', [Expression]
 		]),
+	SpreadElement = n('SpreadElement',
+		'...args in call',
+		[ 'argument', Expression ]),
 	MemberExpression = e('MemberExpression',
 		// TODO:ASSERT
 		`
@@ -326,19 +336,12 @@ export const
 			'argument', Expression,
 			'delegate', Boolean
 		]),
-	// TODO: Literal as abstract type
-	// Value: Number | String | null | Boolean
-	Literal = e('Literal',
-		'A literal token.',
-		[ 'value', Object ]),
 
 	// Templates
-	// TODO: test, document
 	TemplateElement = n('TemplateElement',
 		'doc',
 		[
 			'tail', Boolean,
-			// TODO:estree spec says { cooked, value }, but acorn uses { cooked, raw }
 			// TODO: { cooked:String, raw:String } data structure
 			'value', Object
 		]),
@@ -347,7 +350,12 @@ export const
 		[
 			'quasis', [TemplateElement],
 			'expressions', [Expression]
-		]),
+		],
+		{
+			postConstruct() {
+				assert(this.quasis.length === this.expressions.length + 1)
+			}
+		}),
 	TaggedTemplateExpression = e('TaggedTemplateExpression',
 		'doc',
 		[
@@ -382,6 +390,7 @@ export const
 			Can be the last argument to a FunctionExpression/FunctionDeclaration
 			or  go at the end of an ArrayPattern.`,
 		[ 'argument', Pattern ]),
+
 	// TODO: What is this?
 	// AssignmentPattern = p('AssignmentPattern',
 	//	'left', Pattern,

@@ -27,8 +27,8 @@ export const Pos = tupl('Pos', Object,
 
 const Loc = tupl('Loc', Object,
 	'Range of text in source string.',
-	[ 'start', Pos, 'end', Pos ], {
-	toString() { return this.start + '-' + this.end }
+	[ 'start', Pos, 'end', Pos ],
+	{ toString() { return this.start + '-' + this.end }
 })
 export default Loc
 

@@ -1,6 +1,7 @@
 import tupl from 'tupl/dist/tupl'
-import { AssignmentExpression, BlockStatement, CallExpression, Expression, FunctionExpression,
-	Identifier, Literal, MemberExpression, Pattern, Property, VariableDeclaration,
+import { Union } from 'tupl/dist/type'
+import { ArrowFunctionExpression, AssignmentExpression, BlockStatement, CallExpression, Expression,
+	FunctionExpression, Literal, MemberExpression, Pattern, Property, VariableDeclaration,
 	VariableDeclarator, YieldExpression } from './ast'
 import { assert } from './private/util'
 
@@ -21,11 +22,8 @@ export const
 		[ 'callee', Expression ],
 		{ arguments: [] }),
 
-	functionExpressionPlain = (params, body, generator) =>
-		(generator ? FunctionExpressionPlainGenerator : FunctionExpressionPlain)(params, body),
-
 	functionExpressionThunk = (body, generator) =>
-		(generator ? FunctionExpressionThunkGenerator : FunctionExpressionThunk)(body),
+		(generator ? FunctionExpressionThunkGenerator : ArrowFunctionExpressionThunk)(body),
 
 	variableDeclarationConst = s(VariableDeclaration,
 		[ 'declarations', [VariableDeclarator] ],
@@ -54,15 +52,9 @@ export const
 		{ delegate: true })
 
 const
-	FunctionExpressionPlain = s(FunctionExpression,
-		[ 'params', [Identifier], 'body', BlockStatement ],
-		{ id: null, generator: false }),
-	FunctionExpressionPlainGenerator = s(FunctionExpression,
-		[ 'params', [Identifier], 'body', BlockStatement ],
-		{ id: null, generator: true }),
-	FunctionExpressionThunk = s(FunctionExpression,
-		[ 'body', BlockStatement ],
-		{ id: null, params: [], generator: false }),
+	ArrowFunctionExpressionThunk = s(ArrowFunctionExpression,
+		[ 'body', Union(BlockStatement, Expression) ],
+		{ params: [ ] }),
 	FunctionExpressionThunkGenerator = s(FunctionExpression,
 		[ 'body', BlockStatement ],
 		{ id: null, params: [], generator: true }),

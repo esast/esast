@@ -7,6 +7,12 @@ const nameToId = new Map()
 const propertyToIdOrLiteral = new Map()
 
 export const
+	escapeStringForLiteral = str =>
+		str.replace(/[\\"\n\t\b\f\v\r\u2028\u2029]/g, ch => literalEscapes[ch]),
+
+	escapeStringForTemplate = str =>
+		str.replace(/[{\\`\n\t\b\f\v\r\u2028\u2029]/g, ch => templateEscapes[ch]),
+
 	idCached = name => {
 		let _ = nameToId.get(name)
 		if (_ === undefined) {
@@ -39,3 +45,31 @@ export const
 
 	toStatement = _ =>
 		(_ instanceof Statement || _ instanceof Declaration) ? _ : ExpressionStatement(_)
+
+const
+	literalEscapes = {
+		'\\': '\\\\',
+		'"': '\\"',
+		'\n': '\\n',
+		'\t': '\\t',
+		'\b': '\\b',
+		'\f': '\\f',
+		'\v': '\\v',
+		'\r': '\\r',
+		'\u2028': '\\u2028',
+		'\u2029': '\\u2029'
+	},
+	templateEscapes = {
+		// Needed to make sure "${" is escaped.
+		'{': '\\{',
+		'`': '\\`',
+		'\\': '\\\\',
+		'\n': '\\n',
+		'\t': '\\t',
+		'\b': '\\b',
+		'\f': '\\f',
+		'\v': '\\v',
+		'\r': '\\r',
+		'\u2028': '\\u2028',
+		'\u2029': '\\u2029'
+	}

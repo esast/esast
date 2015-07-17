@@ -1,10 +1,15 @@
 import { SourceMapGenerator } from 'source-map/lib/source-map/source-map-generator'
 import * as Ast from './ast'
+import { ArrowFunctionExpression, BlockStatement, FunctionExpression, Identifier,
+	ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, Literal, Node } from './ast'
 import { Pos, StartColumn, StartLine } from './Loc'
+import { escapeStringForLiteral } from './util'
 import { assert, implementMany, isEmpty, last, type } from './private/util'
 
-export default (ast, options = { }) => {
-	type(ast, Ast.Node)
+export default (ast, options) => {
+	// TODO:ES6 Optional args
+	if (options === undefined) options = { }
+	type(ast, Node)
 	init(options)
 	e(ast)
 	const res = strOut
@@ -12,8 +17,10 @@ export default (ast, options = { }) => {
 	return res
 }
 
-export const renderWithSourceMap = (ast, inFilePath, outFilePath, options = { }) => {
-	type(ast, Ast.Node, inFilePath, String, outFilePath, String)
+export const renderWithSourceMap = (ast, inFilePath, outFilePath, options) => {
+	// TODO:ES6 Optional args
+	if (options === undefined) options = { }
+	type(ast, Node, inFilePath, String, outFilePath, String)
 	init(options, inFilePath, outFilePath)
 	e(ast)
 	const res = { code: strOut, sourceMap: sourceMap.toJSON() }
@@ -76,7 +83,7 @@ const
 		}
 	},
 
-	paren = (asts) => {
+	paren = asts => {
 		o('(')
 		interleave(asts, ',')
 		o(')')
@@ -188,11 +195,6 @@ function rClass() {
 }
 
 const
-	call = _ => {
-		e(_.callee)
-		paren(_.arguments)
-	},
-
 	forInOf = (_, kind) => {
 		o('for(')
 		e(_.left)
@@ -200,21 +202,6 @@ const
 		e(_.right)
 		o(')')
 		e(_.body)
-	},
-
-	strEscape = str =>
-		str.replace(/[\\"\n\t\b\f\v\r\u2028\u2029]/g, ch => _strEscapes[ch]),
-	_strEscapes = {
-		'\\': '\\\\',
-		'"': '\\"',
-		'\n': '\\n',
-		'\t': '\\t',
-		'\b': '\\b',
-		'\f': '\\f',
-		'\v': '\\v',
-		'\r': '\\r',
-		'\u2028': '\\u2028',
-		'\u2029': '\\u2029'
 	}
 
 implementMany(Ast, 'render', {
@@ -240,7 +227,7 @@ implementMany(Ast, 'render', {
 		o(')')
 		e(this.consequent)
 		if (this.alternate !== null) {
-			if (!(this.consequent instanceof Ast.BlockStatement))
+			if (!(this.consequent instanceof BlockStatement))
 				o(';')
 			o(' else ')
 			e(this.alternate)
@@ -383,14 +370,14 @@ implementMany(Ast, 'render', {
 			o(' ')
 			e(this.key)
 			paren(this.value.params)
-			assert(this.value instanceof Ast.FunctionExpression)
+			assert(this.value instanceof FunctionExpression)
 			assert(this.value.id === null && !this.value.generator)
 			e(this.value.body)
 		}
 	},
 	FunctionExpression: fun,
 	ArrowFunctionExpression() {
-		if (this.params.length === 1 && this.params[0] instanceof Ast.Identifier)
+		if (this.params.length === 1 && this.params[0] instanceof Identifier)
 			e(this.params[0])
 		else
 			paren(this.params)
@@ -441,10 +428,24 @@ implementMany(Ast, 'render', {
 		e(this.alternate)
 	},
 	NewExpression() {
-		o('new ')
-		call(this)
+		o('new (')
+		e(this.callee)
+		o(')')
+		paren(this.arguments)
 	},
-	CallExpression() { call(this) },
+	CallExpression() {
+		if (this.callee instanceof ArrowFunctionExpression) {
+			o('(')
+			e(this.callee)
+			o(')')
+		} else
+			e(this.callee)
+		paren(this.arguments)
+	},
+	SpreadElement() {
+		o('...')
+		e(this.argument)
+	},
 	MemberExpression() {
 		e(this.object)
 		if (this.computed) {
@@ -452,7 +453,12 @@ implementMany(Ast, 'render', {
 			e(this.property)
 			o(']')
 		} else {
-			o('.')
+			if (this.object instanceof Literal &&
+				typeof this.object.value === 'number' &&
+				this.object.value === (this.object.value | 0))
+				o('..')
+			else
+				o('.')
 			e(this.property)
 		}
 	},
@@ -464,7 +470,7 @@ implementMany(Ast, 'render', {
 	Literal() {
 		if (typeof this.value === 'string') {
 			o('"')
-			o(strEscape(this.value))
+			o(escapeStringForLiteral(this.value))
 			o('"')
 		}
 		else
@@ -477,7 +483,6 @@ implementMany(Ast, 'render', {
 	},
 	TemplateLiteral() {
 		o('`')
-		assert(this.quasis.length === this.expressions.length + 1)
 		e(this.quasis[0])
 		for (let i = 0; i < this.expressions.length; i = i + 1)	 {
 			o('${')
@@ -516,8 +521,6 @@ implementMany(Ast, 'render', {
 			o('static ')
 
 		const fun = this.value
-		// TODO
-		assert(!fun.generator)
 		assert(fun.id === null)
 		const params = fun.params
 		const body = fun.body
@@ -531,9 +534,11 @@ implementMany(Ast, 'render', {
 				e(this.key)
 		}
 
+		if (fun.generator)
+			o('*')
 		switch (this.kind) {
 			case 'constructor':
-				assert(this.key instanceof Ast.Identifier && this.key.name === 'constructor')
+				assert(this.key instanceof Identifier && this.key.name === 'constructor')
 				o('constructor')
 				break
 			case 'method':
@@ -564,22 +569,22 @@ implementMany(Ast, 'render', {
 
 		let def, namespace
 		let specifiers = []
-		this.specifiers.forEach(s => {
-			if (s instanceof Ast.ImportDefaultSpecifier)
+		for (const s of this.specifiers) {
+			if (s instanceof ImportDefaultSpecifier)
 				if (def === undefined)
 					def = s
 				else
 					throw new Error('Multiple default imports')
-			else if (s instanceof Ast.ImportNamespaceSpecifier)
+			else if (s instanceof ImportNamespaceSpecifier)
 				if (namespace === undefined)
 					namespace = s
 				else
 					throw new Error('Multiple namespace imports')
 			else {
-				assert(s instanceof Ast.ImportSpecifier)
+				assert(s instanceof ImportSpecifier)
 				specifiers.push(s)
 			}
-		})
+		}
 
 		let needComma = false
 		if (def !== undefined) {

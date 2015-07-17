@@ -9,9 +9,10 @@ import {
 	Identifier, IfStatement, ImportDeclaration, ImportSpecifier, ImportDefaultSpecifier,
 	ImportNamespaceSpecifier, LabeledStatement, Literal, LogicalExpression, MemberExpression,
 	MethodDefinition, NewExpression, ObjectExpression, ObjectPattern, Property, RestElement,
-	ReturnStatement, SequenceExpression, SwitchCase, SwitchStatement, ThisExpression,
-	ThrowStatement, TryStatement, UpdateExpression, UnaryExpression, VariableDeclarator,
-	VariableDeclaration, WhileStatement, YieldExpression } from '../dist/ast'
+	ReturnStatement, SequenceExpression, SpreadElement, SwitchCase, SwitchStatement,
+	TaggedTemplateExpression, TemplateElement, TemplateLiteral, ThisExpression, ThrowStatement,
+	TryStatement, UpdateExpression, UnaryExpression, VariableDeclarator, VariableDeclaration,
+	WhileStatement, YieldExpression } from '../dist/ast'
 import fromJson from '../dist/fromJson'
 import parse from '../dist/parse'
 import render, { renderWithSourceMap } from '../dist/render'
@@ -22,7 +23,10 @@ const
 	a = Identifier('a'), b = Identifier('b'), c = Identifier('c'),
 	one = Literal(1), two = Literal(2),
 	doOne = ExpressionStatement(one), blockDoOne = BlockStatement([ doOne ]),
-	emptyFun = FunctionExpression(null, [ ], BlockStatement([ ])),
+	emptyBlock = BlockStatement([ ]),
+	emptyFun = FunctionExpression(null, [ ], emptyBlock),
+	emptyGenFun = FunctionExpression(null, [ ], emptyBlock, true),
+	emptyFunWithArgA = FunctionExpression(null, [ a ], emptyBlock),
 	litA = Literal('a')
 
 const tests = {
@@ -198,6 +202,10 @@ const tests = {
 		{
 			src: '[1,2]',
 			ast: ArrayExpression([ one, two ])
+		},
+		{
+			src: '[...1]',
+			ast: ArrayExpression([ SpreadElement(one) ])
 		}
 	],
 	ObjectExpression: [
@@ -213,7 +221,7 @@ const tests = {
 					get b(){
 						1
 					},
-					set "c"(){
+					set "c"(a){
 						1
 					}
 				})`,
@@ -223,7 +231,7 @@ const tests = {
 					Property('get', b,
 						FunctionExpression(null, [ ], blockDoOne)),
 					Property('set', Literal('c'),
-						FunctionExpression(null, [ ], blockDoOne))
+						FunctionExpression(null, [ a ], blockDoOne))
 				])
 			])
 		}
@@ -291,18 +299,36 @@ const tests = {
 	},
 	NewExpression: [
 		{
-			src: 'new a()',
+			src: 'new (a)()',
 			ast: NewExpression(a, [ ])
 		},
 		{
-			src: 'new a(b)',
+			src: 'new (a)(b)',
 			ast: NewExpression(a, [ b ])
+		},
+		{
+			src: 'new (a(b))(c)',
+			ast: NewExpression(CallExpression(a, [ b ]), [ c ])
 		}
 	],
-	CallExpression: {
-		src: 'a(b)',
-		ast: CallExpression(a, [ b ])
-	},
+	CallExpression: [
+		{
+			src: 'a(b)',
+			ast: CallExpression(a, [ b ])
+		},
+		{
+			src: '(a=>a)(1)',
+			ast: CallExpression(ArrowFunctionExpression([ a ], a), [ one ])
+		},
+		{
+			src: 'a(...b)',
+			ast: CallExpression(a, [ SpreadElement(b) ])
+		},
+		{
+			src: 'a(...(1+1))',
+			ast: CallExpression(a, [ SpreadElement(BinaryExpression('+', one, one)) ])
+		}
+	],
 	MemberExpression: [
 		{
 			src: 'a.b',
@@ -311,6 +337,14 @@ const tests = {
 		{
 			src: 'a[1]',
 			ast: MemberExpression(a, one, true)
+		},
+		{
+			src: '1..a',
+			ast: MemberExpression(one, a, false)
+		},
+		{
+			src: '1.5.a',
+			ast: MemberExpression(Literal(1.5), a, false)
 		}
 	],
 	YieldExpression: {
@@ -350,6 +384,54 @@ const tests = {
 		}
 	],
 
+	TemplateLiteral: [
+		{
+			src: '`a${b}a`',
+			ast: TemplateLiteral(
+				[
+					TemplateElement(false, { cooked: 'a', raw: 'a' }),
+					TemplateElement(true, { cooked: 'a', raw: 'a' })
+				],
+				[ b ])
+		},
+		{
+			src: '`${a}${b}`',
+			ast: TemplateLiteral(
+				[
+					TemplateElement(false, { cooked: '', raw: '' }),
+					TemplateElement(false, { cooked: '', raw: '' }),
+					TemplateElement(true, { cooked: '', raw: '' })
+				],
+				[ a, b ])
+		},
+		{
+			src: '`$\\{a}`',
+			ast: TemplateLiteral(
+				[ TemplateElement(true, { cooked: '${a}', raw: '$\\{a}' }) ],
+				[ ])
+		}
+		//TODO: acorn has trouble parsing `raw`
+		/*
+		{
+			src: '`\n`',
+			ast: TemplateLiteral(
+				[
+					TemplateElement(true, { cooked: '\n', raw: '\\n' })
+				],
+				[ ])
+		}
+		*/
+	],
+
+	TaggedTemplateExpression: {
+		src: 'a`a`',
+		ast: TaggedTemplateExpression(
+			a,
+			TemplateLiteral(
+				[ TemplateElement(true, { cooked: 'a', raw: 'a' }) ],
+				[ ]))
+	},
+
 	ObjectPattern: {
 		src: 'const {a,b:c}=a',
 		ast: VariableDeclaration('const', [
@@ -377,8 +459,9 @@ const tests = {
 			class a extends b{
 				constructor(){}
 				a(){}
+				*a(){}
 				get b(){}
-				set c(){}
+				set c(a){}
 				static a(){}
 				["x"](){}
 				static get ["x"](){}
@@ -389,8 +472,9 @@ const tests = {
 			ClassBody([
 				MethodDefinition(Identifier('constructor'), emptyFun, 'constructor', false, false),
 				MethodDefinition(a, emptyFun, 'method', false, false),
+				MethodDefinition(a, emptyGenFun, 'method', false, false),
 				MethodDefinition(b, emptyFun, 'get', false, false),
-				MethodDefinition(c, emptyFun, 'set', false, false),
+				MethodDefinition(c, emptyFunWithArgA, 'set', false, false),
 				MethodDefinition(a, emptyFun, 'method', true, false),
 				MethodDefinition(Literal('x'), emptyFun, 'method', false, true),
 				MethodDefinition(Literal('x'), emptyFun, 'get', true, true)

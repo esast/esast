@@ -43,6 +43,22 @@ It is assumed that you have called `mangleIdentifier` as appropriate.
 Also look at `esast.util idCached`,
 which mangles and avoids constructing the same identifier twice.
 
+## VariableDeclarator
+
+	id: Pattern
+	init: Nullable(
+	Expression)
+
+A single variable within a VariableDeclaration.
+
+## VariableDeclaration
+
+	kind: 'const' | 'let' | 'var'
+	declarations: [VariableDeclarator]
+
+Declares and optionally initializes many variables.
+Must be at least one declaration.
+
 ## EmptyStatement
 
 
@@ -157,7 +173,7 @@ At least one of `handler` or `finalizer` must be non-null.
 
 	init: Nullable(
 	Union(
-		null,
+		VariableDeclaration,
 		Expression))
 	test: Nullable(
 	Expression)
@@ -171,7 +187,7 @@ Not to be confused with ForInStatement or ForOfStatement.
 ## ForInStatement
 
 	left: Union(
-	null,
+	VariableDeclaration,
 	Expression)
 	right: Expression
 	body: Statement
@@ -181,7 +197,7 @@ Not to be confused with ForInStatement or ForOfStatement.
 ## ForOfStatement
 
 	left: Union(
-	null,
+	VariableDeclaration,
 	Expression)
 	right: Expression
 	body: Statement
@@ -208,21 +224,11 @@ FunctionDeclaration or FunctionExpression.
 
 Unlike for FunctionExpression, id must not be null.
 
-## VariableDeclarator
+## Literal
 
-	id: Pattern
-	init: Nullable(
-	Expression)
+	value: Object
 
-A single variable within a VariableDeclaration.
-
-## VariableDeclaration
-
-	kind: 'const' | 'let' | 'var'
-	declarations: [VariableDeclarator]
-
-Declares and optionally initializes many variables.
-Must be at least one declaration.
+A literal token.
 
 ## ThisExpression
 
@@ -240,7 +246,7 @@ An array literal.
 
 	kind: 'init' | 'get' | 'set'
 	key: Union(
-	null,
+	Literal,
 	Identifier)
 	value: Expression
 
@@ -361,12 +367,6 @@ Else, `object.property` -- meaning property should be an Identifier.
 	delegate: Boolean
 
 `yield argument` or `yield* argument`.
-
-## Literal
-
-	value: Object
-
-A literal token.
 
 ## TemplateElement
 
