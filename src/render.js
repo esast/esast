@@ -1,15 +1,14 @@
 import { SourceMapGenerator } from 'source-map/lib/source-map/source-map-generator'
 import * as Ast from './ast'
 import { ArrowFunctionExpression, BlockStatement, FunctionExpression, Identifier,
-	ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, Literal, Node } from './ast'
+	ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, Literal } from './ast'
 import { Pos, StartColumn, StartLine } from './Loc'
 import { escapeStringForLiteral } from './util'
-import { assert, implementMany, isEmpty, last, type } from './private/util'
+import { assert, implementMany, isEmpty, last } from './private/util'
 
-export default (ast, options) => {
+export default (ast /* Node */, options) => {
 	// TODO:ES6 Optional args
 	if (options === undefined) options = { }
-	type(ast, Node)
 	init(options)
 	e(ast)
 	const res = strOut
@@ -17,10 +16,10 @@ export default (ast, options) => {
 	return res
 }
 
-export const renderWithSourceMap = (ast, inFilePath, outFilePath, options) => {
+export const renderWithSourceMap =
+	(ast /* Node */, inFilePath /* String */, outFilePath /* String */, options) => {
 	// TODO:ES6 Optional args
 	if (options === undefined) options = { }
-	type(ast, Node, inFilePath, String, outFilePath, String)
 	init(options, inFilePath, outFilePath)
 	e(ast)
 	const res = { code: strOut, sourceMap: sourceMap.toJSON() }
@@ -37,7 +36,7 @@ let strOut,
 
 const
 	init = (options, inPath, outPath) => {
-		ugly = !!options.ugly
+		ugly = Boolean(options.ugly)
 
 		indentAmount = 0
 		_setIndent()
@@ -149,7 +148,7 @@ const
 			sourceMap.addMapping({
 				source: inFilePath,
 				original: curAst.loc.start,
-				generated: Pos(outLine, outColumn)
+				generated: new Pos(outLine, outColumn)
 			})
 			lastMappedAst = curAst
 		}
@@ -310,6 +309,8 @@ implementMany(Ast, 'render', {
 	DoWhileStatement() {
 		o('do ')
 		e(this.body)
+		if (!(this.body instanceof BlockStatement))
+			o(';')
 		o(' while(')
 		e(this.test)
 		o(')')

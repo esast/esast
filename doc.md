@@ -352,6 +352,12 @@ Just like CallExpression but with `new` in front.
 
 `callee(arguments)`.
 
+## SpreadElement
+
+	argument: Expression
+
+...args in call
+
 ## MemberExpression
 
 	object: Expression

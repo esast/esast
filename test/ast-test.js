@@ -2,7 +2,7 @@ import assert from 'assert'
 import {
 	AssignmentProperty, ArrayExpression, ArrayPattern, ArrowFunctionExpression,
 	AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CallExpression,
-	CatchClause, ClassBody, ClassDeclaration, ConditionalExpression,
+	CatchClause, ClassBody, ClassDeclaration, ClassExpression, ConditionalExpression,
 	ContinueStatement, DebuggerStatement, DoWhileStatement, EmptyStatement, ExpressionStatement,
 	ExportSpecifier, ExportNamedDeclaration, ExportDefaultDeclaration, ExportAllDeclaration,
 	ForStatement, ForInStatement, ForOfStatement, FunctionDeclaration, FunctionExpression,
@@ -16,18 +16,17 @@ import {
 import fromJson from '../dist/fromJson'
 import parse from '../dist/parse'
 import render, { renderWithSourceMap } from '../dist/render'
-import { dedent } from '../dist/private/util'
 import { equal } from './util'
 
 const
-	a = Identifier('a'), b = Identifier('b'), c = Identifier('c'),
-	one = Literal(1), two = Literal(2),
-	doOne = ExpressionStatement(one), blockDoOne = BlockStatement([ doOne ]),
-	emptyBlock = BlockStatement([ ]),
-	emptyFun = FunctionExpression(null, [ ], emptyBlock),
-	emptyGenFun = FunctionExpression(null, [ ], emptyBlock, true),
-	emptyFunWithArgA = FunctionExpression(null, [ a ], emptyBlock),
-	litA = Literal('a')
+	a = new Identifier('a'), b = new Identifier('b'), c = new Identifier('c'),
+	one = new Literal(1), two = new Literal(2),
+	doOne = new ExpressionStatement(one), blockDoOne = new BlockStatement([ doOne ]),
+	emptyBlock = new BlockStatement([ ]),
+	emptyFun = new FunctionExpression(null, [ ], emptyBlock),
+	emptyGenFun = new FunctionExpression(null, [ ], emptyBlock, true),
+	emptyFunWithArgA = new FunctionExpression(null, [ a ], emptyBlock),
+	litA = new Literal('a')
 
 const tests = {
 	EmptyStatement: {
@@ -36,9 +35,9 @@ const tests = {
 				;
 				1
 			}`,
-		ast: BlockStatement([ EmptyStatement(), doOne ])
+		ast: new BlockStatement([ new EmptyStatement(), doOne ])
 	},
-	BlockStatement: { src: '{}', ast: BlockStatement([ ]) },
+	BlockStatement: { src: '{}', ast: new BlockStatement([ ]) },
 	ExpressionStatement: {
 		src: `
 			{
@@ -51,38 +50,45 @@ const tests = {
 			src: `
 				if(1){
 					1
+				}`,
+			ast: new IfStatement(one, blockDoOne)
+		},
+		{
+			src: `
+				if(1){
+					1
 				} else {
 					1
 				}`,
-			ast: IfStatement(one, blockDoOne, blockDoOne)
+			ast: new IfStatement(one, blockDoOne, blockDoOne)
 		},
 		{
 			src: 'if(1)1; else 1',
-			ast: IfStatement(one, doOne, doOne)
+			ast: new IfStatement(one, doOne, doOne)
 		}
 	],
 	LabeledStatement: {
 		src: 'a:1',
-		ast: LabeledStatement(a, ExpressionStatement(one))
+		ast: new LabeledStatement(a, new ExpressionStatement(one))
 	},
 	BreakStatement: [
 		{
 			src: 'while(1)break',
-			ast: WhileStatement(one, BreakStatement())
+			ast: new WhileStatement(one, new BreakStatement())
 		},
 		{
 			src: 'a:while(1)break a',
-			ast: LabeledStatement(a, WhileStatement(one, BreakStatement(a)))
+			ast: new LabeledStatement(a, new WhileStatement(one, new BreakStatement(a)))
 		}
 	],
 	ContinueStatement: [
 		{
 			src: 'while(1)continue',
-			ast: WhileStatement(one, ContinueStatement())
+			ast: new WhileStatement(one, new ContinueStatement())
 		},
 		{
 			src: 'a:while(1)continue a',
-			ast: LabeledStatement(a, WhileStatement(one, ContinueStatement(a)))
+			ast: new LabeledStatement(a, new WhileStatement(one, new ContinueStatement(a)))
 		}
 	],
 	SwitchStatement: {
@@ -95,9 +101,9 @@ const tests = {
 					1
 				}
 			}`,
-		ast: SwitchStatement(one, [
-			SwitchCase(one, [ doOne, doOne ]),
-			SwitchCase(undefined, [ blockDoOne ])
+		ast: new SwitchStatement(one, [
+			new SwitchCase(one, [ doOne, doOne ]),
+			new SwitchCase(undefined, [ blockDoOne ])
 		])
 	},
 	ReturnStatement: [
@@ -106,19 +112,19 @@ const tests = {
 				()=>{
 					return
 				}`,
-			ast: ArrowFunctionExpression([], BlockStatement([ ReturnStatement() ]))
+			ast: new ArrowFunctionExpression([ ], new BlockStatement([ new ReturnStatement() ]))
 		},
 		{
 			src: `
 				()=>{
 					return 1
 				}`,
-			ast: ArrowFunctionExpression([], BlockStatement([ ReturnStatement(one) ]))
+			ast: new ArrowFunctionExpression([ ], new BlockStatement([ new ReturnStatement(one) ]))
 		}
 	],
 	ThrowStatement: {
 		src: 'throw 1',
-		ast: ThrowStatement(one)
+		ast: new ThrowStatement(one)
 	},
 	TryStatement: {
 		src: `
@@ -129,90 +135,91 @@ const tests = {
 			}finally{
 				1
 			}`,
-		ast: TryStatement(
-			BlockStatement([ doOne ]),
-			CatchClause(Identifier('err'), blockDoOne),
+		ast: new TryStatement(
+			new BlockStatement([ doOne ]),
+			new CatchClause(new Identifier('err'), blockDoOne),
 			blockDoOne)
 	},
 	WhileStatement: {
 		src: 'while(1)1',
-		ast: WhileStatement(one, doOne)
+		ast: new WhileStatement(one, doOne)
 	},
-	DoWhileStatement: {
-		src: `
-			do {
-				1
-			} while(1)`,
-		ast: DoWhileStatement(blockDoOne, one)
-	},
+	DoWhileStatement: [
+		{
+			src: `
+				do 1; while(1)`,
+			ast: new DoWhileStatement(doOne, one)
+		}
+	],
 	ForStatement: [
 		{
 			src: 'for(;;){}',
-			ast: ForStatement(null, null, null, BlockStatement([ ]))
+			ast: new ForStatement(null, null, null, new BlockStatement([ ]))
 		},
 		{
 			src: 'for(let a=0;(a<10);a++)1',
-			ast: ForStatement(
-				VariableDeclaration('let', [ VariableDeclarator(a, Literal(0)) ]),
-				BinaryExpression('<', a, Literal(10)),
-				UpdateExpression('++', a, false),
+			ast: new ForStatement(
+				new VariableDeclaration('let', [ new VariableDeclarator(a, new Literal(0)) ]),
+				new BinaryExpression('<', a, new Literal(10)),
+				new UpdateExpression('++', a, false),
 				doOne)
 		}
 	],
 	ForInStatement: {
 		src: 'for(a in b)1',
-		ast: ForInStatement(a, b, doOne)
+		ast: new ForInStatement(a, b, doOne)
 	},
 	ForOfStatement: {
 		src: 'for(a of b)1',
-		ast: ForOfStatement(a, b, doOne)
+		ast: new ForOfStatement(a, b, doOne)
 	},
-	DebuggerStatement: { src: 'debugger', ast: DebuggerStatement() },
+	DebuggerStatement: { src: 'debugger', ast: new DebuggerStatement() },
 	FunctionDeclaration: [
 		{
 			src: 'function a(b){}',
-			ast: FunctionDeclaration(a, [ b ], BlockStatement([]), false)
+			ast: new FunctionDeclaration(a, [ b ], new BlockStatement([]), false)
 		},
 		{
 			src: 'function* a(b){}',
-			ast: FunctionDeclaration(a, [ b ], BlockStatement([]), true)
+			ast: new FunctionDeclaration(a, [ b ], new BlockStatement([]), true)
 		}
 	],
 	VariableDeclaration: [
 		{
 			src: 'var a',
-			ast: VariableDeclaration('var', [ VariableDeclarator(a) ])
+			ast: new VariableDeclaration('var', [ new VariableDeclarator(a) ])
 		},
 		{
 			src: 'let a=1,b',
-			ast: VariableDeclaration('let', [ VariableDeclarator(a, one), VariableDeclarator(b) ])
+			ast: new VariableDeclaration('let',
+				[ new VariableDeclarator(a, one), new VariableDeclarator(b) ])
 		},
 		{
 			src: 'const a=1',
-			ast: VariableDeclaration('const', [ VariableDeclarator(a, one) ])
+			ast: new VariableDeclaration('const', [ new VariableDeclarator(a, one) ])
 		}
 	],
 
-	ThisExpression: { src: 'this', ast: ThisExpression() },
+	ThisExpression: { src: 'this', ast: new ThisExpression() },
 	ArrayExpression: [
 		{
 			src: '[]',
-			ast: ArrayExpression([])
+			ast: new ArrayExpression([])
 		},
 		{
 			src: '[1,2]',
-			ast: ArrayExpression([ one, two ])
+			ast: new ArrayExpression([ one, two ])
 		},
 		{
 			src: '[...1]',
-			ast: ArrayExpression([ SpreadElement(one) ])
+			ast: new ArrayExpression([ new SpreadElement(one) ])
 		}
 	],
 	ObjectExpression: [
 		{
 			// Call it or it will be confused for a BlockStatement
 			src: 'a({})',
-			ast: CallExpression(a, [ ObjectExpression([ ]) ])
+			ast: new CallExpression(a, [ new ObjectExpression([ ]) ])
 		},
 		{
 			src: `
@@ -225,13 +232,13 @@ const tests = {
 						1
 					}
 				})`,
-			ast: CallExpression(a, [
-				ObjectExpression([
-					Property('init', a, one),
-					Property('get', b,
-						FunctionExpression(null, [ ], blockDoOne)),
-					Property('set', Literal('c'),
-						FunctionExpression(null, [ a ], blockDoOne))
+			ast: new CallExpression(a, [
+				new ObjectExpression([
+					new Property('init', a, one),
+					new Property('get', b,
+						new FunctionExpression(null, [ ], blockDoOne)),
+					new Property('set', new Literal('c'),
+						new FunctionExpression(null, [ a ], blockDoOne))
 				])
 			])
 		}
@@ -239,112 +246,112 @@ const tests = {
 	ArrowFunctionExpression: [
 		{
 			src: '()=>1',
-			ast: ArrowFunctionExpression([], one)
+			ast: new ArrowFunctionExpression([], one)
 		},
 		{
 			src: 'a=>1',
-			ast: ArrowFunctionExpression([ a ], one)
+			ast: new ArrowFunctionExpression([ a ], one)
 		},
 		{
 			src: '(a,b)=>1',
-			ast: ArrowFunctionExpression([ a, b ], one)
+			ast: new ArrowFunctionExpression([ a, b ], one)
 		},
 		{
 			src: `
 				()=>{
 					1
 				}`,
-			ast: ArrowFunctionExpression([], blockDoOne)
+			ast: new ArrowFunctionExpression([], blockDoOne)
 		}
 	],
 	SequenceExpression: {
 		src: 'a,b',
-		ast: SequenceExpression([ a, b ])
+		ast: new SequenceExpression([ a, b ])
 	},
 	UnaryExpression: [
 		{
 			src: 'typeof a',
-			ast: UnaryExpression('typeof', a)
+			ast: new UnaryExpression('typeof', a)
 		},
 		{
 			src: '- - 1',
-			ast: UnaryExpression('-', UnaryExpression('-', one))
+			ast: new UnaryExpression('-', new UnaryExpression('-', one))
 		}
 	],
 	BinaryExpression: {
 		src: '((a+b) instanceof c)',
-		ast: BinaryExpression('instanceof', BinaryExpression('+', a, b), c)
+		ast: new BinaryExpression('instanceof', new BinaryExpression('+', a, b), c)
 	},
 	AssignmentExpression: {
 		src: 'a+=1',
-		ast: AssignmentExpression('+=', a, one)
+		ast: new AssignmentExpression('+=', a, one)
 	},
 	UpdateExpression: [
 		{
 			src: '++a',
-			ast: UpdateExpression('++', a, true)
+			ast: new UpdateExpression('++', a, true)
 		},
 		{
 			src: 'a--',
-			ast: UpdateExpression('--', a, false)
+			ast: new UpdateExpression('--', a, false)
 		}
 	],
 	LogicalExprsession: {
 		src: '(a||b)',
-		ast: LogicalExpression('||', a, b)
+		ast: new LogicalExpression('||', a, b)
 	},
 	ConditionalExpression: {
 		src: 'a?b:c',
-		ast: ConditionalExpression(a, b, c)
+		ast: new ConditionalExpression(a, b, c)
 	},
 	NewExpression: [
 		{
 			src: 'new (a)()',
-			ast: NewExpression(a, [ ])
+			ast: new NewExpression(a, [ ])
 		},
 		{
 			src: 'new (a)(b)',
-			ast: NewExpression(a, [ b ])
+			ast: new NewExpression(a, [ b ])
 		},
 		{
 			src: 'new (a(b))(c)',
-			ast: NewExpression(CallExpression(a, [ b ]), [ c ])
+			ast: new NewExpression(new CallExpression(a, [ b ]), [ c ])
 		}
 	],
 	CallExpression: [
 		{
 			src: 'a(b)',
-			ast: CallExpression(a, [ b ])
+			ast: new CallExpression(a, [ b ])
 		},
 		{
 			src: '(a=>a)(1)',
-			ast: CallExpression(ArrowFunctionExpression([ a ], a), [ one ])
+			ast: new CallExpression(new ArrowFunctionExpression([ a ], a), [ one ])
 		},
 		{
 			src: 'a(...b)',
-			ast: CallExpression(a, [ SpreadElement(b) ])
+			ast: new CallExpression(a, [ new SpreadElement(b) ])
 		},
 		{
 			src: 'a(...(1+1))',
-			ast: CallExpression(a, [ SpreadElement(BinaryExpression('+', one, one)) ])
+			ast: new CallExpression(a, [ new SpreadElement(new BinaryExpression('+', one, one)) ])
 		}
 	],
 	MemberExpression: [
 		{
 			src: 'a.b',
-			ast: MemberExpression(a, b, false)
+			ast: new MemberExpression(a, b, false)
 		},
 		{
 			src: 'a[1]',
-			ast: MemberExpression(a, one, true)
+			ast: new MemberExpression(a, one, true)
 		},
 		{
 			src: '1..a',
-			ast: MemberExpression(one, a, false)
+			ast: new MemberExpression(one, a, false)
 		},
 		{
 			src: '1.5.a',
-			ast: MemberExpression(Literal(1.5), a, false)
+			ast: new MemberExpression(new Literal(1.5), a, false)
 		}
 	],
 	YieldExpression: {
@@ -353,12 +360,12 @@ const tests = {
 				(yield 1);
 				(yield* 2)
 			}`,
-		ast: FunctionDeclaration(
+		ast: new FunctionDeclaration(
 			a,
 			[ ],
-			BlockStatement([
-				ExpressionStatement(YieldExpression(one, false)),
-				ExpressionStatement(YieldExpression(two, true)) ]),
+			new BlockStatement([
+				new ExpressionStatement(new YieldExpression(one, false)),
+				new ExpressionStatement(new YieldExpression(two, true)) ]),
 			true)
 	},
 	Literal: [
@@ -368,88 +375,85 @@ const tests = {
 		},
 		{
 			src: '1.5',
-			ast: Literal(1.5)
+			ast: new Literal(1.5)
 		},
 		{
 			src: '"a\\nb\\u2029"',
-			ast: Literal('a\nb\u2029')
+			ast: new Literal('a\nb\u2029')
 		},
 		{
 			src: 'true',
-			ast: Literal(true)
+			ast: new Literal(true)
 		},
 		{
 			src: 'null',
-			ast: Literal(null)
+			ast: new Literal(null)
 		}
 	],
 
 	TemplateLiteral: [
 		{
 			src: '`a${b}a`',
-			ast: TemplateLiteral(
+			ast: new TemplateLiteral(
 				[
-					TemplateElement(false, { cooked: 'a', raw: 'a' }),
-					TemplateElement(true, { cooked: 'a', raw: 'a' })
+					new TemplateElement(false, { cooked: 'a', raw: 'a' }),
+					new TemplateElement(true, { cooked: 'a', raw: 'a' })
 				],
 				[ b ])
 		},
 		{
 			src: '`${a}${b}`',
-			ast: TemplateLiteral(
+			ast: new TemplateLiteral(
 				[
-					TemplateElement(false, { cooked: '', raw: '' }),
-					TemplateElement(false, { cooked: '', raw: '' }),
-					TemplateElement(true, { cooked: '', raw: '' })
+					new TemplateElement(false, { cooked: '', raw: '' }),
+					new TemplateElement(false, { cooked: '', raw: '' }),
+					new TemplateElement(true, { cooked: '', raw: '' })
 				],
 				[ a, b ])
 		},
 		{
 			src: '`$\\{a}`',
-			ast: TemplateLiteral(
-				[ TemplateElement(true, { cooked: '${a}', raw: '$\\{a}' }) ],
+			ast: new TemplateLiteral(
+				[ new TemplateElement(true, { cooked: '${a}', raw: '$\\{a}' }) ],
 				[ ])
-		}
-		//TODO: acorn has trouble parsing `raw`
-		/*
+		},
 		{
-			src: '`\n`',
-			ast: TemplateLiteral(
+			src: '`\\n`',
+			ast: new TemplateLiteral(
 				[
-					TemplateElement(true, { cooked: '\n', raw: '\\n' })
+					new TemplateElement(true, { cooked: '\n', raw: '\\n' })
 				],
 				[ ])
 		}
-		*/
 	],
 
 	TaggedTemplateExpression: {
 		src: 'a`a`',
-		ast: TaggedTemplateExpression(
+		ast: new TaggedTemplateExpression(
 			a,
-			TemplateLiteral(
-				[ TemplateElement(true, { cooked: 'a', raw: 'a' }) ],
+			new TemplateLiteral(
+				[ new TemplateElement(true, { cooked: 'a', raw: 'a' }) ],
 				[ ]))
 	},
 
 	ObjectPattern: {
 		src: 'const {a,b:c}=a',
-		ast: VariableDeclaration('const', [
-			VariableDeclarator(
-				ObjectPattern([
-					AssignmentProperty(a),
-					AssignmentProperty(b, c)
+		ast: new VariableDeclaration('const', [
+			new VariableDeclarator(
+				new ObjectPattern([
+					new AssignmentProperty(a),
+					new AssignmentProperty(b, c)
 				]),
 				a)
 		])
 	},
 	ArrayPattern: {
 		src: 'const [{a},...b]=a',
-		ast: VariableDeclaration('const', [
-			VariableDeclarator(
-				ArrayPattern([
-					ObjectPattern([ AssignmentProperty(a) ]),
-					RestElement(b)
+		ast: new VariableDeclaration('const', [
+			new VariableDeclarator(
+				new ArrayPattern([
+					new ObjectPattern([ new AssignmentProperty(a) ]),
+					new RestElement(b)
 				]),
 				a)
 		])
@@ -466,67 +470,74 @@ const tests = {
 				["x"](){}
 				static get ["x"](){}
 			}`,
-		ast: ClassDeclaration(
+		ast: new ClassDeclaration(
 			a,
 			b,
-			ClassBody([
-				MethodDefinition(Identifier('constructor'), emptyFun, 'constructor', false, false),
-				MethodDefinition(a, emptyFun, 'method', false, false),
-				MethodDefinition(a, emptyGenFun, 'method', false, false),
-				MethodDefinition(b, emptyFun, 'get', false, false),
-				MethodDefinition(c, emptyFunWithArgA, 'set', false, false),
-				MethodDefinition(a, emptyFun, 'method', true, false),
-				MethodDefinition(Literal('x'), emptyFun, 'method', false, true),
-				MethodDefinition(Literal('x'), emptyFun, 'get', true, true)
+			new ClassBody([
+				new MethodDefinition(
+					new Identifier('constructor'), emptyFun, 'constructor', false, false),
+				new MethodDefinition(a, emptyFun, 'method', false, false),
+				new MethodDefinition(a, emptyGenFun, 'method', false, false),
+				new MethodDefinition(b, emptyFun, 'get', false, false),
+				new MethodDefinition(c, emptyFunWithArgA, 'set', false, false),
+				new MethodDefinition(a, emptyFun, 'method', true, false),
+				new MethodDefinition(new Literal('x'), emptyFun, 'method', false, true),
+				new MethodDefinition(new Literal('x'), emptyFun, 'get', true, true)
 			]))
+	},
+	ClassExpression: {
+		src: `
+			typeof class a{}`,
+		ast: new UnaryExpression('typeof', new ClassExpression(a, null, new ClassBody([ ])))
 	},
 
 	ImportSpecifier: {
 		src: 'import {a,b as c} from "a"',
-		ast: ImportDeclaration([ ImportSpecifier(a), ImportSpecifier(b, c) ], litA)
+		ast: new ImportDeclaration([ new ImportSpecifier(a), new ImportSpecifier(b, c) ], litA)
 	},
 	ImportNamespaceSpecifier: {
 		src: 'import * as a from "a"',
-		ast: ImportDeclaration([ ImportNamespaceSpecifier(a) ], litA)
+		ast: new ImportDeclaration([ new ImportNamespaceSpecifier(a) ], litA)
 	},
 	ImportDefaultSpecifier: {
 		src: 'import a from "a"',
-		ast: ImportDeclaration([ ImportDefaultSpecifier(a) ], litA)
+		ast: new ImportDeclaration([ new ImportDefaultSpecifier(a) ], litA)
 	},
 	ImportDeclaration: {
 		src: 'import a,{b} from "a"',
-		ast: ImportDeclaration([ ImportDefaultSpecifier(a), ImportSpecifier(b) ], litA)
+		ast: new ImportDeclaration([ new ImportDefaultSpecifier(a), new ImportSpecifier(b) ], litA)
 	},
 
 	ExportNamedDeclaration: [
 		{
 			src: 'export const a=1',
-			ast: ExportNamedDeclaration(
-				VariableDeclaration('const', [ VariableDeclarator(a, one) ]),
+			ast: new ExportNamedDeclaration(
+				new VariableDeclaration('const', [ new VariableDeclarator(a, one) ]),
 				[ ],
 				null)
 		},
 		{
 			src: 'export {a,b as c} from "a"',
-			ast: ExportNamedDeclaration(
+			ast: new ExportNamedDeclaration(
 				null,
-				[ ExportSpecifier(a), ExportSpecifier(c, b) ],
+				[ new ExportSpecifier(a), new ExportSpecifier(c, b) ],
 				litA)
 		}
 	],
 	ExportDefaultDeclaration: [
 		{
 			src: 'export default 1',
-			ast: ExportDefaultDeclaration(one)
+			ast: new ExportDefaultDeclaration(one)
 		},
 		{
 			src: 'export default function a(){}',
-			ast: ExportDefaultDeclaration(FunctionDeclaration(a, [ ], BlockStatement([ ]), false))
+			ast: new ExportDefaultDeclaration(
+				new FunctionDeclaration(a, [ ], new BlockStatement([ ]), false))
 		}
 	],
 	ExportAllDeclaration: {
 		src: 'export * from "a"',
-		ast: ExportAllDeclaration(litA)
+		ast: new ExportAllDeclaration(litA)
 	}
 }
 
@@ -561,13 +572,35 @@ const doTest = ({ src: indentedSrc, ast }) => {
 }
 
 global.describe('roundtrip', () => {
-	Object.keys(tests).forEach(key => {
+	for (let key in tests)
 		global.it(key, () => {
 			const t = tests[key]
 			if (t instanceof Array)
-				t.forEach(doTest)
+				for (let test of t)
+					doTest(test)
 			else
 				doTest(t)
 		})
-	})
 })
+
+// multi-line string literals like:
+// `
+//	a
+//		b
+//	c`
+// have too much indentation.
+// This will change it to "a\n\tb\nc" by detecting the first line's indentation.
+const dedent = str => {
+	if (str[0] !== '\n')
+		return str
+
+	str = str.slice(1)
+
+	let indent
+	for (indent = 0; indent < str.length; indent = indent + 1)
+		if (str[indent] !== '\t')
+			break
+
+	const dedentedLines = str.split('\n').map(line => line.slice(indent))
+	return dedentedLines.join('\n')
+}

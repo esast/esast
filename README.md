@@ -1,6 +1,6 @@
 Data structures for [EcmaScript syntax trees](https://github.com/estree/estree).
 
-Includes renderer and uses [acorn](https://github.com/marijnh/acorn/) for parsing.
+Includes super-fast renderer and uses [acorn](https://github.com/marijnh/acorn/) for parsing.
 
 
 ## Install
@@ -19,7 +19,7 @@ To use it:
 
 	// Later...
 	define([ "esast/ast", "esast/render" ], (ast, render) => {
-		const four = BinaryExpression('+', Literal(2), Literal(2))
+		const four = new BinaryExpression('+', new Literal(2), new Literal(2))
 		render(four)
 	})
 
@@ -31,8 +31,8 @@ To use it:
 
 	import { BinaryExpression, Literal } from 'esast/dist/ast'
 	import render from 'esast/dist/render'
-	const four = BinaryExpression('+', Literal(2), Literal(2))
-	render(four)
+	const four = new BinaryExpression('+', new Literal(2), new Literal(2))
+	console.log(render(four))
 
 
 ## Use
@@ -43,9 +43,9 @@ See [the docs](https://github.com/andy-hanson/esast/blob/master/doc.md).
 
 Constructors are called by passing in their values in order, e.g.
 
-	// if (1) 1
+	// if (1) 2
 
-	IfStatement(Literal(1), Literal(1))
+	new IfStatement(new Literal(1), new Literal(2))
 
 
 ### Source Maps
@@ -83,14 +83,15 @@ In fact, it's just acorn that gets converted to the esast format.
 
 Name | Render time | Render time with source maps
 :-: | :-: | :-:
-esast | 1ms | 14ms
-[escodegen](https://github.com/estools/escodegen) | 8ms | 140ms
-[esotope](https://github.com/inikulin/esotope) | 2ms | N/A
+esast | 1.5ms | 17ms
+[escodegen](https://github.com/estools/escodegen) | 7ms | 120ms
+[esotope](https://github.com/inikulin/esotope) | 2.5ms | not supported
 
-Keep in mind that `fromJson` takes about 3ms.
+Keep in mind that `fromJson` takes about 6ms.
 
 
 ## Build
 
 	npm install
-	./gulp all
+	sudo npm install -g gulp-cli
+	gulp all

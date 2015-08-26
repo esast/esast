@@ -1,5 +1,3 @@
-import { newSet } from './private/util'
-
 export default name =>
 	forbiddenNames.has(name) ?
 		'_' + name :
@@ -27,7 +25,7 @@ export const
 		})
 	}
 
-const forbiddenNames = newSet([
+const forbiddenNames = new Set([
 	'abstract',
 	'arguments',
 	'boolean',
