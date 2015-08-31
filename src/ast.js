@@ -558,6 +558,14 @@ export class Program extends Node {
 
 		// Part of a TemplateLiteral.
 		export class TemplateElement extends Node {
+			static forRawString(str) {
+				return new TemplateElement(false, {
+					// TODO: A way to calculate this?
+					cooked: null,
+					raw: str
+				})
+			}
+
 			static forString(str) {
 				return new TemplateElement(false, {
 					cooked: str,

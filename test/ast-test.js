@@ -95,6 +95,7 @@ const tests = {
 		src: `
 			switch(1){
 				case 1:
+				case 2:
 					1;
 					1
 				default:{
@@ -102,7 +103,8 @@ const tests = {
 				}
 			}`,
 		ast: new SwitchStatement(one, [
-			new SwitchCase(one, [ doOne, doOne ]),
+			new SwitchCase(one, [ ]),
+			new SwitchCase(two, [ doOne, doOne ]),
 			new SwitchCase(undefined, [ blockDoOne ])
 		])
 	},
@@ -301,7 +303,7 @@ const tests = {
 		ast: new LogicalExpression('||', a, b)
 	},
 	ConditionalExpression: {
-		src: 'a?b:c',
+		src: '(a?b:c)',
 		ast: new ConditionalExpression(a, b, c)
 	},
 	NewExpression: [

@@ -55,7 +55,6 @@ const forbiddenNames = new Set([
 	'for',
 	'function',
 	'function*',
-	'global',
 	'goto',
 	'if',
 	'implements',

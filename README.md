@@ -79,7 +79,7 @@ In fact, it's just acorn that gets converted to the esast format.
 
 ## Render times
 
-	./gulp perf-test
+	gulp perf-test
 
 Name | Render time | Render time with source maps
 :-: | :-: | :-:

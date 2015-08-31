@@ -1,4 +1,4 @@
-import { SourceMapGenerator } from 'source-map/lib/source-map/source-map-generator'
+import { SourceMapGenerator } from 'source-map/lib/source-map-generator'
 import * as Ast from './ast'
 import { ArrowFunctionExpression, BlockStatement, FunctionExpression, Identifier,
 	ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, Literal } from './ast'
@@ -103,13 +103,15 @@ const
 	},
 
 	lines = (lines, lineSeparator) => {
-		const maxI = lines.length - 1
-		for (let i = 0; i < maxI; i = i + 1) {
-			e(lines[i])
-			o(lineSeparator)
-			nl()
+		if (lines.length > 0) {
+			const maxI = lines.length - 1
+			for (let i = 0; i < maxI; i = i + 1) {
+				e(lines[i])
+				o(lineSeparator)
+				nl()
+			}
+			e(lines[maxI])
 		}
-		e(lines[maxI])
 	},
 
 	indentStrs = [ '' ],
@@ -258,13 +260,17 @@ implementMany(Ast, 'render', {
 		} else
 			o('default')
 		o(':')
-		if (this.consequent.length === 1)
-			e(this.consequent[0])
-		else {
-			indent()
-			nl()
-			lines(this.consequent, ';')
-			unindent()
+		switch (this.consequent.length) {
+			case 0:
+				break
+			case 1:
+				e(this.consequent[0])
+				break
+			default:
+				indent()
+				nl()
+				lines(this.consequent, ';')
+				unindent()
 		}
 	},
 	SwitchStatement() {
@@ -422,11 +428,13 @@ implementMany(Ast, 'render', {
 		o(')')
 	},
 	ConditionalExpression() {
+		o('(')
 		e(this.test)
 		o('?')
 		e(this.consequent)
 		o(':')
 		e(this.alternate)
+		o(')')
 	},
 	NewExpression() {
 		o('new (')

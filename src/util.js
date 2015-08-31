@@ -46,7 +46,7 @@ export const
 		new ArrowFunctionExpression([ ], value),
 
 	toStatement = _ =>
-		(_ instanceof Statement || _ instanceof Declaration) ? _ : new ExpressionStatement(_)
+		_ instanceof Statement || _ instanceof Declaration ? _ : new ExpressionStatement(_)
 
 const
 	literalEscapes = {
