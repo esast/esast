@@ -1,7 +1,7 @@
 import assert from 'assert'
 import Loc, {Pos} from '../dist/Loc'
-import parse from '../dist/parse'
 import {renderWithSourceMap} from '../dist/render'
+import parse from './parse'
 import {equal} from './util'
 
 describe('source maps', () => {

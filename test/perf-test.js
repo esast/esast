@@ -3,9 +3,9 @@ import {generate as escodegen} from 'escodegen'
 import {generate as esotope} from 'esotope'
 import fs from 'fs'
 import {parse as acornParse} from 'acorn'
-import parse from '../dist/parse'
 import fromJson from '../dist/fromJson'
 import render, {renderWithSourceMap} from '../dist/render'
+import parse from './parse'
 
 const test = tests => {
 	const suite = new Suite()

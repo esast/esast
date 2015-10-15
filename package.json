@@ -9,12 +9,13 @@
 		"test": "gulp compile-test && mocha compiled-test/**/*.js",
 		"perf-test": "gulp perf-test"
 	},
+	"files": ["dist", "src"],
 	"dependencies": {
-		"acorn": "2.4.0",
 		"amdefine": "1.0.0",
 		"source-map": "mozilla/source-map"
 	},
 	"devDependencies": {
+		"acorn": "2.4.0",
 		"esdoc": "0.4.0",
 		"gulp": "3.9.0",
 		"gulp-babel": "5.2.1",
@@ -29,8 +30,7 @@
 		"escodegen": "latest",
 		"esotope": "latest"
 	},
-	"files": [ "dist", "src" ],
-	"repository": "andy-hanson/esast",
+	"repository": "mason-lang/esast",
 	"eslintConfig": {
 		"ecmaFeatures": {
 			"arrowFunctions": true,

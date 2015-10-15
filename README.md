@@ -1,6 +1,5 @@
 Data structures for [EcmaScript syntax trees](https://github.com/estree/estree).
-
-Includes super-fast renderer and uses [acorn](https://github.com/marijnh/acorn/) for parsing.
+Includes super-fast renderer.
 
 
 ## Install
@@ -66,15 +65,11 @@ When building an AST from source code, you may want to attach `loc` property.
 
 This converts a JSON ast to an esast version.
 You can go the other way with `ast.toJSON()`.
+If you want to parse, you could use [acorn](https://github.com/marijnh/acorn) and do:
 
-
-### Parse
-
-This takes the same options as [acorn](https://github.com/marijnh/acorn/).
-In fact, it's just acorn that gets converted to the esast format.
-
-	import 'esast/dist/parse'
-	const ast = parse('1', { /* options */ })
+	import  {parse} from 'acorn'
+	import fromJson from 'esast/dist/fromJson'
+	const ast = fromJson(parse(src, options))
 
 
 ## Render times

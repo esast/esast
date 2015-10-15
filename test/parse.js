@@ -1,5 +1,5 @@
 import {parse as acornParse} from 'acorn'
-import fromJson from './fromJson'
+import fromJson from '../dist/fromJson'
 
 /**
 Parses source code.

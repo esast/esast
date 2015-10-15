@@ -14,8 +14,8 @@ import {
 	TryStatement, UpdateExpression, UnaryExpression, VariableDeclarator, VariableDeclaration,
 	WhileStatement, YieldExpression} from '../dist/ast'
 import fromJson from '../dist/fromJson'
-import parse from '../dist/parse'
 import render, {renderWithSourceMap} from '../dist/render'
+import parse from './parse'
 import {equal} from './util'
 
 const
