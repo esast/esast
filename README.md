@@ -1,80 +1,59 @@
 Data structures for [EcmaScript syntax trees](https://github.com/estree/estree).
 Includes super-fast renderer.
 
+This is ideal for languages compiling to JavaScript.
+Rather than outputting a string directly, just call esast constructors and call `render` at the end.
 
-## Install
+See documentation [here](https://doc.esdoc.org/github.com/mason-lang/esast/).
 
-### Bower/RequireJS
 
- 	bower install --save andy-hanson/esast
+## Get Started
 
-To use it:
-
-	require.config({
-		paths: {
-			esast: "bower_components/esast/dist"
-		}
-	})
-
-	// Later...
-	define([ "esast/ast", "esast/render" ], (ast, render) => {
-		const four = new BinaryExpression('+', new Literal(2), new Literal(2))
-		render(four)
-	})
-
-### Npm/Node
-
-	npm install --save andy-hanson/esast
+	npm install --save mason-lang/esast
+	# or:
+	bower install --save mason-lang/esast
 
 To use it:
 
-	import { BinaryExpression, Literal } from 'esast/dist/ast'
+	import {BinaryExpression, Literal} from 'esast/dist/ast'
 	import render from 'esast/dist/render'
 	const four = new BinaryExpression('+', new Literal(2), new Literal(2))
 	console.log(render(four))
 
 
-## Use
-
-### Node Types
-
-See [the docs](https://github.com/andy-hanson/esast/blob/master/doc.md).
-
-Constructors are called by passing in their values in order, e.g.
-
-	// if (1) 2
-
-	new IfStatement(new Literal(1), new Literal(2))
-
-
 ### Source Maps
 
-When building an AST from source code, you may want to attach `loc` property.
+When building an AST from source code, you should attach the `loc` property after construction.
 
-	import { Literal } from 'esast/dist/ast'
-	import Loc, { Pos } from 'esast/dist/Loc'
-	import { renderWithSourceMap } from 'esast/dist/render'
+	import {Literal} from 'esast/dist/ast'
+	import Loc, {Pos} from 'esast/dist/Loc'
+	import {renderWithSourceMap} from 'esast/dist/render'
+	import {loc} from 'esast/dist/util'
 
 	// Lines are 1-indexed, columns are 0-indexed.
-	const ast = Literal(5)
-	ast.loc = Loc(Pos(1, 0), Pos(1, 5))
-	const { code, map } = renderWithSourceMap(ast, 'inFileName', 'outFileName.js')
+	// See `StartLine` and `StartColumn` exports of Loc.js.
+	const ast = loc(new Literal(5), new Loc(Pos(1, 0), Pos(1, 5)))
+	console.log(renderWithSourceMap(ast, 'inFileName', 'outFileName.js'))
+
+If you're writing a compiler, you'll want to keep track of the Loc while you're lexing
+and later move those Locs into esast.
 
 
 ### fromJson
 
-This converts a JSON ast to an esast version.
+This converts an ast object to an esast version.
 You can go the other way with `ast.toJSON()`.
+This helps esast interact with other ast tools.
 If you want to parse, you could use [acorn](https://github.com/marijnh/acorn) and do:
 
-	import  {parse} from 'acorn'
+	import {parse} from 'acorn'
 	import fromJson from 'esast/dist/fromJson'
 	const ast = fromJson(parse(src, options))
 
 
 ## Render times
 
-	gulp perf-test
+	npm run perf-test
 
 Name | Render time | Render time with source maps
 :-: | :-: | :-:
@@ -82,11 +61,4 @@ esast | 1.5ms | 17ms
 [escodegen](https://github.com/estools/escodegen) | 7ms | 120ms
 [esotope](https://github.com/inikulin/esotope) | 2.5ms | not supported
 
-Keep in mind that `fromJson` takes about 6ms.
-
-
-## Build
-
-	npm install
-	sudo npm install -g gulp-cli
-	gulp all
+Keep in mind that `fromJson` takes about 6ms for this example.
