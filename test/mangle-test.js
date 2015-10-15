@@ -1,5 +1,5 @@
 import assert from 'assert'
-import mangle, { unmangle } from '../dist/mangle-identifier'
+import mangle, {unmangle} from '../dist/mangle-identifier'
 
 const tests = {
 	'x-y': 'x_45y',
@@ -7,9 +7,9 @@ const tests = {
 	default: '_default'
 }
 
-global.describe('mangle', () => {
+describe('mangle', () => {
 	Object.keys(tests).forEach(unmangled => {
-		global.it(unmangled, () => {
+		it(unmangled, () => {
 			const mangled = tests[unmangled]
 			assert.equal(mangled, mangle(unmangled))
 			assert.equal(unmangled, unmangle(mangled))

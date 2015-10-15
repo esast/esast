@@ -1,31 +1,41 @@
-export default name =>
-	forbiddenNames.has(name) ?
-		'_' + name :
-		name.replace(/[^a-zA-Z0-9$_]/g, _ => '_' + _.charCodeAt(0))
+/**
+Convert a name to a valid JavaScript identifier.
+@param {String} name Can be any string.
+@return {String}
+*/
+export default function mangleIdentifier(name) {
+	return forbiddenNames.has(name) ?
+		`_${name}` :
+		name.replace(/[^a-zA-Z0-9$_]/g, _ => `_${_.charCodeAt(0)}`)
+}
 
-export const
-	needsMangle = name =>
-		forbiddenNames.has(name) || !propertyNameOk(name),
+/** `false` iff `name` is a valid JavaScript identifier. */
+export function needsMangle(name) {
+	return forbiddenNames.has(name) || !propertyNameOk(name)
+}
 
-	propertyNameOk = name =>
-		name.search(/[^a-zA-Z0-9$_]/) === -1
+/** `true` iff `name` can be used as a property name using dot syntax (`a.b`). */
+export function propertyNameOk(name) {
+	return name.search(/[^a-zA-Z0-9$_]/) === -1
+}
 
-export const
-	unmangle = name => {
-		if (name[0] === '_') {
-			const rest = name.slice(1)
-			if (forbiddenNames.has(rest))
-				return rest
-		}
-		return name.replace(/_\d+/g, match => {
-			const charCode = match.slice(1)
-			const n = Number.parseInt(charCode)
-			const ch = String.fromCharCode(n)
-			return ch === '\0' ? match : ch
-		})
+/** Undoes {@link mangleIdentifier}. */
+export function unmangle(name) {
+	if (name[0] === '_') {
+		const rest = name.slice(1)
+		if (forbiddenNames.has(rest))
+			return rest
 	}
+	return name.replace(/_\d+/g, match => {
+		const charCode = match.slice(1)
+		const n = Number.parseInt(charCode)
+		const ch = String.fromCharCode(n)
+		return ch === '\0' ? match : ch
+	})
+}
 
-const forbiddenNames = new Set([
+/** Set of JavaScript keywords. */
+export const forbiddenNames = new Set([
 	'abstract',
 	'arguments',
 	'boolean',

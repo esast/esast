@@ -1,7 +1,11 @@
-import { assert } from './private/util'
+import {assert} from './private/util'
 
-// Base type of all Asts.
+/** Base type of all ASTs. */
 export class Node {
+	/**
+	Convert to JSON.
+	@see https://github.com/estree/estree
+	*/
 	toJSON() {
 		const obj = { }
 		obj.type = this.type
@@ -10,6 +14,11 @@ export class Node {
 		return obj
 	}
 
+	/**
+	For compatibility with other AST representations,
+	all Node instances have a 'type' property that is the name of that type.
+	@see https://github.com/estree/estree
+	*/
 	get type() {
 		return this.constructor.name
 	}
@@ -20,15 +29,21 @@ export class Node {
 }
 
 // Abstracts
+	/** Line that declares new locals. */
 	export class Declaration extends Node { }
 
-	// Blocks of code have lines that are Statements or Declarations.
+	/** Blocks of code have lines that are Statements or Declarations. */
 	export class Statement extends Node { }
 
-	// Code that has a value. To use one in a statement position, see ExpressionStatement.
+	/**
+	Code that has a value.
+	To use one in a statement position, see ExpressionStatement.
+	*/
 	export class Expression extends Node { }
 
-	// Can go in a parameter list or on the left side of an assignment.
+	/**
+	Can go in a parameter list or on the left side of an assignment.
+	*/
 	export class Pattern extends Node { }
 
 // A complete program source tree.
@@ -40,11 +55,11 @@ export class Program extends Node {
 }
 
 // Variables
-	/*
+	/**
 	A JavaScript identifier.
+
 	It is assumed that you have called `mangleIdentifier` as appropriate.
-	Also look at `esast.util idCached`,
-	which mangles and avoids constructing the same identifier twice.
+	See also {@link identifier}.
 	*/
 	export class Identifier extends Expression {
 		constructor(name /* String */) {
@@ -53,6 +68,7 @@ export class Program extends Node {
 		}
 	}
 
+	/** Single declaration within a {@link VariableDeclaration}. */
 	export class VariableDeclarator extends Node {
 		constructor(id /* Pattern */, init /* Opt[Expression] */) {
 			// TODO:ES6 Optional args
@@ -64,8 +80,9 @@ export class Program extends Node {
 		}
 	}
 
-	export const VariableDeclarationKind = new Set([ 'const', 'let', 'var' ])
-	/*
+	/** Accepted kinds of {@link VariableDeclaration}. */
+	export const VariableDeclarationKind = new Set(['const', 'let', 'var'])
+	/**
 	Declares and optionally initializes many variables.
 	Must be at least one declaration.
 	*/
@@ -82,13 +99,13 @@ export class Program extends Node {
 
 
 // Statements
-	/*
+	/**
 	An empty statement, i.e., a solitary semicolon.
 	Not useful for code generation, but some parsers will return these.
 	*/
 	export class EmptyStatement extends Statement { }
 
-	// A block statement, i.e., a sequence of statements surrounded by braces.
+	/** A block statement, i.e., a sequence of statements surrounded by braces. */
 	export class BlockStatement extends Statement {
 		constructor(body /* Array[Statement */) {
 			super()
@@ -96,7 +113,7 @@ export class Program extends Node {
 		}
 	}
 
-	/*
+	/**
 	An expression statement, i.e., a statement consisting of a single expression.
 	See `esast.util toStatement toStatements`.
 	*/
@@ -107,7 +124,7 @@ export class Program extends Node {
 		}
 	}
 
-	// An if (or if ... else) statement.
+	/** An if (or if ... else) statement. */
 	export class IfStatement extends Statement {
 		constructor(
 			test, // Expression
@@ -123,7 +140,7 @@ export class Program extends Node {
 		}
 	}
 
-	// A statement prefixed by a label.
+	/** A statement prefixed by a label. */
 	export class LabeledStatement extends Statement {
 		constructor(label /* Identifier */, body /* Statement */) {
 			super()
@@ -133,7 +150,7 @@ export class Program extends Node {
 	}
 
 	export class BreakStatement extends Statement {
-		// The `break` keyword.
+		/** The `break` keyword. */
 		constructor(label /* Opt[Identifier] */) {
 			// TODO:ES6 Optional args
 			if (label === undefined)
@@ -143,7 +160,7 @@ export class Program extends Node {
 		}
 	}
 
-	// The `continue` keyword.
+	/** The `continue` keyword. */
 	export class ContinueStatement extends Statement {
 		constructor(label /* Opt[Identifier] */) {
 			// TODO:ES6 Optional args
@@ -154,8 +171,8 @@ export class Program extends Node {
 		}
 	}
 
-	/*
-	switch (discriminant) { cases }
+	/**
+	`switch (discriminant) { cases }`
 	Only the last entry of `cases` is allowed to be `default`.
 	*/
 	export class SwitchStatement extends Statement {
@@ -165,7 +182,7 @@ export class Program extends Node {
 			this.cases = cases
 		}
 	}
-	/*
+	/**
 	A single `case` within a SwitchStatement.
 	If `test` is `null`, this is the `default` case.
 	*/
@@ -180,7 +197,7 @@ export class Program extends Node {
 		}
 	}
 
-	// The `return` keyword, optionally followed by an Expression to return.
+	/** The `return` keyword, optionally followed by an Expression to return. */
 	export class ReturnStatement extends Statement {
 		constructor(argument /* Opt[Expression] */) {
 			// TODO:ES6 Optional args
@@ -191,7 +208,7 @@ export class Program extends Node {
 		}
 	}
 
-	/*
+	/**
 	The `throw` keyword, and something to throw.
 	See `esast.util throwError`.
 	*/
@@ -202,8 +219,10 @@ export class Program extends Node {
 		}
 	}
 
-	// `try { block } catch (handler.param) { handler.body } finally { finalizer }`
-	// At least one of `handler` or `finalizer` must be non-null.
+	/**
+	`try { block } catch (handler.param) { handler.body } finally { finalizer }`
+	At least one of `handler` or `finalizer` must be non-null.
+	*/
 	export class TryStatement extends Statement {
 		constructor(
 			block /* BlockStatement */,
@@ -220,7 +239,7 @@ export class Program extends Node {
 			this.finalizer = finalizer
 		}
 	}
-	// Must be *part* of a TryStatement -- does *not* follow it.
+	/** Must be *part* of a {@link TryStatement} -- does *not* follow it. */
 	export class CatchClause extends Node {
 		constructor(param /* Pattern */, body /* BlockStatement */) {
 			super()
@@ -229,7 +248,7 @@ export class Program extends Node {
 		}
 	}
 
-	// `while (test) body`
+	/** `while (test) body` */
 	export class WhileStatement extends Statement {
 		constructor(test /* Expression */, body /* Statement */) {
 			super()
@@ -238,7 +257,7 @@ export class Program extends Node {
 		}
 	}
 
-	// `do body while (test)`.
+	/** `do body while (test)` */
 	export class DoWhileStatement extends Statement {
 		constructor(body /* Statement */, test /* Expression */) {
 			super()
@@ -247,8 +266,8 @@ export class Program extends Node {
 		}
 	}
 
-	/*
-	`for (init; test; update) body`.
+	/**
+	`for (init; test; update) body`
 	Not to be confused with ForInStatement or ForOfStatement.
 	*/
 	export class ForStatement extends Statement {
@@ -265,7 +284,7 @@ export class Program extends Node {
 		}
 	}
 
-	// `for (left in right) body`.
+	/** `for (left in right) body` */
 	export class ForInStatement extends Statement {
 		constructor(
 			left, // Union[VariableDeclaration Expression]
@@ -278,7 +297,7 @@ export class Program extends Node {
 		}
 	}
 
-	// `for (left of right) body`.
+	/** `for (left of right) body` */
 	export class ForOfStatement extends Statement {
 		constructor(
 			left, // Union[VariableDeclaration Expression]
@@ -291,11 +310,11 @@ export class Program extends Node {
 		}
 	}
 
-	// The `debugger` keyword.
+	/** The `debugger` keyword. */
 	export class DebuggerStatement extends Statement { }
 
 // Declarations
-	// FunctionDeclaration or FunctionExpression or ArrowFunctionExpression
+	/** FunctionDeclaration | FunctionExpression | ArrowFunctionExpression */
 	export class FunctionAbstract extends Node { }
 
 	class FunctionNonArrow extends FunctionAbstract {
@@ -316,10 +335,10 @@ export class Program extends Node {
 	}
 
 	// TODO: Declaration too
+	/** {@link Function} in declaration position. */
 	export class FunctionDeclaration extends FunctionNonArrow { }
 
 // Expressions
-	// TODO: Literal as abstract type
 	// Value: Number | String | null | Boolean
 	export class Literal extends Expression {
 		constructor(value) {
@@ -328,9 +347,10 @@ export class Program extends Node {
 		}
 	}
 
-	// The `this` keyword.
+	/** The `this` keyword. */
 	export class ThisExpression extends Expression { }
 
+	/** `[ elements ]` */
 	export class ArrayExpression extends Expression {
 		constructor(elements /* Array[Opt[Expression]] */) {
 			super()
@@ -338,8 +358,9 @@ export class Program extends Node {
 		}
 	}
 
-	export const PropertyKind = new Set([ 'init', 'get', 'set' ])
-	/*
+	/** Accepted kinds of {@link Property}. */
+	export const PropertyKind = new Set(['init', 'get', 'set'])
+	/**
 	Part of an ObjectExpression.
 	If kind is 'get' or 'set', then value should be a FunctionExpression.
 	*/
@@ -364,7 +385,7 @@ export class Program extends Node {
 		}
 	}
 
-	// An object literal.
+	/** An object literal. */
 	export class ObjectExpression extends Expression {
 		constructor(properties /* Array[Property] */) {
 			super()
@@ -373,9 +394,10 @@ export class Program extends Node {
 	}
 
 	// TODO: Expression too
+	/** {@link Function} in expression position. */
 	export class FunctionExpression extends FunctionNonArrow { }
 
-	// Like FunctionExpression but uses the `params => body` form.
+	/** Like FunctionExpression but uses the `params => body` form. */
 	// TODO: extends FunctionAbstract too
 	export class ArrowFunctionExpression extends Expression {
 		constructor(params /* Array[Pattern] */, body /* Union[BlockStatement, Expression] */) {
@@ -385,8 +407,8 @@ export class Program extends Node {
 		}
 	}
 
-	/*
-	`expressions[0], expressions[1], ...`.
+	/**
+	`expressions[0], expressions[1], ...`
 	Expression composed of other expressions, separated by the comma operator.
 	*Not* for parameter lists.
 	*/
@@ -397,9 +419,12 @@ export class Program extends Node {
 		}
 	}
 
-	export const UnaryOperator = new Set([ '-', '+', '!', '~', 'typeof', 'void', 'delete' ])
-
-	// `operator argument`. Calls a unary operator.
+	/** Accepted kinds of {@link UnaryExpression}. */
+	export const UnaryOperator = new Set(['-', '+', '!', '~', 'typeof', 'void', 'delete'])
+	/**
+	`operator argument`
+	Calls a unary operator.
+	*/
 	export class UnaryExpression extends Expression {
 		constructor(operator /* UnaryOperator */, argument /* Expression */, prefix /* Boolean */) {
 			super()
@@ -413,6 +438,7 @@ export class Program extends Node {
 		}
 	}
 
+	/** Accepted kinds of {@link BinaryExpression}. */
 	export const BinaryOperator = new Set([
 		'==', '!=', '===', '!==',
 		'<', '<=', '>', '>=',
@@ -420,7 +446,10 @@ export class Program extends Node {
 		'+', '-', '*', '/', '%',
 		'|', '^', '&', 'in',
 		'instanceof'])
-	// `left operator right`. Calls a binary operator.
+	/**
+	`left operator right`
+	Calls a binary operator.
+	*/
 	export class BinaryExpression extends Expression {
 		constructor(operator /* BinaryOperator */, left /* Expression */, right /* Expression */) {
 			super()
@@ -430,14 +459,14 @@ export class Program extends Node {
 		}
 	}
 
+	/** Accepted kinds of {@link AssignmentExpression}. */
 	export const AssignmentOperator = new Set([
 		'=', '+=', '-=', '*=', '/=', '%=',
 		'<<=', '>>=', '>>>=',
 		'|=', '^=', '&='
 	])
-
-	/*
-	`left operator right`.
+	/**
+	`left operator right`
 	Mutates an existing variable.
 	Do not confuse with VariableDeclaration.
 	*/
@@ -450,9 +479,10 @@ export class Program extends Node {
 		}
 	}
 
-	export const UpdateOperator = new Set([ '++', '--' ])
-	/*
-	`++argument` or `argument++`.
+	/** Accepted kinds of {@link UpdateExpression}. */
+	export const UpdateOperator = new Set(['++', '--'])
+	/**
+	`++argument` or `argument++`
 	Increments or decrements a number.
 	*/
 	export class UpdateExpression extends Expression {
@@ -467,9 +497,10 @@ export class Program extends Node {
 		}
 	}
 
-	export const LogicalOperator = new Set([ '||', '&&' ])
-	/*
-	`left operator right`.
+	/** Accepted kinds of {@link LogicalExpression}. */
+	export const LogicalOperator = new Set(['||', '&&'])
+	/**
+	`left operator right`
 	Calls a lazy logical operator.
 	*/
 	export class LogicalExpression extends Expression {
@@ -481,7 +512,7 @@ export class Program extends Node {
 		}
 	}
 
-	// `test ? consequent : alternate`.
+	/** `test ? consequent : alternate` */
 	export class ConditionalExpression extends Expression {
 		constructor(
 			test, // Expression
@@ -494,7 +525,10 @@ export class Program extends Node {
 		}
 	}
 
-	// Just like CallExpression but with `new` in front.
+	/**
+	`new callee(arguments)`
+	Just like {@link CallExpression} but with `new` in front.
+	*/
 	export class NewExpression extends Expression {
 		constructor(callee /* Expression */, _arguments /* Array[Expression] */) {
 			super()
@@ -503,7 +537,7 @@ export class Program extends Node {
 		}
 	}
 
-	// `callee(arguments)`.
+	/** `callee(arguments)` */
 	export class CallExpression extends Expression {
 		constructor(callee /* Expression */, _arguments /* Array[Expression] */) {
 			super()
@@ -511,7 +545,7 @@ export class Program extends Node {
 			this.arguments = _arguments
 		}
 	}
-	// `...args` in a CallExpression.
+	/** `...args` in a CallExpression. */
 	export class SpreadElement extends Node {
 		constructor(argument /* Expression */) {
 			super()
@@ -519,24 +553,20 @@ export class Program extends Node {
 		}
 	}
 
-	/*
+	/**
 	If computed === true, `object[property]`.
 	Else, `object.property` -- meaning property should be an Identifier.
 	*/
 	export class MemberExpression extends Expression {
-		constructor(object /* Expression */, property /* Expression */, computed /* Boolean */) {
-			if (computed === undefined)
-				computed = !(property instanceof Identifier)
-			if (!computed)
-				assert(property instanceof Identifier)
+		constructor(object /* Expression */, property /* Expression */) {
 			super()
 			this.object = object
 			this.property = property
-			this.computed = computed
+			this.computed = !(property instanceof Identifier)
 		}
 	}
 
-	// `yield argument` or `yield* argument`.
+	/** `yield argument` or `yield* argument` */
 	export class YieldExpression extends Expression {
 		constructor(argument /* Expression */, delegate /* Boolean */) {
 			super()
@@ -546,7 +576,7 @@ export class Program extends Node {
 	}
 
 	// Templates
-		// A template with no tag.
+		/** A template with no tag. */
 		export class TemplateLiteral extends Expression {
 			constructor(quasis /* Array[TemplateElement] */, expressions /* Array[Expression] */) {
 				super()
@@ -556,8 +586,9 @@ export class Program extends Node {
 			}
 		}
 
-		// Part of a TemplateLiteral.
+		/** Part of a TemplateLiteral. */
 		export class TemplateElement extends Node {
+			/** TemplateElement whose raw source is `str`. */
 			static forRawString(str) {
 				return new TemplateElement(false, {
 					// TODO: A way to calculate this?
@@ -566,6 +597,10 @@ export class Program extends Node {
 				})
 			}
 
+			/**
+			TemplateElement evaluating to `str`.
+			Uses escape sequences as necessary.
+			*/
 			static forString(str) {
 				return new TemplateElement(false, {
 					cooked: str,
@@ -602,7 +637,7 @@ export class Program extends Node {
 				'\u2029': '\\u2029'
 			}
 
-		// TemplateLiteral with a tag in front, like`this`.
+		/** TemplateLiteral with a tag in front, like`this`. */
 		export class TaggedTemplateExpression extends Expression {
 			constructor(tag /* Expression */, quasi /* TemplateLiteral */) {
 				super()
@@ -612,8 +647,8 @@ export class Program extends Node {
 		}
 
 // Patterns
-	/*
-	`{ a, b: c } = ...`.
+	/**
+	`{ a, b: c } =`
 	Object deconstructing pattern.
 	*/
 	export class ObjectPattern extends Pattern {
@@ -622,7 +657,8 @@ export class Program extends Node {
 			this.properties = properties
 		}
 	}
-	/*
+
+	/**
 	Just like a Property, but kind is always `init`.
 	Although technically its own type, `_.type` will be 'Property'.
 	*/
@@ -643,7 +679,7 @@ export class Program extends Node {
 		get computed() { return false }
 	}
 
-	/*
+	/**
 	`[ a, b ] = ...`.
 	Array deconstructing pattern.
 	*/
@@ -654,7 +690,7 @@ export class Program extends Node {
 		}
 	}
 
-	/*
+	/**
 	Can be the last argument to a FunctionExpression/FunctionDeclaration
 	or  go at the end of an ArrayPattern.
 	*/
@@ -665,15 +701,10 @@ export class Program extends Node {
 		}
 	}
 
-
-	// TODO: What is this?
-	// AssignmentPattern = p('AssignmentPattern',
-	//	'left', Pattern,
-	//	'right', Pattern),
-
 // Classes
-	export const MethodDefinitionKind = new Set([ 'constructor', 'method', 'get', 'set' ])
-	// Part of a ClassBody.
+	/** Accepted kinds of {@link MethodDefinition}. */
+	export const MethodDefinitionKind = new Set(['constructor', 'method', 'get', 'set'])
+	/** Part of a {@link ClassBody}. */
 	export class MethodDefinition extends Node {
 		constructor(
 			key, // Union[Identifier Literal]
@@ -692,7 +723,7 @@ export class Program extends Node {
 		}
 	}
 
-	// Contents of a Class.
+	/** Contents of a {@link Class}. */
 	export class ClassBody extends Node {
 		constructor(body /* Array[MethodDefinition] */) {
 			super()
@@ -700,11 +731,11 @@ export class Program extends Node {
 		}
 	}
 
-	// ClassDeclaration or ClassExpression.
+	/** {@link ClassDeclaration} | {@link ClassExpression} */
 	export class Class extends Node { }
 
 	// TODO: extends Declaration too
-	// Class in declaration position.
+	/** {@link Class} in declaration position. */
 	export class ClassDeclaration extends Class {
 		constructor(id /* Identifier */, superClass /* Opt[Expression] */, body /* ClassBody */) {
 			super()
@@ -714,7 +745,7 @@ export class Program extends Node {
 		}
 	}
 
-	// Class in expression position.
+	/** {@link Class} in expression position. */
 	export class ClassExpression extends Class {
 		constructor(
 			id, // Opt[Identifier]
@@ -728,16 +759,18 @@ export class Program extends Node {
 	}
 
 // Modules
-	// A specifier in an import or export declaration.
+	/** A specifier in an import or export declaration. */
 	export class ModuleSpecifier extends Node { }
 
-	// ImportSpecifier, ImportDefaultSpecifier, or ImportNamespaceSpecifier.
+	/**
+	{@link ImportSpecifier} | {@link ImportDefaultSpecifier} | {@link ImportNamespaceSpecifier}
+	*/
 	export class ImportSpecifierAbstract extends Node {
 
 	}
 
-	/*
-	`import specifiers from source`.
+	/**
+	`import specifiers from source`
 	Only one specifier may be a ImportDefaultSpecifier.
 	If there is an ImportNamespaceSpecifier, it must be the only specifier.
 	*/
@@ -749,7 +782,7 @@ export class Program extends Node {
 		}
 	}
 
-	/*
+	/**
 	A non-default import. Used in an ImportDeclaration.
 	For `import { a } from "source"`, just pass one argument and local will = imported.
 	For `import { a as b } from "source"`, make imported `a` and local `b`.
@@ -765,7 +798,7 @@ export class Program extends Node {
 		}
 	}
 
-	// The default export, as in `import a from "source"`.
+	/** The default export, as in `import a from "source"`. */
 	export class ImportDefaultSpecifier extends ImportSpecifierAbstract {
 		constructor(local /* Identifier */) {
 			super()
@@ -773,7 +806,7 @@ export class Program extends Node {
 		}
 	}
 
-	// Object of every export, as in `import * as a from "source"`
+	/** Object of every export, as in `import * as a from "source"`. */
 	export class ImportNamespaceSpecifier extends ImportSpecifierAbstract {
 		constructor(local /* Identifier */) {
 			super()
@@ -781,7 +814,7 @@ export class Program extends Node {
 		}
 	}
 
-	/*
+	/**
 	A non-default export. Used in an ExportNamedDeclaration.
 	For `export { a } from "source"`, just pass one argument local will = exported.
 	For `export { a as b }`, make exported `b` and local `a`.
@@ -797,7 +830,7 @@ export class Program extends Node {
 		}
 	}
 
-	/*
+	/**
 	Exports multiple values as in `export { a, b as c }`.
 	If source !== null,
 	re-exports from that module as in `export { ... } from "source"`.
@@ -814,7 +847,7 @@ export class Program extends Node {
 		}
 	}
 
-	// `export default declaration`.
+	/** `export default declaration` */
 	export class ExportDefaultDeclaration extends Node {
 		constructor(declaration /* Union[Declaration, Expression] */) {
 			super()
@@ -822,7 +855,7 @@ export class Program extends Node {
 		}
 	}
 
-	// `export * from source`.
+	/** `export * from source` */
 	export class ExportAllDeclaration extends Node {
 		constructor(source /* LiteralString */) {
 			super()

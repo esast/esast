@@ -1,63 +1,61 @@
-import { ArrowFunctionExpression, Declaration, ExpressionStatement, FunctionExpression,
-	Identifier, Literal, MemberExpression, Statement } from './ast'
-import mangleIdentifier, { propertyNameOk } from './mangle-identifier'
+import {ArrowFunctionExpression, Declaration, ExpressionStatement, FunctionExpression,
+	Identifier, Literal, MemberExpression, Statement} from './ast'
+import mangleIdentifier, {propertyNameOk} from './mangle-identifier'
 
-const nameToId = new Map()
-const propertyToIdOrLiteral = new Map()
+/**
+Mangles name and makes an {@link Identifier}.
+@param {string} name
+@return {Identifier}
+*/
+export function identifier(name) {
+	return new Identifier(mangleIdentifier(name))
+}
 
-export const
-	escapeStringForLiteral = str =>
-		str.replace(/[\\"\n\t\b\f\v\r\u2028\u2029]/g, ch => literalEscapes[ch]),
+/**
+Assigns `loc` to `ast` and returns it.
+@param {Node} ast
+@param {Loc} loc
+*/
+export function loc(ast, loc) {
+	ast.loc = loc
+	return ast
+}
 
-	idCached = name => {
-		let _ = nameToId.get(name)
-		if (_ === undefined) {
-			_ = new Identifier(mangleIdentifier(name))
-			nameToId.set(name, _)
-		}
-		return _
-	},
+/**
+Creates a member expression for `propertyName` in `object`,
+using dot syntax (`a.b`) if possible, and falling back to `a['b']`.
+@param {Node} object
+@param {string} propertyName
+@return {MemberExpression}
+*/
+export function member(object, propertyName) {
+	return new MemberExpression(object, propertyIdOrLiteral(propertyName))
+}
 
-	loc = (ast, loc) => {
-		ast.loc = loc
-		return ast
-	},
+/**
+An Identifier if propertyName is a valid JavaScript property name;
+otherwise a Literal string.
+@param {string} propertyName
+@return {Identifier|Literal}
+*/
+export function propertyIdOrLiteral(propertyName) {
+	return propertyNameOk(propertyName) ?
+		new Identifier(propertyName) :
+		new Literal(propertyName)
+}
 
-	member = (object, propertyName) =>
-		new MemberExpression(object, propertyIdOrLiteralCached(propertyName)),
+export function functionExpressionThunk(body, generator) {
+	return generator ?
+		new FunctionExpression(null, [], body, true) :
+		new ArrowFunctionExpression([], body)
+}
 
-	propertyIdOrLiteralCached = propertyName => {
-		let _ = propertyToIdOrLiteral.get(propertyName)
-		if (_ === undefined) {
-			_ = propertyNameOk(propertyName) ?
-				new Identifier(propertyName) :
-				new Literal(propertyName)
-			propertyToIdOrLiteral.set(propertyName, _)
-		}
-		return _
-	},
-
-	functionExpressionThunk = (body, generator) =>
-		generator ?
-			new FunctionExpression(null, [ ], body, true) :
-			new ArrowFunctionExpression([ ], body),
-
-	thunk = value =>
-		new ArrowFunctionExpression([ ], value),
-
-	toStatement = _ =>
-		_ instanceof Statement || _ instanceof Declaration ? _ : new ExpressionStatement(_)
-
-const
-	literalEscapes = {
-		'\\': '\\\\',
-		'"': '\\"',
-		'\n': '\\n',
-		'\t': '\\t',
-		'\b': '\\b',
-		'\f': '\\f',
-		'\v': '\\v',
-		'\r': '\\r',
-		'\u2028': '\\u2028',
-		'\u2029': '\\u2029'
-	}
+/**
+Convert any {@link Node} into one that can be used as the content of a line.
+(esast requires all expression lines to be wrapped with {@link ExpressionStatement}.)
+*/
+export function toStatement(ast) {
+	return ast instanceof Statement || ast instanceof Declaration ?
+		ast :
+		new ExpressionStatement(ast)
+}

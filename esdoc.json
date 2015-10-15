@@ -1,0 +1,6 @@
+{
+	"title": "esast",
+	"source": "./src",
+	"destination": "./esdoc",
+	"excludes": ["private"]
+}

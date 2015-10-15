@@ -1,45 +1,67 @@
-// Single location in source string.
+/** Represents a single location in the source string. */
 export class Pos {
 	constructor(line /* Number */, column /* Number */) {
 		this.line = line
 		this.column = column
 	}
 
+	/** Advance the pos by any character. */
 	next(ch) {
 		return ch === '\n' ? this.onNextLine() : this.onNextColumn()
 	}
 
+	/** Poc after a newline. */
 	onNextLine() {
 		return new Pos(this.line + 1, StartColumn)
 	}
 
+	/** Loc after a non-newline character. */
 	onNextColumn() {
 		return new Pos(this.line, this.column + 1)
 	}
 
+	/**
+	 * Undoes {@link onNextLine}.
+	 * Only call this is you know this is not the first column.
+	 */
 	onPrevColumn() {
 		return new Pos(this.line, this.column - 1)
 	}
 
+	/** @override */
 	toString() {
 		return `${this.line}:${this.column}`
 	}
 }
 
-// Range of text in source string.
+/** Range of text in the source string. */
 export default class Loc {
 	constructor(start /* Pos */, end /* Pos */) {
 		this.start = start
+		/** Beginning of text. */
 		this.end = end
+		/** End of text. */
 	}
 
+	/** @override */
 	toString() {
 		return `${this.start}-${this.end}`
 	}
 }
 
-export const
-	singleCharLoc = pos => new Loc(pos, pos.next('x')),
-	StartLine = 1,
-	StartColumn = 0,
-	StartPos = new Pos(StartLine, StartColumn)
+/**
+Loc consisting of the character at `pos`.
+@param {Pos} pos
+*/
+export function singleCharLoc(pos) {
+	return new Loc(pos, pos.next('x'))
+}
+
+/** First line number for a source string; they start at 1. */
+export const StartLine = 1
+
+/** Fist column number for a line; they start at 0. */
+export const StartColumn = 0
+
+/** First {@link Pos} in a source string. */
+export const StartPos = new Pos(StartLine, StartColumn)

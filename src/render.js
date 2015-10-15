@@ -1,29 +1,46 @@
-import { SourceMapGenerator } from 'source-map/lib/source-map-generator'
+import {SourceMapGenerator} from 'source-map/lib/source-map-generator'
 import * as Ast from './ast'
-import { ArrowFunctionExpression, BlockStatement, FunctionExpression, Identifier,
-	ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, Literal } from './ast'
-import { Pos, StartColumn, StartLine } from './Loc'
-import { escapeStringForLiteral } from './util'
-import { assert, implementMany, isEmpty, last } from './private/util'
+import {ArrowFunctionExpression, BlockStatement, FunctionExpression, Identifier,
+	ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, Literal} from './ast'
+import {Pos, StartColumn, StartLine} from './Loc'
+import {assert, implementMany, isEmpty, last} from './private/util'
 
-export default (ast /* Node */, options) => {
+/**
+Creates JavaScript source code from a {@link Node}.
+@param {Node} ast
+@param {object} options
+@param {boolean} options.ugly
+	If true, will not output any whitespace.
+*/
+export default function render(ast /* Node */, options) {
 	// TODO:ES6 Optional args
-	if (options === undefined) options = { }
-	init(options)
+	if (options === undefined)
+		options = {}
+
+	setUp(options)
 	e(ast)
 	const res = strOut
-	uninit()
+	tearDown()
 	return res
 }
 
-export const renderWithSourceMap =
-	(ast /* Node */, inFilePath /* String */, outFilePath /* String */, options) => {
+/**
+Same as {@link render}, but with a source map as part of the output.
+@param {Node} ast
+@param {string} inFilePath Name of input file.
+@param {string} outFilePath Name of output file.
+@param {object} options Same options as for {@link render}.
+@return {code: string, sourceMap: string}
+*/
+export function renderWithSourceMap(ast, inFilePath, outFilePath, options) {
 	// TODO:ES6 Optional args
-	if (options === undefined) options = { }
-	init(options, inFilePath, outFilePath)
+	if (options === undefined)
+		options = {}
+
+	setUp(options, inFilePath, outFilePath)
 	e(ast)
-	const res = { code: strOut, sourceMap: sourceMap.toJSON() }
-	uninit()
+	const res = {code: strOut, sourceMap: sourceMap.toJSON()}
+	tearDown()
 	return res
 }
 
@@ -35,7 +52,7 @@ let strOut,
 	ugly
 
 const
-	init = (options, inPath, outPath) => {
+	setUp = (options, inPath, outPath) => {
 		ugly = Boolean(options.ugly)
 
 		indentAmount = 0
@@ -44,14 +61,14 @@ const
 		usingSourceMaps = inPath !== undefined
 		if (usingSourceMaps) {
 			inFilePath = inPath
-			sourceMap = new SourceMapGenerator({ file: outPath })
+			sourceMap = new SourceMapGenerator({file: outPath})
 			outLine = StartLine
 			outColumn = StartColumn
 			lastMappedAst = null
 		}
 	},
 
-	uninit = () => {
+	tearDown = () => {
 		strOut = ''
 		inFilePath = sourceMap = curAst = lastMappedAst = undefined
 	}
@@ -64,6 +81,7 @@ const
 		ast.render()
 	},
 
+	// Outputs a string.
 	// str may not contain newlines.
 	o = str => {
 		strOut = strOut + str
@@ -114,7 +132,7 @@ const
 		}
 	},
 
-	indentStrs = [ '' ],
+	indentStrs = [''],
 	_setIndent = () => {
 		indentStr = indentStrs[indentAmount]
 		while (indentStr === undefined) {
@@ -472,9 +490,15 @@ implementMany(Ast, 'render', {
 		}
 	},
 	YieldExpression() {
-		o(this.delegate ? '(yield* ' : '(yield ')
-		e(this.argument)
-		o(')')
+		if (this.argument === null) {
+			assert(!this.delegate)
+			o('(yield)')
+		} else {
+			o(this.delegate ? '(yield* ' : '(yield ')
+			if (this.argument !== null)
+				e(this.argument)
+			o(')')
+		}
 	},
 	Literal() {
 		if (typeof this.value === 'string') {
@@ -666,3 +690,19 @@ implementMany(Ast, 'render', {
 		e(this.source)
 	}
 })
+
+const
+	escapeStringForLiteral = str =>
+		str.replace(/[\\"\n\t\b\f\v\r\u2028\u2029]/g, ch => literalEscapes[ch]),
+	literalEscapes = {
+		'\\': '\\\\',
+		'"': '\\"',
+		'\n': '\\n',
+		'\t': '\\t',
+		'\b': '\\b',
+		'\f': '\\f',
+		'\v': '\\v',
+		'\r': '\\r',
+		'\u2028': '\\u2028',
+		'\u2029': '\\u2029'
+	}

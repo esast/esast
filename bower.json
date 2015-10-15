@@ -1,7 +1,7 @@
 {
 	"name": "esast",
 	"dependencies": {
-		"acorn": "1.0.3",
+		"acorn": "2.4.0",
 		"source-map": "mozilla/source-map"
 	},
 	"main": "dist/**/*",

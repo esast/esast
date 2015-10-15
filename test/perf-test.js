@@ -1,11 +1,11 @@
-import { Suite } from 'benchmark'
-import { generate as escodegen } from 'escodegen'
-import { generate as esotope } from 'esotope'
+import {Suite} from 'benchmark'
+import {generate as escodegen} from 'escodegen'
+import {generate as esotope} from 'esotope'
 import fs from 'fs'
-import { parse as acornParse } from 'acorn'
+import {parse as acornParse} from 'acorn'
 import parse from '../dist/parse'
 import fromJson from '../dist/fromJson'
-import render, { renderWithSourceMap } from '../dist/render'
+import render, {renderWithSourceMap} from '../dist/render'
 
 const test = tests => {
 	const suite = new Suite()
@@ -35,10 +35,10 @@ export default () => {
 	// acorn compilation + Benchmark metaprogramming causes errors if I don't do this.
 	const escg = escodegen, estp = esotope, fj = fromJson
 	test({
-		esast: () => render(ast, { ugly: true }),
-		'esast with maps': () => renderWithSourceMap(ast, 'in', 'out.js', { ugly: true }),
+		esast: () => render(ast, {ugly: true}),
+		'esast with maps': () => renderWithSourceMap(ast, 'in', 'out.js', {ugly: true}),
 		escodegen: () => escg(json),
-		'escodegen with maps': () => escg(json, { sourceMap: 'in', sourceMapWithCode: true }),
+		'escodegen with maps': () => escg(json, {sourceMap: 'in', sourceMapWithCode: true}),
 		esotope: () => estp(json),
 		fromJson: () => fj(json)
 	})
