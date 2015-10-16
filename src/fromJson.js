@@ -13,7 +13,6 @@ import {
 	TryStatement, UpdateExpression, UnaryExpression, VariableDeclarator, VariableDeclaration,
 	WhileStatement, YieldExpression} from './ast'
 import Loc, {Pos} from './Loc'
-import {assert} from './private/util'
 
 /** Converts a plain object to a {@link Node}. */
 export default function fromObject(_) {
@@ -156,10 +155,6 @@ export default function fromObject(_) {
 				fromExpression(_.tag),
 				fromTemplateLiteral(_.quasi)))
 		case 'AssignmentProperty':
-			assert(_.kind === 'init')
-			assert(_.method === false)
-			assert(_.shorthand === true)
-			assert(_.computed === false)
 			return fromAssignmentProperty(_)
 		case 'ObjectPattern':
 			return loc(_, new ObjectPattern(_.properties.map(fromAssignmentProperty)))
@@ -235,8 +230,11 @@ const
 		loc(_, new TemplateLiteral(
 			_.quasis.map(fromTemplateElement),
 			_.expressions.map(fromExpression))),
-	fromAssignmentProperty = _ =>
-		loc(_, new AssignmentProperty(fromIdentifier(_.key), fromPattern(_.value))),
+	fromAssignmentProperty = _ => {
+		if (!(_.kind === 'init' && !_.method && _.shorthand && !_.computed))
+			throw new Error(`AssignmentProperty has unusual value: ${JSON.stringify(_)}`)
+		return loc(_, new AssignmentProperty(fromIdentifier(_.key), fromPattern(_.value)))
+	},
 	fromProperty = _ =>
 		loc(_, new Property(
 			_.kind,

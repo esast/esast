@@ -1,9 +1,8 @@
 import {SourceMapGenerator} from 'source-map/lib/source-map-generator'
 import * as Ast from './ast'
-import {ArrowFunctionExpression, BlockStatement, FunctionExpression, Identifier,
-	ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, Literal} from './ast'
+import {ArrowFunctionExpression, BlockStatement, Identifier, ImportDefaultSpecifier,
+	ImportNamespaceSpecifier, Literal} from './ast'
 import {Pos, StartColumn, StartLine} from './Loc'
-import {assert, implementMany, isEmpty, last} from './private/util'
 
 /**
 Creates JavaScript source code from a {@link Node}.
@@ -223,6 +222,19 @@ const
 		e(_.body)
 	}
 
+const
+	implementMany = (holder, methodName, nameToImpl) => {
+		Object.keys(nameToImpl).forEach(name => {
+			holder[name].prototype[methodName] = nameToImpl[name]
+		})
+	},
+
+	isEmpty = arr =>
+		arr.length === 0,
+
+	last = arr =>
+		arr[arr.length - 1]
+
 implementMany(Ast, 'render', {
 	Program() {
 		lines(this.body, ';')
@@ -390,13 +402,10 @@ implementMany(Ast, 'render', {
 			o(':')
 			e(this.value)
 		} else {
-			assert(this.kind === 'get' || this.kind === 'set')
 			o(this.kind)
 			o(' ')
 			e(this.key)
 			paren(this.value.params)
-			assert(this.value instanceof FunctionExpression)
-			assert(this.value.id === null && !this.value.generator)
 			e(this.value.body)
 		}
 	},
@@ -490,10 +499,9 @@ implementMany(Ast, 'render', {
 		}
 	},
 	YieldExpression() {
-		if (this.argument === null) {
-			assert(!this.delegate)
+		if (this.argument === null)
 			o('(yield)')
-		} else {
+		else {
 			o(this.delegate ? '(yield* ' : '(yield ')
 			if (this.argument !== null)
 				e(this.argument)
@@ -554,7 +562,6 @@ implementMany(Ast, 'render', {
 			o('static ')
 
 		const fun = this.value
-		assert(fun.id === null)
 		const params = fun.params
 		const body = fun.body
 
@@ -571,7 +578,6 @@ implementMany(Ast, 'render', {
 			o('*')
 		switch (this.kind) {
 			case 'constructor':
-				assert(this.key instanceof Identifier && this.key.name === 'constructor')
 				o('constructor')
 				break
 			case 'method':
@@ -613,10 +619,9 @@ implementMany(Ast, 'render', {
 					namespace = s
 				else
 					throw new Error('Multiple namespace imports')
-			else {
-				assert(s instanceof ImportSpecifier)
+			else
+				// ImportSpecifier
 				specifiers.push(s)
-			}
 		}
 
 		let needComma = false
@@ -667,11 +672,9 @@ implementMany(Ast, 'render', {
 	},
 	ExportNamedDeclaration() {
 		o('export ')
-		if (this.declaration !== null) {
-			assert(isEmpty(this.specifiers))
-			assert(this.source === null)
+		if (this.declaration !== null)
 			e(this.declaration)
-		} else {
+		else {
 			o('{')
 			interleave(this.specifiers, ',')
 			o('}')
