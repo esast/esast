@@ -231,7 +231,7 @@ const
 			_.quasis.map(fromTemplateElement),
 			_.expressions.map(fromExpression))),
 	fromAssignmentProperty = _ => {
-		if (!(_.kind === 'init' && !_.method && _.shorthand && !_.computed))
+		if (!(_.kind === 'init' && !_.method))
 			throw new Error(`AssignmentProperty has unusual value: ${JSON.stringify(_)}`)
 		return loc(_, new AssignmentProperty(fromIdentifier(_.key), fromPattern(_.value)))
 	},
@@ -240,9 +240,7 @@ const
 			_.kind,
 			fromIdentifierOrLiteral(_.key),
 			fromExpression(_.value),
-			_.method,
-			_.shorthand,
-			_.computed)),
+			_.method)),
 	fromMethodDefinition =_ =>
 		loc(_, new MethodDefinition(
 			fromIdentifierOrLiteral(_.key),

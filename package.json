@@ -2,27 +2,23 @@
 	"name": "esast",
 	"version": "0.0.0",
 	"scripts": {
-		"install": "gulp compile",
-		"watch": "gulp watch",
+		"prepublish": "babel src --out-dir dist --source-maps inline",
+		"watch": "babel src --out-dir dist --source-maps inline --watch",
 		"doc": "esdoc -c esdoc.json",
-		"lint": "eslint gulpfile.js src test",
-		"test": "gulp compile-test && mocha compiled-test/**/*.js",
-		"perf-test": "gulp perf-test"
+		"lint": "eslint src test",
+		"compile-test": "babel test --out-dir compiled-test --source-maps inline",
+		"test": "npm run compile-test && mocha compiled-test/*.js",
+		"perf-test": "npm run compile-test && node compiled-test/perf-test"
 	},
-	"files": ["dist", "src"],
+	"files": ["src"],
 	"dependencies": {
-		"amdefine": "1.0.0",
 		"source-map": "mozilla/source-map"
 	},
 	"devDependencies": {
 		"acorn": "2.4.0",
+		"babel": "5.8.23",
 		"esdoc": "0.4.0",
-		"gulp": "3.9.0",
-		"gulp-babel": "5.2.1",
-		"gulp-header": "1.7.1",
-		"gulp-plumber": "1.0.1",
-		"gulp-sourcemaps": "1.6.0",
-		"gulp-watch": "4.3.5",
+		"eslint": "1.7.1",
 		"mocha": "2.3.3",
 
 		"benchmark": "latest",
@@ -31,6 +27,10 @@
 		"esotope": "latest"
 	},
 	"repository": "mason-lang/esast",
+	"babel": {
+		"modules": "umd",
+		"whitelist": ["es6.destructuring", "es6.modules", "es6.spread", "strict"]
+	},
 	"eslintConfig": {
 		"ecmaFeatures": {
 			"arrowFunctions": true,
@@ -47,7 +47,7 @@
 			"spread": true,
 			"templateStrings": true
 		},
-		"globals": {"console": true, "describe": true, "it": true, "require": true},
+		"globals": {"console": true, "describe": true, "it": true, "module": true, "require": true},
 		"rules": {
 			"array-bracket-spacing": 1,
 			"comma-style": [1, "last"],

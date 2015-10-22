@@ -9,8 +9,8 @@ import parse from './parse'
 
 const test = tests => {
 	const suite = new Suite()
-	Object.keys(tests).forEach(name =>
-		suite.add(name, tests[name]))
+	for (const name in tests)
+		suite.add(name, tests[name])
 	suite.on('complete', function() {
 		this.forEach(_ =>
 			console.log(`${_.name}: ${_.stats.mean * 1000}ms`))
@@ -21,7 +21,7 @@ const test = tests => {
 	suite.run()
 }
 
-export default () => {
+if (!module.parent) {
 	const src = fs.readFileSync('./node_modules/escodegen/escodegen.js', 'utf-8')
 	const json = acornParse(src, {
 		ecmaVersion: 6,
@@ -32,14 +32,24 @@ export default () => {
 
 	render(ast)
 
-	// acorn compilation + Benchmark metaprogramming causes errors if I don't do this.
-	const escg = escodegen, estp = esotope, fj = fromJson
 	test({
-		esast: () => render(ast, {ugly: true}),
-		'esast with maps': () => renderWithSourceMap(ast, 'in', 'out.js', {ugly: true}),
-		escodegen: () => escg(json),
-		'escodegen with maps': () => escg(json, {sourceMap: 'in', sourceMapWithCode: true}),
-		esotope: () => estp(json),
-		fromJson: () => fj(json)
+		esast() {
+			return render(ast, {ugly: true})
+		},
+		esastWithMaps() {
+			return renderWithSourceMap(ast, 'in', 'out.js', {ugly: true})
+		},
+		escodegen() {
+			return escodegen(json)
+		},
+		escodegenWithMaps() {
+			return escodegen(json, {sourceMap: 'in', sourceMapWithCode: true})
+		},
+		esotope() {
+			return esotope(json)
+		},
+		fromJson() {
+			return fromJson(json)
+		}
 	})
 }

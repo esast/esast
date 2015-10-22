@@ -1,4 +1,4 @@
-import {SourceMapGenerator} from 'source-map/lib/source-map-generator'
+import {SourceMapGenerator} from 'source-map/dist/source-map.min'
 import * as Ast from './ast'
 import {ArrowFunctionExpression, BlockStatement, Identifier, ImportDefaultSpecifier,
 	ImportNamespaceSpecifier, Literal} from './ast'

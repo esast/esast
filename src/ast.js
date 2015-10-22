@@ -388,10 +388,13 @@ export class Program extends Node {
 	If kind is 'get' or 'set', then value should be a FunctionExpression.
 	*/
 	export class Property extends Node {
-		constructor(kind, key, value, method,shorthand, computed) {
+		constructor(kind, key, value, method) {
+			// TODO:ES6 Optional args
+			if (value === undefined)
+				value = key
 			// TODO:ES6 Optional args
 			if (method === undefined)
-				method = shorthand = computed = false
+				method = false
 			super()
 			/** @type {PropertyKind} */
 			this.kind = kind
@@ -401,10 +404,6 @@ export class Program extends Node {
 			this.value = value
 			/** @type {boolean} */
 			this.method = method
-			/** @type {boolean} */
-			this.shorthand
-			/** @type {boolean} */
-			this.computed = computed
 
 			if (this.kind !== 'init') {
 				if (!(this.value instanceof FunctionExpression))
@@ -416,6 +415,13 @@ export class Program extends Node {
 				if (this.value.generator)
 					throw new Error('get/set can not be a generator.')
 			}
+		}
+
+		get shorthand() {
+			return this.value === this.key
+		}
+		get computed() {
+			return !(this.key instanceof Identifier)
 		}
 	}
 
@@ -765,8 +771,12 @@ export class Program extends Node {
 		get type() { return 'Property' }
 		get kind() { return 'init' }
 		get method() { return false }
-		get shorthand() { return true }
-		get computed() { return false }
+		get shorthand() {
+			return this.value === this.key
+		}
+		get computed() {
+			return !(this.key instanceof Identifier)
+		}
 	}
 
 	/**
