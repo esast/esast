@@ -201,63 +201,87 @@ export default function fromObject(_) {
 	}
 }
 
-const
-	op = (func, optional) =>
-		optional == null ? null : func(optional),
-	loc = (object, ast) => {
-		const loc = object.loc
-		if (loc !== undefined)
-			ast.loc = new Loc(
-				new Pos(loc.start.line, loc.start.column),
-				new Pos(loc.end.line, loc.end.column))
-		return ast
-	}
+function op(func, optional) {
+	return optional == null ? null : func(optional)
+}
 
-const
-	fromIdentifier = _ =>
-		loc(_, new Identifier(_.name)),
-	fromVariableDeclarator = _ =>
-		loc(_, new VariableDeclarator(fromPattern(_.id), op(fromExpression, _.init))),
-	fromSwitchCase = _ =>
-		loc(_, new SwitchCase(op(fromExpression, _.test), _.consequent.map(fromStatement))),
-	fromBlockStatement = _ =>
-		loc(_, new BlockStatement(_.body.map(fromStatement))),
-	fromCatchClause = _ =>
-		loc(_, new CatchClause(fromPattern(_.param), fromBlockStatement(_.body))),
-	fromTemplateElement = _ =>
-		loc(_, new TemplateElement(_.tail, _.value)),
-	fromTemplateLiteral = _ =>
-		loc(_, new TemplateLiteral(
-			_.quasis.map(fromTemplateElement),
-			_.expressions.map(fromExpression))),
-	fromAssignmentProperty = _ => {
-		if (!(_.kind === 'init' && !_.method))
-			throw new Error(`AssignmentProperty has unusual value: ${JSON.stringify(_)}`)
-		return loc(_, new AssignmentProperty(fromIdentifier(_.key), fromPattern(_.value)))
-	},
-	fromProperty = _ =>
-		loc(_, new Property(
-			_.kind,
-			fromIdentifierOrLiteral(_.key),
-			fromExpression(_.value),
-			_.method)),
-	fromMethodDefinition =_ =>
-		loc(_, new MethodDefinition(
-			fromIdentifierOrLiteral(_.key),
-			fromFunctionExpression(_.value),
-			_.kind,
-			_.static,
-			_.computed)),
-	fromClassBody = _ =>
-		loc(_, new ClassBody(_.body.map(fromMethodDefinition))),
-	fromFunctionExpression = _ =>
-		loc(_, new FunctionExpression(
-			op(fromIdentifier, _.id),
-			_.params.map(fromPattern),
-			fromBlockStatement(_.body),
-			_.generator)),
-	fromExportSpecifier = _ =>
-		loc(_, new ExportSpecifier(fromIdentifier(_.exported), fromIdentifier(_.local)))
+function loc(object, ast) {
+	const loc = object.loc
+	if (loc !== undefined)
+		ast.loc = new Loc(
+			new Pos(loc.start.line, loc.start.column),
+			new Pos(loc.end.line, loc.end.column))
+	return ast
+}
+
+function fromIdentifier(_) {
+	return loc(_, new Identifier(_.name))
+}
+
+function fromVariableDeclarator(_) {
+	return loc(_, new VariableDeclarator(fromPattern(_.id), op(fromExpression, _.init)))
+}
+
+function fromSwitchCase(_) {
+	return loc(_, new SwitchCase(op(fromExpression, _.test), _.consequent.map(fromStatement)))
+}
+
+function fromBlockStatement(_) {
+	return loc(_, new BlockStatement(_.body.map(fromStatement)))
+}
+
+function fromCatchClause(_) {
+	return loc(_, new CatchClause(fromPattern(_.param), fromBlockStatement(_.body)))
+}
+
+function fromTemplateElement(_) {
+	return loc(_, new TemplateElement(_.tail, _.value))
+}
+
+function fromTemplateLiteral(_) {
+	return loc(_, new TemplateLiteral(
+		_.quasis.map(fromTemplateElement),
+		_.expressions.map(fromExpression)))
+}
+
+function fromAssignmentProperty(_) {
+	if (!(_.kind === 'init' && !_.method))
+		throw new Error(`AssignmentProperty has unusual value: ${JSON.stringify(_)}`)
+	return loc(_, new AssignmentProperty(fromIdentifier(_.key), fromPattern(_.value)))
+}
+
+function fromProperty(_) {
+	return loc(_, new Property(
+		_.kind,
+		fromIdentifierOrLiteral(_.key),
+		fromExpression(_.value),
+		_.method))
+}
+
+function fromMethodDefinition(_) {
+	return loc(_, new MethodDefinition(
+		fromIdentifierOrLiteral(_.key),
+		fromFunctionExpression(_.value),
+		_.kind,
+		_.static,
+		_.computed))
+}
+
+function fromClassBody(_) {
+	return loc(_, new ClassBody(_.body.map(fromMethodDefinition)))
+}
+
+function fromFunctionExpression(_) {
+	return loc(_, new FunctionExpression(
+		op(fromIdentifier, _.id),
+		_.params.map(fromPattern),
+		fromBlockStatement(_.body),
+		_.generator))
+}
+
+function fromExportSpecifier(_) {
+	return loc(_, new ExportSpecifier(fromIdentifier(_.exported), fromIdentifier(_.local)))
+}
 
 const
 	fromBlockStatementOrExpression = fromObject,

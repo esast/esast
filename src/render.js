@@ -50,136 +50,136 @@ let strOut,
 	// options
 	ugly
 
-const
-	setUp = (options, inPath, outPath) => {
-		ugly = Boolean(options.ugly)
+function setUp(options, inPath, outPath) {
+	ugly = Boolean(options.ugly)
 
-		indentAmount = 0
-		_setIndent()
-		strOut = ''
-		usingSourceMaps = inPath !== undefined
-		if (usingSourceMaps) {
-			inFilePath = inPath
-			sourceMap = new SourceMapGenerator({file: outPath})
-			outLine = StartLine
-			outColumn = StartColumn
-			lastMappedAst = null
-		}
-	},
-
-	tearDown = () => {
-		strOut = ''
-		inFilePath = sourceMap = curAst = lastMappedAst = undefined
-	}
-
-const
-	// Renders a single expression.
-	e = ast => {
-		if (usingSourceMaps)
-			curAst = ast
-		ast.render()
-	},
-
-	// Outputs a string.
-	// str may not contain newlines.
-	o = str => {
-		strOut = strOut + str
-		if (usingSourceMaps)
-			_mapStr(str)
-	},
-
-	interleave = (asts, str) => {
-		if (!isEmpty(asts)) {
-			const maxI = asts.length - 1
-			for (let i = 0; i < maxI; i = i + 1) {
-				e(asts[i])
-				o(str)
-			}
-			e(asts[maxI])
-		}
-	},
-
-	paren = asts => {
-		o('(')
-		interleave(asts, ',')
-		o(')')
-	},
-
-	block = (blockLines, lineSeparator) => {
-		if (isEmpty(blockLines))
-			o('{}')
-		else {
-			o('{')
-			indent()
-			nl()
-			lines(blockLines, lineSeparator)
-			unindent()
-			nl()
-			o('}')
-		}
-	},
-
-	lines = (lines, lineSeparator) => {
-		if (lines.length > 0) {
-			const maxI = lines.length - 1
-			for (let i = 0; i < maxI; i = i + 1) {
-				e(lines[i])
-				o(lineSeparator)
-				nl()
-			}
-			e(lines[maxI])
-		}
-	},
-
-	indentStrs = [''],
-	_setIndent = () => {
-		indentStr = indentStrs[indentAmount]
-		while (indentStr === undefined) {
-			indentStrs.push(last(indentStrs) + '\t')
-			indentStr = indentStrs[indentAmount]
-		}
-	},
-	indent = () => {
-		if (!ugly) {
-			indentAmount = indentAmount + 1
-			_setIndent()
-		}
-	},
-	unindent = () => {
-		if (!ugly) {
-			indentAmount = indentAmount - 1
-			_setIndent()
-		}
-	},
-
-	nl = () => {
-		if (!ugly) {
-			strOut = strOut + '\n' + indentStr
-			if (usingSourceMaps)
-				_mapNewLine()
-		}
-	},
-
-	// Private
-
-	_mapStr = str => {
-		if (curAst !== lastMappedAst && curAst.loc !== undefined) {
-			sourceMap.addMapping({
-				source: inFilePath,
-				original: curAst.loc.start,
-				generated: new Pos(outLine, outColumn)
-			})
-			lastMappedAst = curAst
-		}
-		outColumn = outColumn + str.length
-	},
-
-	_mapNewLine = () => {
-		outLine = outLine + 1
-		outColumn = StartColumn + indentAmount
-		// Mappings end at end of line. Must begin anew.
+	indentAmount = 0
+	_setIndent()
+	strOut = ''
+	usingSourceMaps = inPath !== undefined
+	if (usingSourceMaps) {
+		inFilePath = inPath
+		sourceMap = new SourceMapGenerator({file: outPath})
+		outLine = StartLine
+		outColumn = StartColumn
 		lastMappedAst = null
 	}
+}
+
+function tearDown() {
+	strOut = ''
+	inFilePath = sourceMap = curAst = lastMappedAst = undefined
+}
+
+// Renders a single expression.
+function e(ast) {
+	if (usingSourceMaps)
+		curAst = ast
+	ast.render()
+}
+
+// Outputs a string.
+// str may not contain newlines.
+function o(str) {
+	strOut = strOut + str
+	if (usingSourceMaps)
+		_mapStr(str)
+}
+
+function interleave(asts, str) {
+	if (!isEmpty(asts)) {
+		const maxI = asts.length - 1
+		for (let i = 0; i < maxI; i = i + 1) {
+			e(asts[i])
+			o(str)
+		}
+		e(asts[maxI])
+	}
+}
+
+function paren(asts) {
+	o('(')
+	interleave(asts, ',')
+	o(')')
+}
+
+function block(blockLines, lineSeparator) {
+	if (isEmpty(blockLines))
+		o('{}')
+	else {
+		o('{')
+		indent()
+		nl()
+		lines(blockLines, lineSeparator)
+		unindent()
+		nl()
+		o('}')
+	}
+}
+
+function lines(lines, lineSeparator) {
+	if (lines.length > 0) {
+		const maxI = lines.length - 1
+		for (let i = 0; i < maxI; i = i + 1) {
+			e(lines[i])
+			o(lineSeparator)
+			nl()
+		}
+		e(lines[maxI])
+	}
+}
+
+const indentStrs = ['']
+function _setIndent() {
+	indentStr = indentStrs[indentAmount]
+	while (indentStr === undefined) {
+		indentStrs.push(last(indentStrs) + '\t')
+		indentStr = indentStrs[indentAmount]
+	}
+}
+
+function indent() {
+	if (!ugly) {
+		indentAmount = indentAmount + 1
+		_setIndent()
+	}
+}
+
+function unindent() {
+	if (!ugly) {
+		indentAmount = indentAmount - 1
+		_setIndent()
+	}
+}
+
+function nl() {
+	if (!ugly) {
+		strOut = strOut + '\n' + indentStr
+		if (usingSourceMaps)
+			_mapNewLine()
+	}
+}
+
+// Private
+function _mapStr(str) {
+	if (curAst !== lastMappedAst && curAst.loc !== undefined) {
+		sourceMap.addMapping({
+			source: inFilePath,
+			original: curAst.loc.start,
+			generated: new Pos(outLine, outColumn)
+		})
+		lastMappedAst = curAst
+	}
+	outColumn = outColumn + str.length
+}
+function _mapNewLine() {
+	outLine = outLine + 1
+	outColumn = StartColumn + indentAmount
+	// Mappings end at end of line. Must begin anew.
+	lastMappedAst = null
+}
+
+// Implementations used more than once
 
 function fun() {
 	o(this.generator ? 'function*' : 'function')
