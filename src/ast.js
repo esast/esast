@@ -383,18 +383,9 @@ export class Program extends Node {
 
 	/** Accepted kinds of {@link Property}. */
 	export const PropertyKind = new Set(['init', 'get', 'set'])
-	/**
-	Part of an ObjectExpression.
-	If kind is 'get' or 'set', then value should be a FunctionExpression.
-	*/
+	/** Part of an ObjectExpression. */
 	export class Property extends Node {
-		constructor(kind, key, value, method) {
-			// TODO:ES6 Optional args
-			if (value === undefined)
-				value = key
-			// TODO:ES6 Optional args
-			if (method === undefined)
-				method = false
+		constructor(kind, key, value=key, computed=!(key instanceof Identifier), method=false) {
 			super()
 			/** @type {PropertyKind} */
 			this.kind = kind
@@ -402,6 +393,8 @@ export class Program extends Node {
 			this.key = key
 			/** @type {Expression} */
 			this.value = value
+			/** @type {boolean} */
+			this.computed = computed
 			/** @type {boolean} */
 			this.method = method
 
@@ -414,14 +407,16 @@ export class Program extends Node {
 						'that is stored in the `key` of the Property.')
 				if (this.value.generator)
 					throw new Error('get/set can not be a generator.')
+				if (this.method)
+					throw new Error('get/set can not have method: true.')
+			} else if (this.method) {
+				if (!(this.value instanceof FunctionExpression))
+					throw new Error('method Property\'s value must be a FunctionExpression.')
 			}
 		}
 
 		get shorthand() {
 			return this.value === this.key
-		}
-		get computed() {
-			return !(this.key instanceof Identifier)
 		}
 	}
 

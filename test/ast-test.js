@@ -20,6 +20,7 @@ import {equal} from './util'
 
 const
 	a = new Identifier('a'), b = new Identifier('b'), c = new Identifier('c'),
+	d = new Identifier('d'), e = new Identifier('e'),
 	one = new Literal(1), two = new Literal(2),
 	doOne = new ExpressionStatement(one), blockDoOne = new BlockStatement([doOne]),
 	emptyBlock = new BlockStatement([]),
@@ -227,19 +228,33 @@ const tests = {
 			src: `
 				a({
 					a:1,
-					get b(){
+					b(){
 						1
 					},
-					set "c"(a){
+					*c(){
+						1
+					},
+					[d]:2,
+					get e(){
+						1
+					},
+					set ["f"](a){
 						1
 					}
 				})`,
 			ast: new CallExpression(a, [
 				new ObjectExpression([
 					new Property('init', a, one),
-					new Property('get', b,
+					new Property('init', b,
+						new FunctionExpression(null, [], blockDoOne),
+						false, true),
+					new Property('init', c,
+						new FunctionExpression(null, [], blockDoOne, true),
+						false, true),
+					new Property('init', d, two, true),
+					new Property('get', e,
 						new FunctionExpression(null, [], blockDoOne)),
-					new Property('set', new Literal('c'),
+					new Property('set', new Literal('f'),
 						new FunctionExpression(null, [a], blockDoOne))
 				])
 			])

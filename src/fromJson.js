@@ -255,6 +255,7 @@ function fromProperty(_) {
 		_.kind,
 		fromIdentifierOrLiteral(_.key),
 		fromExpression(_.value),
+		_.computed,
 		_.method))
 }
 

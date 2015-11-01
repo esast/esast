@@ -397,16 +397,34 @@ implementMany(Ast, 'render', {
 			block(this.properties, ',')
 	},
 	Property() {
+		const outputKey = () => {
+			if (this.computed) {
+				o('[')
+				e(this.key)
+				o(']')
+			} else
+				e(this.key)
+		}
+		const outputFun = () => {
+			outputKey()
+			paren(this.value.params)
+			e(this.value.body)
+		}
+
 		if (this.kind === 'init') {
-			e(this.key)
-			o(':')
-			e(this.value)
+			if (this.method) {
+				if (this.value.generator)
+					o('*')
+				outputFun()
+			} else {
+				outputKey()
+				o(':')
+				e(this.value)
+			}
 		} else {
 			o(this.kind)
 			o(' ')
-			e(this.key)
-			paren(this.value.params)
-			e(this.value.body)
+			outputFun()
 		}
 	},
 	FunctionExpression: fun,

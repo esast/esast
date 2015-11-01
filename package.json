@@ -21,7 +21,7 @@
 		"babel-plugin-transform-es2015-modules-umd": "6.0.14",
 		"babel-plugin-transform-es2015-parameters": "6.0.14",
 		"babel-plugin-transform-strict-mode": "6.0.14",
-		"esdoc": "0.4.1",
+		"esdoc": "0.4.2",
 		"eslint": "1.8.0",
 		"mocha": "2.3.3",
 
