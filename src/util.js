@@ -44,12 +44,6 @@ export function propertyIdOrLiteral(propertyName) {
 		new Literal(propertyName)
 }
 
-export function functionExpressionThunk(body, generator) {
-	return generator ?
-		new FunctionExpression(null, [], body, true) :
-		new ArrowFunctionExpression([], body)
-}
-
 /**
 Convert any {@link Node} into one that can be used as the content of a line.
 (esast requires all expression lines to be wrapped with {@link ExpressionStatement}.)
