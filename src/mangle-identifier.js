@@ -28,7 +28,7 @@ export function unmangle(name) {
 	}
 	return name.replace(/_\d+/g, match => {
 		const charCode = match.slice(1)
-		const n = Number.parseInt(charCode)
+		const n = Number.parseInt(charCode, 10)
 		const ch = String.fromCharCode(n)
 		return ch === '\0' ? match : ch
 	})

@@ -1,3 +1,5 @@
+/* eslint-disable indent */
+
 /** Base type of all ASTs. */
 export class Node {
 	/**
@@ -73,7 +75,7 @@ export class Program extends Node {
 	export class VariableDeclarator extends Node {
 		constructor(id, init) {
 			// TODO:ES6 Optional args
-			if (init=== undefined)
+			if (init === undefined)
 				init = null
 			super()
 			/** @type {Pattern} */
@@ -385,7 +387,8 @@ export class Program extends Node {
 	export const PropertyKind = new Set(['init', 'get', 'set'])
 	/** Part of an ObjectExpression. */
 	export class Property extends Node {
-		constructor(kind, key, value=key, computed=!(key instanceof Identifier), method=false) {
+		constructor(kind, key,
+			value = key, computed = !(key instanceof Identifier), method = false) {
 			super()
 			/** @type {PropertyKind} */
 			this.kind = kind
@@ -409,10 +412,8 @@ export class Program extends Node {
 					throw new Error('get/set can not be a generator.')
 				if (this.method)
 					throw new Error('get/set can not have method: true.')
-			} else if (this.method) {
-				if (!(this.value instanceof FunctionExpression))
-					throw new Error('method Property\'s value must be a FunctionExpression.')
-			}
+			} else if (this.method && !(this.value instanceof FunctionExpression))
+				throw new Error('method Property\'s value must be a FunctionExpression.')
 		}
 
 		get shorthand() {
@@ -815,7 +816,7 @@ export class Program extends Node {
 			if (computed === undefined)
 				computed = false
 			if (kind === 'constructor' && !(
-				key instanceof Identifier  && key.name === 'constructor' && !_static && !computed))
+				key instanceof Identifier && key.name === 'constructor' && !_static && !computed))
 				throw new Error(
 					'Constructor method should created with `MethodDefinition.constructor`.')
 			super()

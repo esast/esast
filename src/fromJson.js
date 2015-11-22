@@ -202,7 +202,7 @@ export default function fromObject(_) {
 }
 
 function op(func, optional) {
-	return optional == null ? null : func(optional)
+	return optional === null || optional === undefined ? null : func(optional)
 }
 
 function loc(object, ast) {

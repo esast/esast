@@ -11,7 +11,7 @@ Creates JavaScript source code from a {@link Node}.
 @param {boolean} options.ugly
 	If true, will not output any whitespace.
 */
-export default function render(ast /* Node */, options) {
+export default function render(ast, options) {
 	// TODO:ES6 Optional args
 	if (options === undefined)
 		options = {}
@@ -133,7 +133,7 @@ const indentStrs = ['']
 function _setIndent() {
 	indentStr = indentStrs[indentAmount]
 	while (indentStr === undefined) {
-		indentStrs.push(last(indentStrs) + '\t')
+		indentStrs.push(`${last(indentStrs)}\t`)
 		indentStr = indentStrs[indentAmount]
 	}
 }
@@ -154,7 +154,7 @@ function unindent() {
 
 function nl() {
 	if (!ugly) {
-		strOut = strOut + '\n' + indentStr
+		strOut = `${strOut}\n${indentStr}`
 		if (usingSourceMaps)
 			_mapNewLine()
 	}
@@ -284,11 +284,12 @@ implementMany(Ast, 'render', {
 		}
 	},
 	SwitchCase() {
-		if (this.test !== null) {
+		if (this.test === null)
+			o('default')
+		else {
 			o('case ')
 			e(this.test)
-		} else
-			o('default')
+		}
 		o(':')
 		switch (this.consequent.length) {
 			case 0:
@@ -310,11 +311,12 @@ implementMany(Ast, 'render', {
 		block(this.cases, '')
 	},
 	ReturnStatement() {
-		if (this.argument !== null) {
+		if (this.argument === null)
+			o('return')
+		else {
 			o('return ')
 			e(this.argument)
-		} else
-			o('return')
+		}
 	},
 	ThrowStatement() {
 		o('throw ')
@@ -411,7 +413,7 @@ implementMany(Ast, 'render', {
 			e(this.value.body)
 		}
 
-		if (this.kind === 'init') {
+		if (this.kind === 'init')
 			if (this.method) {
 				if (this.value.generator)
 					o('*')
@@ -421,7 +423,7 @@ implementMany(Ast, 'render', {
 				o(':')
 				e(this.value)
 			}
-		} else {
+		else {
 			o(this.kind)
 			o(' ')
 			outputFun()
@@ -625,7 +627,7 @@ implementMany(Ast, 'render', {
 		o('import ')
 
 		let def, namespace
-		let specifiers = []
+		const specifiers = []
 		for (const s of this.specifiers) {
 			if (s instanceof ImportDefaultSpecifier)
 				if (def === undefined)
@@ -690,9 +692,7 @@ implementMany(Ast, 'render', {
 	},
 	ExportNamedDeclaration() {
 		o('export ')
-		if (this.declaration !== null)
-			e(this.declaration)
-		else {
+		if (this.declaration === null) {
 			o('{')
 			interleave(this.specifiers, ',')
 			o('}')
@@ -700,7 +700,8 @@ implementMany(Ast, 'render', {
 				o(' from ')
 				e(this.source)
 			}
-		}
+		} else
+			e(this.declaration)
 	},
 	ExportDefaultDeclaration() {
 		o('export default ')
@@ -712,18 +713,18 @@ implementMany(Ast, 'render', {
 	}
 })
 
-const
-	escapeStringForLiteral = str =>
-		str.replace(/[\\"\n\t\b\f\v\r\u2028\u2029]/g, ch => literalEscapes[ch]),
-	literalEscapes = {
-		'\\': '\\\\',
-		'"': '\\"',
-		'\n': '\\n',
-		'\t': '\\t',
-		'\b': '\\b',
-		'\f': '\\f',
-		'\v': '\\v',
-		'\r': '\\r',
-		'\u2028': '\\u2028',
-		'\u2029': '\\u2029'
-	}
+function escapeStringForLiteral(str) {
+	return str.replace(/[\\"\n\t\b\f\v\r\u2028\u2029]/g, ch => literalEscapes.get(ch))
+}
+
+const literalEscapes = new Map([
+	['\\', '\\\\'],
+	['"', '\\"'],
+	['\n', '\\n'],
+	['\t', '\\t'],
+	['\b', '\\b'],
+	['\f', '\\f'],
+	['\v', '\\v'],
+	['\r', '\\r'],
+	['\u2028', '\\u2028'],
+	['\u2029', '\\u2029']])

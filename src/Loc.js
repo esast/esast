@@ -1,7 +1,9 @@
 /** Represents a single location in the source string. */
 export class Pos {
-	constructor(line /* Number */, column /* Number */) {
+	constructor(line, column) {
+		/** @type {number} */
 		this.line = line
+		/** @type {number} */
 		this.column = column
 	}
 
@@ -36,11 +38,17 @@ export class Pos {
 
 /** Range of text in the source string. */
 export default class Loc {
-	constructor(start /* Pos */, end /* Pos */) {
+	constructor(start, end) {
+		/**
+		Beginning of text.
+		@type {Pos}
+		*/
 		this.start = start
-		/** Beginning of text. */
+		/**
+		End of text.
+		@type {Pos}
+		*/
 		this.end = end
-		/** End of text. */
 	}
 
 	/** @override */

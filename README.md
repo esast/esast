@@ -4,7 +4,7 @@ Includes super-fast renderer.
 This is ideal for languages compiling to JavaScript.
 Rather than outputting a string directly, just call esast constructors and call `render` at the end.
 
-See documentation [here](https://doc.esdoc.org/github.com/mason-lang/esast/).
+See documentation [here](http://mason-lang.org/esast).
 
 
 ## Get Started

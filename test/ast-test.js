@@ -589,12 +589,11 @@ const doTest = ({src: indentedSrc, ast}) => {
 }
 
 describe('roundtrip', () => {
-	for (let key in tests)
+	for (const key in tests)
 		it(key, () => {
 			const t = tests[key]
 			if (t instanceof Array)
-				for (let test of t)
-					doTest(test)
+				t.forEach(doTest)
 			else
 				doTest(t)
 		})

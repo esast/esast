@@ -1,5 +1,5 @@
-import {ArrowFunctionExpression, Declaration, ExpressionStatement, FunctionExpression,
-	Identifier, Literal, MemberExpression, Statement} from './ast'
+import {Declaration, ExpressionStatement, Identifier, Literal, MemberExpression, Statement
+	} from './ast'
 import mangleIdentifier, {propertyNameOk} from './mangle-identifier'
 
 /**
