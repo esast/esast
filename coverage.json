@@ -1,0 +1,111 @@
+{
+  "coverage": "76.07%",
+  "expectCount": 301,
+  "actualCount": 229,
+  "files": {
+    "src/ast.js": {
+      "expectCount": 270,
+      "actualCount": 203,
+      "undocumentLines": [
+        160,
+        342,
+        364,
+        49,
+        772,
+        616,
+        854,
+        944,
+        388,
+        931,
+        841,
+        311,
+        114,
+        811,
+        243,
+        425,
+        50,
+        231,
+        216,
+        439,
+        271,
+        343,
+        922,
+        454,
+        794,
+        202,
+        468,
+        65,
+        782,
+        908,
+        962,
+        495,
+        755,
+        74,
+        743,
+        189,
+        728,
+        518,
+        696,
+        93,
+        652,
+        174,
+        632,
+        536,
+        296,
+        893,
+        984,
+        554,
+        126,
+        604,
+        365,
+        151,
+        567,
+        282,
+        260,
+        583,
+        867,
+        377,
+        135,
+        594,
+        324,
+        993,
+        767,
+        768,
+        418,
+        769,
+        766
+      ]
+    },
+    "src/Loc.js": {
+      "expectCount": 18,
+      "actualCount": 13,
+      "undocumentLines": [
+        5,
+        3,
+        39,
+        4,
+        40
+      ]
+    },
+    "src/mangle-identifier.js": {
+      "expectCount": 5,
+      "actualCount": 5,
+      "undocumentLines": []
+    },
+    "src/fromJson.js": {
+      "expectCount": 1,
+      "actualCount": 1,
+      "undocumentLines": []
+    },
+    "src/util.js": {
+      "expectCount": 5,
+      "actualCount": 5,
+      "undocumentLines": []
+    },
+    "src/render.js": {
+      "expectCount": 2,
+      "actualCount": 2,
+      "undocumentLines": []
+    }
+  }
+}

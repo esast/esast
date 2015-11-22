@@ -1,0 +1,89 @@
+{
+	"name": "esast",
+	"version": "0.0.0",
+	"scripts": {
+		"build": "babel src --out-dir dist --source-maps inline",
+		"watch": "babel src --out-dir dist --source-maps inline --watch",
+		"doc": "esdoc -c esdoc.json",
+		"lint": "eslint src test",
+		"compile-test": "babel test --out-dir compiled-test --source-maps inline",
+		"test": "npm run compile-test && mocha compiled-test/*.js",
+		"perf-test": "npm run compile-test && node compiled-test/perf-test"
+	},
+	"files": ["src", "dist"],
+	"dependencies": {
+		"source-map": "mozilla/source-map"
+	},
+	"devDependencies": {
+		"acorn": "2.5.2",
+		"babel-cli": "6.2.0",
+		"babel-plugin-transform-es2015-destructuring": "6.1.18",
+		"babel-plugin-transform-es2015-modules-umd": "6.1.18",
+		"babel-plugin-transform-es2015-parameters": "6.1.18",
+		"babel-plugin-transform-strict-mode": "6.2.0",
+		"esdoc": "0.4.3",
+		"eslint": "1.10.1",
+		"mocha": "2.3.4",
+
+		"benchmark": "latest",
+		"microtime": "latest",
+		"escodegen": "latest",
+		"esotope": "latest"
+	},
+	"repository": "mason-lang/esast",
+	"babel": {
+		"plugins": [
+			"transform-es2015-destructuring",
+			"transform-es2015-modules-umd",
+			"transform-es2015-parameters",
+			"transform-strict-mode"
+		]
+	},
+	"eslintConfig": {
+		"ecmaFeatures": {
+			"arrowFunctions": true,
+			"blockBindings": true,
+			"classes": true,
+			"defaultParams": true,
+			"destructuring": true,
+			"forOf": true,
+			"generators": true,
+			"modules": true,
+			"objectLiteralShorthandMethods": true,
+			"objectLiteralShortandProperties": true,
+			"restParams": true,
+			"spread": true,
+			"templateStrings": true
+		},
+		"globals": {"console": true, "describe": true, "it": true, "module": true, "require": true},
+		"rules": {
+			"array-bracket-spacing": 1,
+			"comma-style": [1, "last"],
+			"curly": [1, "multi"],
+			"default-case": 1,
+			"generator-star-spacing": [1, "after"],
+			"max-len": [1, 100, 4],
+			"no-extra-parens": 1,
+			"no-floating-decimal": 1,
+			"no-multiple-empty-lines": [1, {"max": 2}],
+			"no-plusplus": 1,
+			"no-spaced-func": 1,
+			"no-throw-literal": 1,
+			"no-trailing-spaces": 1,
+			"no-unused-vars": 1,
+			"no-var": 1,
+			"no-void": 1,
+			"no-undef": 1,
+			"object-curly-spacing": 1,
+			"operator-assignment": [1, "never"],
+			"padded-blocks": [1, "never"],
+			"quote-props": [1, "as-needed"],
+			"quotes": [1, "single"],
+			"space-before-blocks": [1, "always"],
+			"space-before-function-paren": [1, "never"],
+			"spaced-comment": 1,
+			"space-in-parens": [1, "never"]
+		}
+	},
+	"license": "WTFPL"
+}

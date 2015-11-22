@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/fromJson.js | esast API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <a data-ice="repoURL" href="https://github.com/mason-lang/esast" class="repo-url-github">Repository</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Loc.js~Loc.html">Loc</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/Loc.js~Pos.html">Pos</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ArrayExpression.html">ArrayExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ArrayPattern.html">ArrayPattern</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ArrowFunctionExpression.html">ArrowFunctionExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~AssignmentExpression.html">AssignmentExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~AssignmentProperty.html">AssignmentProperty</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~BinaryExpression.html">BinaryExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~BlockStatement.html">BlockStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~BreakStatement.html">BreakStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~CallExpression.html">CallExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~CatchClause.html">CatchClause</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Class.html">Class</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ClassBody.html">ClassBody</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ClassDeclaration.html">ClassDeclaration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ClassExpression.html">ClassExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ConditionalExpression.html">ConditionalExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ContinueStatement.html">ContinueStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~DebuggerStatement.html">DebuggerStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Declaration.html">Declaration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~DoWhileStatement.html">DoWhileStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~EmptyStatement.html">EmptyStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ExportAllDeclaration.html">ExportAllDeclaration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ExportDefaultDeclaration.html">ExportDefaultDeclaration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ExportNamedDeclaration.html">ExportNamedDeclaration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ExportSpecifier.html">ExportSpecifier</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Expression.html">Expression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ExpressionStatement.html">ExpressionStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ForInStatement.html">ForInStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ForOfStatement.html">ForOfStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ForStatement.html">ForStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~FunctionAbstract.html">FunctionAbstract</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~FunctionDeclaration.html">FunctionDeclaration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~FunctionExpression.html">FunctionExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~FunctionNonArrow.html">FunctionNonArrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Identifier.html">Identifier</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~IfStatement.html">IfStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ImportDeclaration.html">ImportDeclaration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ImportDefaultSpecifier.html">ImportDefaultSpecifier</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ImportNamespaceSpecifier.html">ImportNamespaceSpecifier</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ImportSpecifier.html">ImportSpecifier</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ImportSpecifierAbstract.html">ImportSpecifierAbstract</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~LabeledStatement.html">LabeledStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Literal.html">Literal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~LogicalExpression.html">LogicalExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~MemberExpression.html">MemberExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~MethodDefinition.html">MethodDefinition</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ModuleSpecifier.html">ModuleSpecifier</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~NewExpression.html">NewExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Node.html">Node</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ObjectExpression.html">ObjectExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ObjectPattern.html">ObjectPattern</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Pattern.html">Pattern</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Program.html">Program</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Property.html">Property</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~RestElement.html">RestElement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ReturnStatement.html">ReturnStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~SequenceExpression.html">SequenceExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~SpreadElement.html">SpreadElement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~Statement.html">Statement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~SwitchCase.html">SwitchCase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~SwitchStatement.html">SwitchStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~TaggedTemplateExpression.html">TaggedTemplateExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~TemplateElement.html">TemplateElement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~TemplateLiteral.html">TemplateLiteral</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ThisExpression.html">ThisExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~ThrowStatement.html">ThrowStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~TryStatement.html">TryStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~UnaryExpression.html">UnaryExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~UpdateExpression.html">UpdateExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~VariableDeclaration.html">VariableDeclaration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~VariableDeclarator.html">VariableDeclarator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~WhileStatement.html">WhileStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/ast.js~YieldExpression.html">YieldExpression</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-singleCharLoc">singleCharLoc</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-fromObject">fromObject</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-mangleIdentifier">mangleIdentifier</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-needsMangle">needsMangle</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-propertyNameOk">propertyNameOk</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-unmangle">unmangle</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-render">render</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderWithSourceMap">renderWithSourceMap</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-identifier">identifier</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-loc">loc</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-member">member</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-propertyIdOrLiteral">propertyIdOrLiteral</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-toStatement">toStatement</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-StartColumn">StartColumn</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-StartLine">StartLine</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-StartPos">StartPos</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-AssignmentOperator">AssignmentOperator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-BinaryOperator">BinaryOperator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-LogicalOperator">LogicalOperator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-MethodDefinitionKind">MethodDefinitionKind</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-PropertyKind">PropertyKind</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-UnaryOperator">UnaryOperator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-UpdateOperator">UpdateOperator</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-VariableDeclarationKind">VariableDeclarationKind</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-forbiddenNames">forbiddenNames</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/fromJson.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {
+	AssignmentProperty, ArrayExpression, ArrayPattern, ArrowFunctionExpression,
+	AssignmentExpression, BinaryExpression, BlockStatement, BreakStatement, CallExpression,
+	CatchClause, ClassBody, ClassDeclaration, ClassExpression, ConditionalExpression,
+	ContinueStatement, DebuggerStatement, DoWhileStatement, EmptyStatement, ExpressionStatement,
+	ExportSpecifier, ExportNamedDeclaration, ExportDefaultDeclaration, ExportAllDeclaration,
+	ForStatement, ForInStatement, ForOfStatement, FunctionDeclaration, FunctionExpression,
+	Identifier, IfStatement, ImportDeclaration, ImportSpecifier, ImportDefaultSpecifier,
+	ImportNamespaceSpecifier, LabeledStatement, Literal, LogicalExpression, MemberExpression,
+	MethodDefinition, NewExpression, ObjectExpression, ObjectPattern, Program, Property,
+	RestElement, ReturnStatement, SequenceExpression, SpreadElement, SwitchCase, SwitchStatement,
+	TaggedTemplateExpression, TemplateElement, TemplateLiteral, ThisExpression, ThrowStatement,
+	TryStatement, UpdateExpression, UnaryExpression, VariableDeclarator, VariableDeclaration,
+	WhileStatement, YieldExpression} from &apos;./ast&apos;
+import Loc, {Pos} from &apos;./Loc&apos;
+
+/** Converts a plain object to a {@link Node}. */
+export default function fromObject(_) {
+	switch (_.type) {
+		case &apos;Program&apos;:
+			return loc(_, new Program(_.body.map(fromStatement)))
+		case &apos;Identifier&apos;:
+			return fromIdentifier(_)
+		case &apos;VariableDeclarator&apos;:
+			return fromVariableDeclarator(_)
+		case &apos;VariableDeclaration&apos;:
+			return loc(_,
+				new VariableDeclaration(_.kind, _.declarations.map(fromVariableDeclarator)))
+		case &apos;EmptyStatement&apos;:
+			return loc(_, new EmptyStatement())
+		case &apos;BlockStatement&apos;:
+			return loc(_, fromBlockStatement(_))
+		case &apos;ExpressionStatement&apos;:
+			return loc(_, new ExpressionStatement(fromExpression(_.expression)))
+		case &apos;IfStatement&apos;:
+			return loc(_, new IfStatement(
+				fromExpression(_.test),
+				fromStatement(_.consequent),
+				op(fromStatement, _.alternate)))
+		case &apos;LabeledStatement&apos;:
+			return loc(_, new LabeledStatement(fromIdentifier(_.label), fromStatement(_.body)))
+		case &apos;BreakStatement&apos;:
+			return loc(_, new BreakStatement(op(fromIdentifier, _.label)))
+		case &apos;ContinueStatement&apos;:
+			return loc(_, new ContinueStatement(op(fromIdentifier, _.label)))
+		case &apos;SwitchCase&apos;:
+			return fromSwitchCase(_)
+		case &apos;SwitchStatement&apos;:
+			return loc(_, new SwitchStatement(
+				fromExpression(_.discriminant),
+				_.cases.map(fromSwitchCase)))
+		case &apos;ReturnStatement&apos;:
+			return loc(_, new ReturnStatement(op(fromExpression, _.argument)))
+		case &apos;ThrowStatement&apos;:
+			return loc(_, new ThrowStatement(fromExpression(_.argument)))
+		case &apos;CatchClause&apos;:
+			return fromCatchClause(_)
+		case &apos;TryStatement&apos;:
+			return loc(_, new TryStatement(
+				fromBlockStatement(_.block),
+				op(fromCatchClause, _.handler),
+				op(fromBlockStatement, _.finalizer)))
+		case &apos;WhileStatement&apos;:
+			return loc(_, new WhileStatement(fromExpression(_.test), fromStatement(_.body)))
+		case &apos;DoWhileStatement&apos;:
+			return loc(_, new DoWhileStatement(fromStatement(_.body), fromExpression(_.test)))
+		case &apos;ForStatement&apos;:
+			return loc(_, new ForStatement(
+				op(fromExpressionOrVariableDeclaration, _.init),
+				op(fromExpression, _.test),
+				op(fromStatement, _.update),
+				fromStatement(_.body)))
+		case &apos;ForInStatement&apos;:
+			return loc(_, new ForInStatement(
+				fromExpressionOrVariableDeclaration(_.left),
+				fromExpression(_.right),
+				fromStatement(_.body)))
+		case &apos;ForOfStatement&apos;:
+			return loc(_, new ForOfStatement(
+				fromExpressionOrVariableDeclaration(_.left),
+				fromExpression(_.right),
+				fromStatement(_.body)))
+		case &apos;DebuggerStatement&apos;:
+			return loc(_, new DebuggerStatement())
+		case &apos;FunctionDeclaration&apos;:
+			return loc(_, new FunctionDeclaration(
+				fromIdentifier(_.id),
+				_.params.map(fromIdentifier),
+				fromBlockStatement(_.body),
+				_.generator))
+		case &apos;Literal&apos;:
+			return loc(_, new Literal(_.value))
+		case &apos;ThisExpression&apos;:
+			return loc(_, new ThisExpression())
+		case &apos;ArrayExpression&apos;:
+			return loc(_, new ArrayExpression(_.elements.map(_ =&gt; op(fromExpression, _))))
+		case &apos;Property&apos;:
+			return fromProperty(_)
+		case &apos;ObjectExpression&apos;:
+			return loc(_, new ObjectExpression(_.properties.map(fromProperty)))
+		case &apos;FunctionExpression&apos;:
+			return fromFunctionExpression(_)
+		case &apos;ArrowFunctionExpression&apos;:
+			return loc(_, new ArrowFunctionExpression(
+				_.params.map(fromPattern),
+				fromBlockStatementOrExpression(_.body)))
+		case &apos;SequenceExpression&apos;:
+			return loc(_, new SequenceExpression(_.expressions.map(fromExpression)))
+		case &apos;UnaryExpression&apos;:
+			return loc(_, new UnaryExpression(_.operator, fromExpression(_.argument)))
+		case &apos;BinaryExpression&apos;:
+			return loc(_, new BinaryExpression(
+				_.operator,
+				fromExpression(_.left),
+				fromExpression(_.right)))
+		case &apos;AssignmentExpression&apos;:
+			return loc(_, new AssignmentExpression(
+				_.operator,
+				fromPattern(_.left),
+				fromExpression(_.right)))
+		case &apos;UpdateExpression&apos;:
+			return loc(_, new UpdateExpression(_.operator, fromExpression(_.argument), _.prefix))
+		case &apos;LogicalExpression&apos;:
+			return loc(_, new LogicalExpression(
+				_.operator,
+				fromExpression(_.left),
+				fromExpression(_.right)))
+		case &apos;ConditionalExpression&apos;:
+			return loc(_, new ConditionalExpression(
+				fromExpression(_.test),
+				fromExpression(_.consequent),
+				fromExpression(_.alternate)))
+		case &apos;NewExpression&apos;:
+			return loc(_, new NewExpression(
+				fromExpression(_.callee),
+				_.arguments.map(fromExpression)))
+		case &apos;CallExpression&apos;:
+			return loc(_, new CallExpression(
+				fromExpression(_.callee),
+				_.arguments.map(fromExpression)))
+		case &apos;SpreadElement&apos;:
+			return loc(_, new SpreadElement(fromExpression(_.argument)))
+		case &apos;MemberExpression&apos;:
+			return loc(_, new MemberExpression(
+				fromExpression(_.object),
+				fromExpression(_.property)))
+		case &apos;YieldExpression&apos;:
+			return loc(_, new YieldExpression(fromExpression(_.argument), _.delegate))
+		case &apos;TemplateElement&apos;:
+			return fromTemplateElement(_)
+		case &apos;TemplateLiteral&apos;:
+			return fromTemplateLiteral(_)
+		case &apos;TaggedTemplateExpression&apos;:
+			return loc(_, new TaggedTemplateExpression(
+				fromExpression(_.tag),
+				fromTemplateLiteral(_.quasi)))
+		case &apos;AssignmentProperty&apos;:
+			return fromAssignmentProperty(_)
+		case &apos;ObjectPattern&apos;:
+			return loc(_, new ObjectPattern(_.properties.map(fromAssignmentProperty)))
+		case &apos;ArrayPattern&apos;:
+			return loc(_, new ArrayPattern(_.elements.map(e =&gt; op(fromPattern, e))))
+		case &apos;RestElement&apos;:
+			return loc(_, new RestElement(fromExpression(_.argument)))
+		case &apos;MethodDefinition&apos;:
+			return fromMethodDefinition(_)
+		case &apos;ClassBody&apos;:
+			return fromClassBody(_)
+		case &apos;ClassDeclaration&apos;:
+			return loc(_, new ClassDeclaration(
+				fromIdentifier(_.id),
+				op(fromExpression, _.superClass),
+				fromClassBody(_.body)))
+		case &apos;ClassExpression&apos;:
+			return loc(_, new ClassExpression(
+				op(fromIdentifier, _.id),
+				op(fromExpression, _.superClass),
+				fromClassBody(_.body)))
+		case &apos;ImportDeclaration&apos;:
+			return loc(_, new ImportDeclaration(
+				_.specifiers.map(fromImportSpecifierAbstract),
+				fromLiteralString(_.source)))
+		case &apos;ImportSpecifier&apos;:
+			return loc(_, new ImportSpecifier(fromIdentifier(_.imported), fromIdentifier(_.local)))
+		case &apos;ImportDefaultSpecifier&apos;:
+			return loc(_, new ImportDefaultSpecifier(fromIdentifier(_.local)))
+		case &apos;ImportNamespaceSpecifier&apos;:
+			return loc(_, new ImportNamespaceSpecifier(fromIdentifier(_.local)))
+		case &apos;ExportSpeciifer&apos;:
+			return fromExportSpecifier(_)
+		case &apos;ExportNamedDeclaration&apos;:
+			return loc(_, new ExportNamedDeclaration(
+				op(fromDeclaration, _.declaration),
+				_.specifiers.map(fromExportSpecifier),
+				op(fromLiteralString, _.source)))
+		case &apos;ExportDefaultDeclaration&apos;:
+			return loc(_, new ExportDefaultDeclaration(fromExpressionOrDeclaration(_.declaration)))
+		case &apos;ExportAllDeclaration&apos;:
+			return loc(_, new ExportAllDeclaration(fromLiteralString(_.source)))
+		default: throw new Error(`Bad type: ${_.type}`)
+	}
+}
+
+function op(func, optional) {
+	return optional == null ? null : func(optional)
+}
+
+function loc(object, ast) {
+	const loc = object.loc
+	if (loc !== undefined)
+		ast.loc = new Loc(
+			new Pos(loc.start.line, loc.start.column),
+			new Pos(loc.end.line, loc.end.column))
+	return ast
+}
+
+function fromIdentifier(_) {
+	return loc(_, new Identifier(_.name))
+}
+
+function fromVariableDeclarator(_) {
+	return loc(_, new VariableDeclarator(fromPattern(_.id), op(fromExpression, _.init)))
+}
+
+function fromSwitchCase(_) {
+	return loc(_, new SwitchCase(op(fromExpression, _.test), _.consequent.map(fromStatement)))
+}
+
+function fromBlockStatement(_) {
+	return loc(_, new BlockStatement(_.body.map(fromStatement)))
+}
+
+function fromCatchClause(_) {
+	return loc(_, new CatchClause(fromPattern(_.param), fromBlockStatement(_.body)))
+}
+
+function fromTemplateElement(_) {
+	return loc(_, new TemplateElement(_.tail, _.value))
+}
+
+function fromTemplateLiteral(_) {
+	return loc(_, new TemplateLiteral(
+		_.quasis.map(fromTemplateElement),
+		_.expressions.map(fromExpression)))
+}
+
+function fromAssignmentProperty(_) {
+	if (!(_.kind === &apos;init&apos; &amp;&amp; !_.method))
+		throw new Error(`AssignmentProperty has unusual value: ${JSON.stringify(_)}`)
+	return loc(_, new AssignmentProperty(fromIdentifier(_.key), fromPattern(_.value)))
+}
+
+function fromProperty(_) {
+	return loc(_, new Property(
+		_.kind,
+		fromIdentifierOrLiteral(_.key),
+		fromExpression(_.value),
+		_.computed,
+		_.method))
+}
+
+function fromMethodDefinition(_) {
+	return loc(_, new MethodDefinition(
+		fromIdentifierOrLiteral(_.key),
+		fromFunctionExpression(_.value),
+		_.kind,
+		_.static,
+		_.computed))
+}
+
+function fromClassBody(_) {
+	return loc(_, new ClassBody(_.body.map(fromMethodDefinition)))
+}
+
+function fromFunctionExpression(_) {
+	return loc(_, new FunctionExpression(
+		op(fromIdentifier, _.id),
+		_.params.map(fromPattern),
+		fromBlockStatement(_.body),
+		_.generator))
+}
+
+function fromExportSpecifier(_) {
+	return loc(_, new ExportSpecifier(fromIdentifier(_.exported), fromIdentifier(_.local)))
+}
+
+const
+	fromBlockStatementOrExpression = fromObject,
+	fromDeclaration = fromObject,
+	fromExpression = fromObject,
+	fromExpressionOrDeclaration = fromObject,
+	fromExpressionOrVariableDeclaration = fromObject,
+	fromIdentifierOrLiteral = fromObject,
+	fromImportSpecifierAbstract = fromObject,
+	fromLiteralString = fromObject,
+	fromPattern = fromObject,
+	fromStatement = fromObject
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.3)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>
