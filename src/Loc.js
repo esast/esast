@@ -7,6 +7,12 @@ export class Pos {
 		this.column = column
 	}
 
+	/** -1 if this comes earlier in the code, 1 if this comes later, 0 if they are the same. */
+	compare(pos) {
+		const lineDiff = this.line - pos.line
+		return lineDiff === 0 ? this.column - pos.column : lineDiff
+	}
+
 	/** Advance the pos by any character. */
 	next(ch) {
 		return ch === '\n' ? this.onNextLine() : this.onNextColumn()
@@ -49,6 +55,12 @@ export default class Loc {
 		@type {Pos}
 		*/
 		this.end = end
+	}
+
+	/** Compare by `start`, then by `end`. */
+	compare(loc) {
+		const startDiff = this.start.compare(loc.start)
+		return startDiff === 0 ? this.end.compare(loc.end) : startDiff
 	}
 
 	/** @override */
