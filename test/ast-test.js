@@ -387,14 +387,6 @@ const tests = {
 	},
 	Literal: [
 		{
-			src: '1',
-			ast: one
-		},
-		{
-			src: '1.5',
-			ast: new Literal(1.5)
-		},
-		{
 			src: '"a\\nb\\u2029"',
 			ast: new Literal('a\nb\u2029')
 		},
@@ -405,9 +397,21 @@ const tests = {
 		{
 			src: 'null',
 			ast: new Literal(null)
+		},
+		{
+			src: '1',
+			ast: one
+		},
+		{
+			src: '1.5',
+			ast: new Literal(1.5)
+		},
+		{
+			// TODO:ES6 test`y` flag
+			src: '/foo/gim',
+			ast: new Literal(/foo/gim)
 		}
 	],
-
 	TemplateLiteral: [
 		{
 			src: '`a${b}a`',
@@ -567,7 +571,7 @@ const parseProgramBody = src => {
 	return first instanceof ExpressionStatement ? first.expression : first
 }
 
-const doTest = ({src: indentedSrc, ast}) => {
+function doTest({src: indentedSrc, ast}) {
 	const src = dedent(indentedSrc)
 	const parsedAst = parseProgramBody(src)
 	if (!equal(ast, parsedAst)) {
@@ -606,7 +610,7 @@ describe('roundtrip', () => {
 //	c`
 // have too much indentation.
 // This will change it to "a\n\tb\nc" by detecting the first line's indentation.
-const dedent = str => {
+function dedent(str) {
 	if (str[0] !== '\n')
 		return str
 

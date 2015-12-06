@@ -10,7 +10,8 @@ export class Node {
 		const obj = { }
 		obj.type = this.type
 		// Sort to make JSON rendering deterministic.
-		Object.keys(this).sort().forEach(key => { obj[key] = this[key] })
+		for (const key of Object.keys(this).sort())
+			obj[key] = this[key]
 		return obj
 	}
 
@@ -366,10 +367,26 @@ export class Program extends Node {
 	export class Literal extends Expression {
 		constructor(value) {
 			super()
-			/** @type {number|string|boolean|null} */
+			/** @type {string | boolean | null | number | RegExp} */
 			this.value = value
 		}
+
+		toJSON() {
+			const value = this.value instanceof RegExp ?
+				{pattern: this.value.source, flags: this.value.flags} :
+				this.value
+			return {type: 'Literal', value}
+		}
 	}
+
+	// TODO:ES6 kill
+	if (RegExp.prototype.flags === undefined)
+		/* eslint-disable no-extend-native */
+		Object.defineProperty(RegExp.prototype, 'flags', {
+			get() {
+				return this.toString().match(/[gimy]*$/)[0]
+			}
+		})
 
 	/** The `this` keyword. */
 	export class ThisExpression extends Expression { }
@@ -764,9 +781,15 @@ export class Program extends Node {
 			this.value = value
 		}
 
-		get type() { return 'Property' }
-		get kind() { return 'init' }
-		get method() { return false }
+		get type() {
+			return 'Property'
+		}
+		get kind() {
+			return 'init'
+		}
+		get method() {
+			return false
+		}
 		get shorthand() {
 			return this.value === this.key
 		}

@@ -366,8 +366,12 @@ implementMany(Ast, 'render', {
 		o(')')
 		e(this.body)
 	},
-	ForInStatement() { forInOf(this, ' in ') },
-	ForOfStatement() { forInOf(this, ' of ') },
+	ForInStatement() {
+		forInOf(this, ' in ')
+	},
+	ForOfStatement() {
+		forInOf(this, ' of ')
+	},
 	DebuggerStatement() {
 		o('debugger')
 	},
@@ -533,8 +537,7 @@ implementMany(Ast, 'render', {
 			o('"')
 			o(escapeStringForLiteral(this.value))
 			o('"')
-		}
-		else
+		} else
 			o(this.value === null ? 'null' : this.value.toString())
 	},
 
@@ -628,7 +631,7 @@ implementMany(Ast, 'render', {
 
 		let def, namespace
 		const specifiers = []
-		for (const s of this.specifiers) {
+		for (const s of this.specifiers)
 			if (s instanceof ImportDefaultSpecifier)
 				if (def === undefined)
 					def = s
@@ -642,7 +645,6 @@ implementMany(Ast, 'render', {
 			else
 				// ImportSpecifier
 				specifiers.push(s)
-		}
 
 		let needComma = false
 		if (def !== undefined) {

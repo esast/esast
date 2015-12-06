@@ -88,8 +88,17 @@ export default function fromObject(_) {
 				_.params.map(fromIdentifier),
 				fromBlockStatement(_.body),
 				_.generator))
-		case 'Literal':
-			return loc(_, new Literal(_.value))
+		case 'Literal': {
+			let value = _.value
+			if (value instanceof Object && !(value instanceof RegExp)) {
+				const {pattern, flags} = value
+				if (pattern === undefined || flags === undefined)
+					throw new Error(
+						`Literal of object expected to be a RegExp {pattern, flags}, got: ${value}`)
+				value = new RegExp(pattern, flags)
+			}
+			return loc(_, new Literal(value))
+		}
 		case 'ThisExpression':
 			return loc(_, new ThisExpression())
 		case 'ArrayExpression':
