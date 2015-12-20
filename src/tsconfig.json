@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"removeComments": true,
+
+		"module": "umd",
+		"target": "ES6",
+
+		"experimentalDecorators": true,
+		"noImplicitAny": true
+	}
+}

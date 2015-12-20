@@ -1,11 +1,9 @@
 {
 	"name": "esast",
 	"dependencies": {
-		"source-map": "mozilla/source-map"
+		"op": "esast/op"
 	},
-	"main": "dist/**/*",
-	"ignore": ["compiled-test", "node_modules", "test", "package.json", "README.md"],
+	"ignore": ["package.json", "readme.md"],
 	"moduleType": "amd",
-	"private": true,
-	"license": "WTFPL"
+	"license": "Unlicense"
 }
